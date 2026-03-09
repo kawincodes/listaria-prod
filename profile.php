@@ -166,6 +166,20 @@ $stmt = $pdo->prepare($purchases_sql);
 $stmt->execute([$user_id]);
 $my_purchases = $stmt->fetchAll();
 
+// Fetch My Sales (as Seller — orders placed on my products)
+$my_sales = [];
+$sales_sql = "
+    SELECT o.*, p.title as product_title, p.image_paths, u.full_name as buyer_name
+    FROM orders o
+    JOIN products p ON o.product_id = p.id
+    JOIN users u ON o.user_id = u.id
+    WHERE p.user_id = ?
+    ORDER BY o.created_at DESC
+";
+$stmt = $pdo->prepare($sales_sql);
+$stmt->execute([$user_id]);
+$my_sales = $stmt->fetchAll();
+
 // Fetch Returns (As Seller)
 $seller_returns_sql = "
     SELECT r.*, p.title, u.full_name as buyer_name
@@ -423,7 +437,7 @@ usort($all_negotiations, function($a, $b) {
         </div>
 
         <!-- Orders Tab Content -->
-        <div id="tab-orders" class="tab-content">
+        <div id="tab-orders" class="tab-content <?php echo $active_tab === 'orders' ? 'active' : ''; ?>">
             <?php if (count($my_purchases) > 0): ?>
                 <div class="listings-list">
                     <?php foreach ($my_purchases as $order): 
@@ -464,10 +478,55 @@ usort($all_negotiations, function($a, $b) {
             <?php else: ?>
                  <p style="text-align:center; padding:2rem; color:#888;">No orders found.</p>
             <?php endif; ?>
+
+            <!-- My Sales (as Seller) -->
+            <?php if (count($my_sales) > 0): ?>
+            <div style="margin-top:30px;">
+                <div style="background:#f0fdf4; padding:10px 15px; border-radius:8px; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center; border-left:4px solid #22c55e;">
+                    <h2 style="font-size:1.1rem; margin:0; color:#15803d;">My Sales</h2>
+                    <span style="font-size:0.85rem; color:#16a34a; font-weight:600;"><?php echo count($my_sales); ?> order<?php echo count($my_sales) !== 1 ? 's' : ''; ?></span>
+                </div>
+                <div class="listings-list">
+                    <?php foreach ($my_sales as $sale):
+                        $simages = json_decode($sale['image_paths']);
+                        $sthumb = $simages[0] ?? 'https://via.placeholder.com/100';
+                        $statusColor = '#27ae60';
+                        $sts = strtolower($sale['order_status'] ?? 'processing');
+                        if ($sts === 'processing') $statusColor = '#f59e0b';
+                        elseif ($sts === 'shipped') $statusColor = '#3b82f6';
+                        elseif ($sts === 'cancelled') $statusColor = '#ef4444';
+                    ?>
+                        <div class="listing-card">
+                            <div class="card-img">
+                                <img src="<?php echo htmlspecialchars($sthumb); ?>" alt="Product">
+                            </div>
+                            <div class="card-details">
+                                <h3 class="card-title"><?php echo htmlspecialchars($sale['product_title']); ?></h3>
+                                <p style="font-size:0.85rem; color:#666;">Buyer: <?php echo htmlspecialchars($sale['buyer_name']); ?></p>
+                                <div class="card-price" style="margin-top:5px;">₹<?php echo number_format($sale['amount']); ?></div>
+                                <div style="display:flex; gap:8px; align-items:center; margin-top:5px; flex-wrap:wrap;">
+                                    <span style="color:<?php echo $statusColor; ?>; font-size:0.8rem; font-weight:600;">
+                                        <?php echo ucfirst($sale['order_status'] ?? 'Processing'); ?>
+                                    </span>
+                                    <span style="color:#94a3b8; font-size:0.75rem;">
+                                        <?php echo date('M j, Y', strtotime($sale['created_at'])); ?>
+                                    </span>
+                                    <?php if(!empty($sale['payment_method'])): ?>
+                                    <span style="background:#f1f5f9; color:#64748b; font-size:0.75rem; padding:2px 8px; border-radius:10px;">
+                                        <?php echo htmlspecialchars(strtoupper($sale['payment_method'])); ?>
+                                    </span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <?php endif; ?>
         </div>
 
         <!-- Returns Tab Content -->
-        <div id="tab-returns" class="tab-content">
+        <div id="tab-returns" class="tab-content <?php echo $active_tab === 'returns' ? 'active' : ''; ?>">
             
             <!-- My Returns (As Buyer) -->
              <?php if (count($my_buyer_returns) > 0): ?>
@@ -1068,19 +1127,20 @@ let currentNegotiationId = null;
 let pollInterval = null;
 
 function switchTab(tabName) {
-    // Hide all tabs
-    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(el => {
+        el.classList.remove('active');
+        el.style.display = 'none';
+    });
     document.querySelectorAll('.c-tab').forEach(el => el.classList.remove('active'));
 
-    // Show active
-    document.getElementById('tab-' + tabName).classList.add('active');
-    
-    // Highlight tab
-    const tabs = document.querySelectorAll('.c-tab');
-    if(tabName === 'offers') tabs[0].classList.add('active');
-    if(tabName === 'listings') tabs[1].classList.add('active');
-    if(tabName === 'orders') tabs[2].classList.add('active');
-    if(tabName === 'returns') tabs[3].classList.add('active');
+    const target = document.getElementById('tab-' + tabName);
+    if (target) { target.classList.add('active'); target.style.display = 'block'; }
+
+    document.querySelectorAll('.c-tab').forEach(t => {
+        if (t.getAttribute('onclick') && t.getAttribute('onclick').includes(tabName)) t.classList.add('active');
+    });
+
+    if (tabName === 'offers') { if (typeof renderNegotiations === 'function') renderNegotiations(); }
 }
 
 function openChat(id) {
@@ -1950,45 +2010,6 @@ function shareListing(id, title) {
 </div>
 
 <script>
-function switchTab(tabName) {
-    // Hide all contents
-    const contents = document.querySelectorAll('.tab-content');
-    contents.forEach(el => el.style.display = 'none');
-    
-    // Deactivate all tabs
-    const tabs = document.querySelectorAll('.c-tab');
-    tabs.forEach(el => el.classList.remove('active'));
-    
-    // Show target content
-    const target = document.getElementById('tab-' + tabName);
-    if(target) target.style.display = 'block';
-    
-    // Activate target tab
-    // Ideally pass 'this' or find by index, but simplistic approach:
-    // This assumes specific order or manual handling if duplicate names
-    // For now, let's just use the onclick to set active class logic if passed, 
-    // or we can rely on the simple implementation:
-    // iterate and match text content or dataset?
-    // Let's just do a simple mapping or query selector based on text for now or 
-    // better: we update the onclick in HTML to pass 'this' but that requires editing top file.
-    // Instead, let's just select by index or logical mapping.
-    // Actually, simpler: just remove active from all, and the user Clicked element adds active.
-    // But here we are inside function called by onclick.
-    // We can find the tab that has onclick="switchTab('tabName')"
-    
-    // Let's find tabs by text content or just assume order if fixed.
-    // Quick fix: loop tabs and check onclick attribute
-    tabs.forEach(t => {
-        if(t.getAttribute('onclick').includes(tabName)) {
-            t.classList.add('active');
-        }
-    });
-
-    if (tabName === 'offers') {
-        renderNegotiations();
-    }
-}
-
 function openVendorSettings() {
     window.location.href = 'vendor_settings.php';
 }

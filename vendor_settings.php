@@ -172,7 +172,7 @@ include 'includes/header.php';
         padding: 16px;
         background: #f8fafc;
         border: 1px solid #e2e8f0;
-        border_radius: 12px;
+        border-radius: 12px;
         margin-bottom: 12px;
         text-decoration: none;
         color: var(--primary-text);
