@@ -1,50 +1,96 @@
 # Listaria Marketplace
 
-A luxury e-commerce marketplace platform built in PHP with SQLite.
+A luxury e-commerce marketplace platform rebuilt with CodeIgniter 4 (CI4) MVC framework and SQLite.
 
 ## Architecture
 
+- **Framework**: CodeIgniter 4 (CI4)
 - **Language**: PHP 8.2
 - **Database**: SQLite (`database.sqlite` in project root)
-- **Server**: PHP built-in server (`php -S 0.0.0.0:5000`)
-- **Config**: `php.ini` in project root (Linux-compatible)
-- **DB Connection**: `includes/db.php` (PDO/SQLite)
-- **Env Config**: `includes/config.php` loads `.env` file
+- **Server**: PHP built-in server with CI4 router script
+- **Config**: `php.ini` in project root
+- **Web Root**: `ci4public/` directory (CI4 front controller)
 
-## Key Files
+## Key Files & Directories
 
-- `index.php` - Main marketplace homepage
-- `includes/db.php` - Database connection (SQLite via PDO)
-- `includes/config.php` - Environment variable loader
-- `includes/email_templates.php` - Email template helper (getEmailTemplate, renderEmailTemplate)
-- `database.sqlite` - SQLite database
-- `.env` - Environment variables (SITE_ROOT_URL, Google OAuth, reCAPTCHA keys)
-- Env vars for SMTP: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` (optional, overrides DB settings)
-- `php.ini` - PHP configuration
+- `ci4public/` - Web root (index.php, .htrouter.php, assets/, uploads/)
+- `ci4public/.htrouter.php` - PHP built-in server router script
+- `app/Config/Routes.php` - All application routes
+- `app/Config/Database.php` - SQLite database config (`WRITEPATH . '../database.sqlite'`)
+- `app/Config/Filters.php` - Auth/admin filter registration
+- `app/Config/App.php` - Base URL and app config
+- `app/Controllers/` - All frontend controllers
+- `app/Controllers/Admin/` - All admin controllers (16 controllers)
+- `app/Filters/AuthFilter.php` - Authentication filter
+- `app/Filters/AdminFilter.php` - Admin access filter
+- `app/Models/` - 14 Eloquent-style models
+- `app/Views/` - All view templates (layouts, partials, auth, home, product, profile, pages, order, admin)
+- `database.sqlite` - SQLite database with all data
+- `php.ini` - PHP configuration (uploads, memory)
 
-## Project Structure
+## Admin Credentials
 
-- Root `.php` files - Frontend pages (index, thrift, about, stores, vendor, etc.)
-- `admin_*.php` - Admin panel pages (dashboard, settings, email templates, pages, etc.)
-- `includes/` - Shared PHP includes (db, config, header, footer, email templates, etc.)
-- `uploads/` - User-uploaded images
+- Email: `admin@listaria.com`
+- Password: `admin123`
+- Role: `super_admin` (access to Roles, Activity, Security pages)
 
-## Email Template System
+## Models (14)
 
-- `admin_email_templates.php` - Admin UI for managing email templates
-- `includes/email_templates.php` - Helper with defaults and rendering functions
-- DB table: `email_templates` (template_key, name, subject, body, variables, is_active)
-- Templates use `{{variable_name}}` placeholders replaced at send time
-- 7 default templates: order_confirmation, shipping_update, listing_approved, listing_rejected, welcome_email, order_delivered, support_reply
-- Use `renderEmailTemplate($pdo, 'template_key', ['var' => 'value'])` to render
+UserModel, ProductModel, OrderModel, BlogModel, BannerModel, SiteSettingModel, CustomPageModel, EmailTemplateModel, NegotiationModel, MessageModel, WishlistModel, ProductRequestModel, ReturnModel, SupportTicketModel
+
+## Admin Controllers (16)
+
+DashboardController, UsersController, ListingsController, TransactionsController, ReturnsController, SupportController, ChatsController, BlogsController, PagesController, BannersController, RequestsController, RolesController, ActivityController, SecurityController, SettingsController, EmailTemplatesController
+
+## Frontend Routes
+
+- `/` - Homepage with products, banners, category filters
+- `/login`, `/register` - Authentication
+- `/product/:id` - Product detail page
+- `/sell` - List new product (auth required)
+- `/profile` - User dashboard (auth required)
+- `/profile/settings` - Profile settings
+- `/profile/orders` - Order history
+- `/blogs`, `/blog/:id` - Blog listing and detail
+- `/stores` - Vendor stores
+- `/about`, `/terms`, `/privacy`, `/founders`, `/refund` - Static pages
+- `/wishlist` - User wishlist (auth required)
+- `/requests` - Product requests
+- `/shipping`, `/payment-method`, `/place-order` - Checkout flow
+- `/order-summary/:id` - Order confirmation
+- `/page/:slug` - Custom CMS pages
+
+## Admin Routes (under `/admin/`)
+
+Dashboard, Analytics, Users, Listings, Transactions, Returns, Support, Chats, Blogs, Pages, Banners, Requests, Roles, Activity, Security, Settings, Email Templates
+
+## API Endpoints (under `/api/`)
+
+- `POST /api/chat/send` - Send chat message
+- `GET /api/chat/messages/:id` - Get chat messages
+- `GET /api/search` - Search products
+- `POST /api/wishlist/toggle` - Toggle wishlist
+- `POST /api/bulk-upload` - CSV bulk product upload
+- `POST /api/validate-coupon` - Validate coupon
+- `POST /api/update-listing` - Update product listing
+- `POST /api/bulk-listing-action` - Bulk listing actions
+
+## Session & Auth
+
+- CI4 session-based authentication
+- Session keys: `user_id`, `full_name`, `account_type`, `is_admin`, `role`
+- `AuthFilter` protects user routes, `AdminFilter` protects admin routes
+- Super admin features: Roles, Activity Logs, Security (requires `role === 'super_admin'`)
+
+## Design
+
+- Primary color: `#6B21A8` (purple)
+- Admin sidebar: `#1a1a1a` dark theme
+- Font: Inter (Google Fonts)
+- Icons: Ionicons 5.5.2
 
 ## Running
 
-The app runs via PHP's built-in server on port 5000:
 ```
-php -c php.ini -S 0.0.0.0:5000
+php -c php.ini -S 0.0.0.0:5000 -t ci4public ci4public/.htrouter.php
 ```
-
-## Deployment
-
-Configured for autoscale deployment with the same PHP server command.
