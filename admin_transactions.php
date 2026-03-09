@@ -1,6 +1,7 @@
 <?php
 session_start();
 require 'includes/db.php';
+require_once 'includes/email_templates.php';
 
 $activePage = 'transactions';
 
@@ -68,8 +69,71 @@ if (isset($_POST['update_order_status'])) {
                 $msg .= " Product marked as AVAILABLE.";
             }
         }
+
+        // Send email notification to buyer
+        $oRow = $pdo->prepare("SELECT o.*, u.email, u.full_name, p.title as product_title FROM orders o JOIN users u ON o.user_id = u.id JOIN products p ON o.product_id = p.id WHERE o.id = ?");
+        $oRow->execute([$oid]);
+        $oData = $oRow->fetch();
+        if ($oData) {
+            $profileUrl = 'https://listaria.in/profile.php';
+            $statusLower = strtolower($status);
+            if ($statusLower === 'shipped' || $statusLower === 'out for delivery') {
+                sendTemplateMail($pdo, 'shipping_update', $oData['email'], [
+                    'customer_name'   => $oData['full_name'],
+                    'order_id'        => $oid,
+                    'product_title'   => $oData['product_title'],
+                    'delivery_date'   => $delivery_date ? date('M j, Y', strtotime($delivery_date)) : 'To be confirmed',
+                    'shipping_status' => $status,
+                    'profile_url'     => $profileUrl,
+                ], $oData['full_name']);
+            } elseif ($statusLower === 'delivered') {
+                sendTemplateMail($pdo, 'order_delivered', $oData['email'], [
+                    'customer_name' => $oData['full_name'],
+                    'order_id'      => $oid,
+                    'product_title' => $oData['product_title'],
+                    'profile_url'   => $profileUrl,
+                ], $oData['full_name']);
+            } else {
+                sendTemplateMail($pdo, 'order_status_update', $oData['email'], [
+                    'customer_name' => $oData['full_name'],
+                    'order_id'      => $oid,
+                    'product_title' => $oData['product_title'],
+                    'new_status'    => $status,
+                    'profile_url'   => $profileUrl,
+                ], $oData['full_name']);
+            }
+        }
     } else {
         $msg = "Failed to update status.";
+    }
+}
+
+// Send email after admin verifies PhonePe payment
+if (isset($_POST['verify_payment_id'])) {
+    $verifiedOid = $_POST['verify_payment_id'];
+    $vRow = $pdo->prepare("SELECT o.*, u.email, u.full_name, p.title as product_title, sel.email as seller_email, sel.full_name as seller_name FROM orders o JOIN users u ON o.user_id = u.id JOIN products p ON o.product_id = p.id JOIN users sel ON p.user_id = sel.id WHERE o.id = ?");
+    $vRow->execute([$verifiedOid]);
+    $vData = $vRow->fetch();
+    if ($vData) {
+        $profileUrl = 'https://listaria.in/profile.php';
+        sendTemplateMail($pdo, 'order_confirmation', $vData['email'], [
+            'customer_name'  => $vData['full_name'],
+            'order_id'       => $verifiedOid,
+            'product_title'  => $vData['product_title'],
+            'order_amount'   => '₹' . number_format((float)$vData['amount'], 2),
+            'order_date'     => date('M j, Y'),
+            'payment_method' => 'PhonePe / UPI',
+            'profile_url'    => $profileUrl,
+        ], $vData['full_name']);
+        sendTemplateMail($pdo, 'new_sale_notification', $vData['seller_email'], [
+            'seller_name'   => $vData['seller_name'],
+            'order_id'      => $verifiedOid,
+            'product_title' => $vData['product_title'],
+            'order_amount'  => '₹' . number_format((float)$vData['amount'], 2),
+            'buyer_name'    => $vData['full_name'],
+            'order_date'    => date('M j, Y'),
+            'profile_url'   => $profileUrl,
+        ], $vData['seller_name']);
     }
 }
 

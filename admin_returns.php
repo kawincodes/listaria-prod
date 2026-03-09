@@ -1,6 +1,7 @@
 <?php
 session_start();
 require 'includes/db.php';
+require_once 'includes/email_templates.php';
 $activePage = 'returns';
 
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['is_admin']) || $_SESSION['is_admin'] != 1) {
@@ -56,6 +57,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $pdo->prepare("UPDATE orders SET order_status = 'Refunded' WHERE id = ?")->execute([$rDetails['order_id']]);
                     $pdo->prepare("UPDATE products SET status = 'active', approval_status = 'approved' WHERE id = ?")->execute([$rDetails['product_id']]);
                 }
+            }
+
+            // Email buyer about return status update
+            $retRow = $pdo->prepare("SELECT r.reason, u.email, u.full_name, p.title AS product_title, r.order_id FROM returns r JOIN users u ON r.user_id = u.id JOIN products p ON r.product_id = p.id WHERE r.id = ?");
+            $retRow->execute([$returnId]);
+            $retData = $retRow->fetch();
+            if ($retData) {
+                $statusMessages = [
+                    'approved'         => 'Your return request has been approved. We will arrange pickup shortly.',
+                    'rejected'         => 'Unfortunately your return request could not be approved. Please contact support for assistance.',
+                    'item_collected'   => 'We have collected the item. Your refund is being processed.',
+                    'refunded'         => 'Your refund has been processed. Please allow 3-5 business days for it to reflect.',
+                    'under_review'     => 'Your return is currently under review by our team.',
+                    'pickup_scheduled' => 'A pickup has been scheduled for your return item.',
+                ];
+                $statusMsg = $statusMessages[$newStatus] ?? 'The status of your return has been updated.';
+                sendTemplateMail($pdo, 'return_status_update', $retData['email'], [
+                    'customer_name'  => $retData['full_name'],
+                    'order_id'       => $retData['order_id'],
+                    'product_title'  => $retData['product_title'],
+                    'return_status'  => ucfirst(str_replace('_', ' ', $newStatus)),
+                    'status_message' => $statusMsg,
+                    'profile_url'    => 'https://listaria.in/profile.php',
+                ], $retData['full_name']);
             }
         } else {
             $message = '<div class="alert error"><ion-icon name="alert-circle"></ion-icon> Failed to update status.</div>';

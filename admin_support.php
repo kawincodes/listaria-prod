@@ -1,6 +1,7 @@
 <?php
 session_start();
 require 'includes/db.php';
+require_once 'includes/email_templates.php';
 
 $activePage = 'support';
 
@@ -61,37 +62,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['reply_ticket'])) {
         $ticketId = $_POST['ticket_id'];
         $reply = trim($_POST['reply']);
-        
-        // Fetch ticket details for email
+
+        // Update DB first
+        $pdo->prepare("UPDATE support_tickets SET admin_reply = ?, status = 'in_progress' WHERE id = ?")
+            ->execute([$reply, $ticketId]);
+
+        // Fetch ticket details and send email via SMTP template
         $stmt = $pdo->prepare("SELECT email, name FROM support_tickets WHERE id = ?");
         $stmt->execute([$ticketId]);
         $ticket = $stmt->fetch();
 
         if ($ticket && $ticket['email']) {
-            $to = $ticket['email'];
-            $subject = "Reply to your Support Request #$ticketId - Listaria";
-            $message = "Hi " . $ticket['name'] . ",\n\n" . $reply . "\n\nBest Regards,\nListaria Support Team";
-            $headers = "From: no-reply@listaria.com\r\n" .
-                       "Reply-To: support@listaria.com\r\n" .
-                       "X-Mailer: PHP/" . phpversion();
-
-            // Try sending email (might require SMTP config on Windows/Localhost)
-            try {
-                if(@mail($to, $subject, $message, $headers)) {
-                    $msg = "Reply sent and email dispatched to $to.";
-                } else {
-                     $msg = "Reply saved, but failed to send email (check server config).";
-                }
-            } catch (Exception $e) {
-                $msg = "Reply saved. Email error: " . $e->getMessage();
-            }
+            $sent = sendTemplateMail($pdo, 'support_reply', $ticket['email'], [
+                'user_name'      => $ticket['name'],
+                'ticket_id'      => $ticketId,
+                'reply_message'  => $reply,
+                'support_url'    => 'https://listaria.in/help_support.php',
+            ], $ticket['name']);
+            $msg = $sent
+                ? "Reply sent and email dispatched to {$ticket['email']}."
+                : "Reply saved, but email delivery failed (check SMTP settings).";
         } else {
-            $msg = "Reply saved (No email found for this ticket).";
+            $msg = "Reply saved (no email address found for this ticket).";
         }
-
-        // Update DB
-        $pdo->prepare("UPDATE support_tickets SET admin_reply = ?, status = 'in_progress' WHERE id = ?")
-            ->execute([$reply, $ticketId]);
     }
 }
 

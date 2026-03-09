@@ -1,5 +1,6 @@
 <?php
 require 'includes/db.php';
+require_once 'includes/email_templates.php';
 session_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -48,6 +49,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Commit
             $pdo->commit();
+
+            // Send order emails for COD (PhonePe emails sent after payment verified by admin)
+            if ($pay_method === 'cod') {
+                try {
+                    $buyerRow = $pdo->prepare("SELECT full_name, email FROM users WHERE id = ?");
+                    $buyerRow->execute([$user_id]);
+                    $buyer = $buyerRow->fetch();
+
+                    $prodRow = $pdo->prepare("SELECT p.title, p.price_max, u.email AS seller_email, u.full_name AS seller_name FROM products p JOIN users u ON p.user_id = u.id WHERE p.id = ?");
+                    $prodRow->execute([$product_id]);
+                    $prod = $prodRow->fetch();
+
+                    $profileUrl = (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . '/profile.php';
+
+                    if ($buyer && $prod) {
+                        sendTemplateMail($pdo, 'order_confirmation', $buyer['email'], [
+                            'customer_name'  => $buyer['full_name'],
+                            'order_id'       => $order_id,
+                            'product_title'  => $prod['title'],
+                            'order_amount'   => '₹' . number_format((float)$amount, 2),
+                            'order_date'     => date('M j, Y'),
+                            'payment_method' => 'Cash on Delivery',
+                            'profile_url'    => $profileUrl,
+                        ], $buyer['full_name']);
+
+                        sendTemplateMail($pdo, 'new_sale_notification', $prod['seller_email'], [
+                            'seller_name'   => $prod['seller_name'],
+                            'order_id'      => $order_id,
+                            'product_title' => $prod['title'],
+                            'order_amount'  => '₹' . number_format((float)$amount, 2),
+                            'buyer_name'    => $buyer['full_name'],
+                            'order_date'    => date('M j, Y'),
+                            'profile_url'   => $profileUrl,
+                        ], $prod['seller_name']);
+                    }
+                } catch (Exception $ex) {
+                    error_log("Order email error (order #$order_id): " . $ex->getMessage());
+                }
+            }
 
             // Redirect based on Method
             if (isset($_POST['ajax']) && $_POST['ajax'] == 1) {

@@ -9,6 +9,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 require 'includes/db.php';
+require_once 'includes/email_templates.php';
 
 $user_id = $_SESSION['user_id'];
 $message = '';
@@ -107,6 +108,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['return_order_id'])) {
             $evidencePhotosJson = json_encode($photoPaths);
             if ($stmt->execute([$r_order_id, $user_id, $r_product_id, $r_reason, $r_details, $evidencePhotosJson, $videoPath])) {
                  $message = '<div class="alert success">Return request submitted successfully with evidence.</div>';
+                 // Email buyer confirmation
+                 $buyerRow = $pdo->prepare("SELECT email, full_name FROM users WHERE id = ?");
+                 $buyerRow->execute([$user_id]);
+                 $buyerInfo = $buyerRow->fetch();
+                 $prodRow = $pdo->prepare("SELECT title FROM products WHERE id = ?");
+                 $prodRow->execute([$r_product_id]);
+                 $prodTitle = $prodRow->fetchColumn();
+                 if ($buyerInfo && $prodTitle) {
+                     sendTemplateMail($pdo, 'return_submitted', $buyerInfo['email'], [
+                         'customer_name' => $buyerInfo['full_name'],
+                         'order_id'      => $r_order_id,
+                         'product_title' => $prodTitle,
+                         'return_reason' => $r_reason,
+                         'profile_url'   => 'https://listaria.in/profile.php',
+                     ], $buyerInfo['full_name']);
+                 }
             } else {
                  $message = '<div class="alert error">Failed to submit return request.</div>';
             }

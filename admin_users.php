@@ -1,6 +1,7 @@
 <?php
 session_start();
 require 'includes/db.php';
+require_once 'includes/email_templates.php';
 
 $activePage = 'users';
 
@@ -62,34 +63,29 @@ if (isset($_POST['action'])) {
             break;
         case 'approve_vendor':
             $pdo->prepare("UPDATE users SET vendor_status = 'approved', is_verified_vendor = 1, account_type = 'vendor' WHERE id = ?")->execute([$userId]);
+            $uRow = $pdo->prepare("SELECT email, full_name FROM users WHERE id = ?");
+            $uRow->execute([$userId]);
+            $uData = $uRow->fetch();
+            if ($uData) {
+                sendTemplateMail($pdo, 'vendor_approved', $uData['email'], [
+                    'user_name'     => $uData['full_name'],
+                    'dashboard_url' => 'https://listaria.in/profile.php',
+                ], $uData['full_name']);
+            }
             $msg = "Vendor application approved.";
             break;
         case 'reject_vendor':
             $reason = trim($_POST['rejection_reason'] ?? 'Did not meet vendor criteria.');
             $pdo->prepare("UPDATE users SET vendor_status = 'rejected', rejection_reason = ? WHERE id = ?")->execute([$reason, $userId]);
-            
-            // Fetch user email to send rejection notice
-            $stmt = $pdo->prepare("SELECT email, full_name FROM users WHERE id = ?");
-            $stmt->execute([$userId]);
-            $u = $stmt->fetch();
-            if ($u) {
-                try {
-                    $smtp = createSmtp($pdo);
-                    $subject = "Update on your Listaria Vendor Application";
-                    $body = "
-                        <h2>Hello {$u['full_name']},</h2>
-                        <p>Thank you for applying to become a verified vendor on Listaria.</p>
-                        <p>After careful review, we regret to inform you that we cannot approve your application at this time.</p>
-                        <p><strong>Reason:</strong> " . htmlspecialchars($reason) . "</p>
-                        <p>You may update your business details in your profile and re-apply in the future.</p>
-                        <br>
-                        <p>Best regards,<br>The Listaria Team</p>
-                    ";
-                    $smtp->send($u['email'], $subject, $body);
-                } catch (Exception $e) {
-                    // Log email error privately, but don't fail the rejection action.
-                    error_log("Failed to send vendor rejection email to {$u['email']}: " . $e->getMessage());
-                }
+            $uRow2 = $pdo->prepare("SELECT email, full_name FROM users WHERE id = ?");
+            $uRow2->execute([$userId]);
+            $uData2 = $uRow2->fetch();
+            if ($uData2) {
+                sendTemplateMail($pdo, 'vendor_rejected', $uData2['email'], [
+                    'user_name'        => $uData2['full_name'],
+                    'rejection_reason' => $reason,
+                    'support_url'      => 'https://listaria.in/help_support.php',
+                ], $uData2['full_name']);
             }
             $msg = "Vendor application rejected.";
             break;

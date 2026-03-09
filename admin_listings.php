@@ -1,33 +1,31 @@
 <?php
 session_start();
 require 'includes/db.php';
+require_once 'includes/email_templates.php';
 
 function sendApprovalEmail($pdo, $productId) {
-    try {
-        $stmt = $pdo->prepare("SELECT p.title, u.email, u.full_name FROM products p JOIN users u ON p.user_id = u.id WHERE p.id = ?");
-        $stmt->execute([$productId]);
-        $data = $stmt->fetch();
-        
-        if (!$data) return;
+    $stmt = $pdo->prepare("SELECT p.title, u.email, u.full_name FROM products p JOIN users u ON p.user_id = u.id WHERE p.id = ?");
+    $stmt->execute([$productId]);
+    $data = $stmt->fetch();
+    if (!$data) return;
+    sendTemplateMail($pdo, 'listing_approved', $data['email'], [
+        'seller_name'   => $data['full_name'],
+        'product_title' => $data['title'],
+        'dashboard_url' => 'https://listaria.in/profile.php',
+    ], $data['full_name']);
+}
 
-        $smtp = createSmtp($pdo);
-        
-        $subject = "Your Listing has been Approved! - Listaria";
-        $body = "
-            <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;'>
-                <h2 style='color: #6B21A8;'>Congratulations " . htmlspecialchars($data['full_name']) . "!</h2>
-                <p>We are happy to inform you that your product listing <strong>\"" . htmlspecialchars($data['title']) . "\"</strong> has been approved by our team.</p>
-                <p>It is now live on the platform and visible to potential buyers.</p>
-                <p>You can manage your listings from your <a href='https://listaria.in/profile.php' style='color: #6B21A8; text-decoration: none; font-weight: bold;'>Dashboard</a>.</p>
-                <hr style='border: 0; border-top: 1px solid #eee; margin: 20px 0;'>
-                <p style='font-size: 12px; color: #666;'>This is an automated message, please do not reply to this email.</p>
-            </div>
-        ";
-        
-        $smtp->send($data['email'], $subject, $body, 'Listaria Team');
-    } catch (Exception $e) {
-        error_log("Failed to send approval email for product $productId: " . $e->getMessage());
-    }
+function sendRejectionEmail($pdo, $productId, $reason = '') {
+    $stmt = $pdo->prepare("SELECT p.title, u.email, u.full_name FROM products p JOIN users u ON p.user_id = u.id WHERE p.id = ?");
+    $stmt->execute([$productId]);
+    $data = $stmt->fetch();
+    if (!$data) return;
+    sendTemplateMail($pdo, 'listing_rejected', $data['email'], [
+        'seller_name'      => $data['full_name'],
+        'product_title'    => $data['title'],
+        'rejection_reason' => $reason ?: 'Does not meet our listing quality standards.',
+        'dashboard_url'    => 'https://listaria.in/profile.php',
+    ], $data['full_name']);
 }
 
 $activePage = 'listings';
@@ -51,6 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if (isset($_POST['reject'])) {
         $pdo->prepare("UPDATE products SET approval_status = 'rejected' WHERE id = ?")->execute([$pid]);
+        sendRejectionEmail($pdo, $pid, $_POST['rejection_reason'] ?? '');
         $msg = "Listing rejected.";
     }
     
@@ -91,6 +90,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
             case 'reject':
                 $pdo->prepare("UPDATE products SET approval_status = 'rejected' WHERE id IN ($placeholders)")->execute($ids);
+                foreach ($ids as $id) {
+                    sendRejectionEmail($pdo, $id);
+                }
                 $msg = count($ids) . " listings rejected.";
                 break;
             case 'delete':

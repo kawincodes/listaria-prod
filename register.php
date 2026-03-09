@@ -1,6 +1,6 @@
 <?php
 require 'includes/db.php';
-require 'includes/SimpleSMTP.php';
+require_once 'includes/email_templates.php';
 session_start();
 
 $error = '';
@@ -44,25 +44,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 try {
                     if ($stmt->execute([$full_name, $email, $hashed_password, $verification_token, $account_type])) {
                         
-                        // Send verification email
-                        // Hardcoded credentials as per user request
-                        $smtp = createSmtp($pdo);
-
+                        // Send verification email using template
                         $verifyLink = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]/verify.php?token=$verification_token";
-                        
-                        $subject = "Verify your Listaria Account";
-                        $body = "
-                            <h2>Welcome to Listaria, $full_name!</h2>
-                            <p>Please click the link below to verify your email address and activate your account:</p>
-                            <p><a href='$verifyLink' style='background:#6B21A8; color:white; padding:10px 20px; text-decoration:none; border-radius:5px;'>Verify Email</a></p>
-                            <p>Or copy this link: $verifyLink</p>
-                        ";
 
-                        if ($smtp->send($email, $subject, $body)) {
+                        $sent = sendTemplateMail($pdo, 'welcome_email', $email, [
+                            'user_name'         => $full_name,
+                            'verification_link' => $verifyLink,
+                        ], $full_name);
+
+                        if ($sent) {
                             $success = "Registration successful! Please check your email ($email) to verify your account.";
                         } else {
-                             // Fallback if email fails? ideally we should warn them.
-                             $success = "Registration successful, but failed to send verification email. Please contact support.";
+                            $success = "Registration successful, but we could not send the verification email. Please contact support.";
                         }
                     }
                 } catch (PDOException $e) {
