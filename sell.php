@@ -105,12 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $user = $uStmt->fetch();
 
                 if ($user) {
-                    $smtp = new SimpleSMTP(
-                        'mail.listaria.in',
-                        465,
-                        'no-replay@listaria.in',
-                        'noreplay@listaria@200'
-                    );
+                    $smtp = createSmtp($pdo);
 
                     $subject = "Product Listed Successfully: " . $title;
                     $body = "

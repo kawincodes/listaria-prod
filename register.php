@@ -69,12 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         
                         // Send verification email
                         // Hardcoded credentials as per user request
-                        $smtp = new SimpleSMTP(
-                            'mail.listaria.in',
-                            465,
-                            'no-replay@listaria.in',
-                            'noreplay@listaria@200'
-                        );
+                        $smtp = createSmtp($pdo);
 
                         $verifyLink = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]/verify.php?token=$verification_token";
                         

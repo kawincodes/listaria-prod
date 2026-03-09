@@ -73,9 +73,8 @@ if (isset($_POST['action'])) {
             $stmt->execute([$userId]);
             $u = $stmt->fetch();
             if ($u) {
-                require_once 'includes/SimpleSMTP.php';
                 try {
-                    $smtp = new SimpleSMTP('mail.listaria.in', 465, 'no-replay@listaria.in', 'noreplay@listaria@200');
+                    $smtp = createSmtp($pdo);
                     $subject = "Update on your Listaria Vendor Application";
                     $body = "
                         <h2>Hello {$u['full_name']},</h2>

@@ -52,3 +52,46 @@ if (getenv('RECAPTCHA_SECRET_KEY') && !getenv('REPL_ID')) {
         define('RECAPTCHA_SECRET_KEY', getenv('RECAPTCHA_SECRET_KEY'));
     }
 }
+
+if (getenv('SMTP_HOST') && !defined('SMTP_HOST')) {
+    define('SMTP_HOST', getenv('SMTP_HOST'));
+}
+if (getenv('SMTP_PORT') && !defined('SMTP_PORT')) {
+    define('SMTP_PORT', getenv('SMTP_PORT'));
+}
+if (getenv('SMTP_USER') && !defined('SMTP_USER')) {
+    define('SMTP_USER', getenv('SMTP_USER'));
+}
+if (getenv('SMTP_PASS') && !defined('SMTP_PASS')) {
+    define('SMTP_PASS', getenv('SMTP_PASS'));
+}
+
+function getSmtpConfig($pdo = null) {
+    $config = [
+        'host' => defined('SMTP_HOST') ? SMTP_HOST : '',
+        'port' => defined('SMTP_PORT') ? (int)SMTP_PORT : 465,
+        'user' => defined('SMTP_USER') ? SMTP_USER : '',
+        'pass' => defined('SMTP_PASS') ? SMTP_PASS : '',
+    ];
+
+    if ((!$config['host'] || !$config['user'] || !$config['pass']) && $pdo) {
+        try {
+            $s = $pdo->prepare("SELECT setting_value FROM site_settings WHERE setting_key = ?");
+            if (!$config['host']) { $s->execute(['smtp_host']); $config['host'] = $s->fetchColumn() ?: ''; }
+            if (!$config['user']) { $s->execute(['smtp_user']); $config['user'] = $s->fetchColumn() ?: ''; }
+            if (!$config['pass']) { $s->execute(['smtp_pass']); $config['pass'] = $s->fetchColumn() ?: ''; }
+            if ($config['port'] === 465) { $s->execute(['smtp_port']); $val = $s->fetchColumn(); if ($val) $config['port'] = (int)$val; }
+        } catch (Exception $e) {}
+    }
+
+    return $config;
+}
+
+function createSmtp($pdo = null) {
+    require_once __DIR__ . '/SimpleSMTP.php';
+    $cfg = getSmtpConfig($pdo);
+    if (!$cfg['host'] || !$cfg['user'] || !$cfg['pass']) {
+        throw new Exception('SMTP is not configured. Set SMTP_HOST, SMTP_USER, SMTP_PASS environment variables or configure in Site Settings.');
+    }
+    return new SimpleSMTP($cfg['host'], $cfg['port'], $cfg['user'], $cfg['pass']);
+}

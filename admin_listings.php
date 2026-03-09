@@ -1,7 +1,6 @@
 <?php
 session_start();
 require 'includes/db.php';
-require 'includes/SimpleSMTP.php';
 
 function sendApprovalEmail($pdo, $productId) {
     try {
@@ -11,7 +10,7 @@ function sendApprovalEmail($pdo, $productId) {
         
         if (!$data) return;
 
-        $smtp = new SimpleSMTP('mail.listaria.in', 465, 'no-replay@listaria.in', 'noreplay@listaria@200');
+        $smtp = createSmtp($pdo);
         
         $subject = "Your Listing has been Approved! - Listaria";
         $body = "

@@ -103,6 +103,10 @@
         <ion-icon name="settings-outline"></ion-icon> Site Settings
     </a>
     
+    <a href="admin_email_templates.php" class="menu-item <?php echo ($activePage == 'email_templates') ? 'active' : ''; ?>">
+        <ion-icon name="mail-outline"></ion-icon> Email Templates
+    </a>
+    
     <div style="flex:1;"></div>
     
     <a href="index.php" class="menu-item" style="border-top: 1px solid #333; padding-top: 1rem; margin-top: 1rem;">

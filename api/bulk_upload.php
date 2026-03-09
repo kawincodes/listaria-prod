@@ -144,12 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['bulk_file'])) {
             $user = $uStmt->fetch();
 
             if ($user && $successCount > 0) {
-                $smtp = new SimpleSMTP(
-                    'mail.listaria.in',
-                    465,
-                    'no-replay@listaria.in',
-                    'noreplay@listaria@200'
-                );
+                $smtp = createSmtp($pdo);
 
                 $subject = "Bulk Upload Summary: " . $successCount . " Products Listed";
                 $body = "

@@ -16,16 +16,27 @@ A luxury e-commerce marketplace platform built in PHP with SQLite.
 - `index.php` - Main marketplace homepage
 - `includes/db.php` - Database connection (SQLite via PDO)
 - `includes/config.php` - Environment variable loader
+- `includes/email_templates.php` - Email template helper (getEmailTemplate, renderEmailTemplate)
 - `database.sqlite` - SQLite database
 - `.env` - Environment variables (SITE_ROOT_URL, Google OAuth, reCAPTCHA keys)
+- Env vars for SMTP: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` (optional, overrides DB settings)
 - `php.ini` - PHP configuration
 
 ## Project Structure
 
 - Root `.php` files - Frontend pages (index, thrift, about, stores, vendor, etc.)
-- `admin/` - Laravel-based admin panel (separate app)
-- `includes/` - Shared PHP includes (db, config, header, footer, etc.)
+- `admin_*.php` - Admin panel pages (dashboard, settings, email templates, etc.)
+- `includes/` - Shared PHP includes (db, config, header, footer, email templates, etc.)
 - `uploads/` - User-uploaded images
+
+## Email Template System
+
+- `admin_email_templates.php` - Admin UI for managing email templates
+- `includes/email_templates.php` - Helper with defaults and rendering functions
+- DB table: `email_templates` (template_key, name, subject, body, variables, is_active)
+- Templates use `{{variable_name}}` placeholders replaced at send time
+- 7 default templates: order_confirmation, shipping_update, listing_approved, listing_rejected, welcome_email, order_delivered, support_reply
+- Use `renderEmailTemplate($pdo, 'template_key', ['var' => 'value'])` to render
 
 ## Running
 

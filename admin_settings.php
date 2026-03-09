@@ -43,10 +43,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'max_listing_images' => $_POST['max_listing_images'] ?? '5',
         'min_listing_price' => $_POST['min_listing_price'] ?? '100',
         'currency_symbol' => $_POST['currency_symbol'] ?? '₹',
-        'smtp_host' => $_POST['smtp_host'] ?? '',
-        'smtp_port' => $_POST['smtp_port'] ?? '587',
-        'smtp_user' => $_POST['smtp_user'] ?? '',
-        'smtp_pass' => $_POST['smtp_pass'] ?? '',
+        'smtp_host' => !defined('SMTP_HOST') ? ($_POST['smtp_host'] ?? '') : getSetting($pdo, 'smtp_host', ''),
+        'smtp_port' => !defined('SMTP_PORT') ? ($_POST['smtp_port'] ?? '587') : getSetting($pdo, 'smtp_port', '587'),
+        'smtp_user' => !defined('SMTP_USER') ? ($_POST['smtp_user'] ?? '') : getSetting($pdo, 'smtp_user', ''),
+        'smtp_pass' => !defined('SMTP_PASS') ? ($_POST['smtp_pass'] ?? '') : getSetting($pdo, 'smtp_pass', ''),
         'razorpay_enabled' => isset($_POST['razorpay_enabled']) ? '1' : '0',
         'cod_enabled' => isset($_POST['cod_enabled']) ? '1' : '0',
         'wallet_enabled' => isset($_POST['wallet_enabled']) ? '1' : '0',
@@ -79,10 +79,11 @@ $listingApproval = getSetting($pdo, 'listing_approval_required', '1');
 $maxImages = getSetting($pdo, 'max_listing_images', '5');
 $minPrice = getSetting($pdo, 'min_listing_price', '100');
 $currencySymbol = getSetting($pdo, 'currency_symbol', '₹');
-$smtpHost = getSetting($pdo, 'smtp_host', '');
-$smtpPort = getSetting($pdo, 'smtp_port', '587');
-$smtpUser = getSetting($pdo, 'smtp_user', '');
-$smtpPass = getSetting($pdo, 'smtp_pass', '');
+$smtpFromEnv = defined('SMTP_HOST') || defined('SMTP_PORT') || defined('SMTP_USER') || defined('SMTP_PASS');
+$smtpHost = defined('SMTP_HOST') ? SMTP_HOST : getSetting($pdo, 'smtp_host', '');
+$smtpPort = defined('SMTP_PORT') ? SMTP_PORT : getSetting($pdo, 'smtp_port', '587');
+$smtpUser = defined('SMTP_USER') ? SMTP_USER : getSetting($pdo, 'smtp_user', '');
+$smtpPass = defined('SMTP_PASS') ? SMTP_PASS : getSetting($pdo, 'smtp_pass', '');
 $razorpayEnabled = getSetting($pdo, 'razorpay_enabled', '1');
 $codEnabled = getSetting($pdo, 'cod_enabled', '1');
 $walletEnabled = getSetting($pdo, 'wallet_enabled', '1');
@@ -504,23 +505,36 @@ $adminDarkMode = getSetting($pdo, 'admin_dark_mode', '0');
                     <div class="card-title">
                         <ion-icon name="mail-outline"></ion-icon>
                         Email Settings (SMTP)
+                        <?php if ($smtpFromEnv): ?>
+                            <span style="margin-left:auto; background:#f0fdf4; color:#22c55e; padding:3px 10px; border-radius:20px; font-size:0.7rem; font-weight:600;">FROM ENV</span>
+                        <?php endif; ?>
                     </div>
+                    <?php if ($smtpFromEnv): ?>
+                        <div style="background:#f8f4ff; border:1px solid #e9d5ff; border-radius:8px; padding:12px 16px; margin-bottom:1rem; font-size:0.82rem; color:#6B21A8; display:flex; align-items:center; gap:8px;">
+                            <ion-icon name="shield-checkmark-outline" style="font-size:1.1rem;flex-shrink:0;"></ion-icon>
+                            SMTP credentials are loaded from environment variables. Update them in the Secrets tab to change these values.
+                        </div>
+                    <?php endif; ?>
                     <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
                         <div class="form-group">
-                            <label>SMTP Host</label>
-                            <input type="text" name="smtp_host" value="<?php echo htmlspecialchars($smtpHost); ?>" placeholder="smtp.gmail.com">
+                            <label>SMTP Host <?php if(defined('SMTP_HOST')): ?><span style="color:#22c55e;font-size:0.7rem;font-weight:600;">ENV</span><?php endif; ?></label>
+                            <input type="text" name="smtp_host" value="<?php echo htmlspecialchars($smtpHost); ?>" placeholder="smtp.gmail.com" <?php echo defined('SMTP_HOST') ? 'disabled style="background:#f5f5f5;cursor:not-allowed;"' : ''; ?>>
+                            <?php if(defined('SMTP_HOST')): ?><input type="hidden" name="smtp_host" value="<?php echo htmlspecialchars($smtpHost); ?>"><?php endif; ?>
                         </div>
                         <div class="form-group">
-                            <label>SMTP Port</label>
-                            <input type="text" name="smtp_port" value="<?php echo htmlspecialchars($smtpPort); ?>" placeholder="587">
+                            <label>SMTP Port <?php if(defined('SMTP_PORT')): ?><span style="color:#22c55e;font-size:0.7rem;font-weight:600;">ENV</span><?php endif; ?></label>
+                            <input type="text" name="smtp_port" value="<?php echo htmlspecialchars($smtpPort); ?>" placeholder="587" <?php echo defined('SMTP_PORT') ? 'disabled style="background:#f5f5f5;cursor:not-allowed;"' : ''; ?>>
+                            <?php if(defined('SMTP_PORT')): ?><input type="hidden" name="smtp_port" value="<?php echo htmlspecialchars($smtpPort); ?>"><?php endif; ?>
                         </div>
                         <div class="form-group">
-                            <label>SMTP Username</label>
-                            <input type="text" name="smtp_user" value="<?php echo htmlspecialchars($smtpUser); ?>" placeholder="your@email.com">
+                            <label>SMTP Username <?php if(defined('SMTP_USER')): ?><span style="color:#22c55e;font-size:0.7rem;font-weight:600;">ENV</span><?php endif; ?></label>
+                            <input type="text" name="smtp_user" value="<?php echo htmlspecialchars($smtpUser); ?>" placeholder="your@email.com" <?php echo defined('SMTP_USER') ? 'disabled style="background:#f5f5f5;cursor:not-allowed;"' : ''; ?>>
+                            <?php if(defined('SMTP_USER')): ?><input type="hidden" name="smtp_user" value="<?php echo htmlspecialchars($smtpUser); ?>"><?php endif; ?>
                         </div>
                         <div class="form-group">
-                            <label>SMTP Password</label>
-                            <input type="password" name="smtp_pass" value="<?php echo htmlspecialchars($smtpPass); ?>" placeholder="App password">
+                            <label>SMTP Password <?php if(defined('SMTP_PASS')): ?><span style="color:#22c55e;font-size:0.7rem;font-weight:600;">ENV</span><?php endif; ?></label>
+                            <input type="password" name="smtp_pass" value="<?php echo defined('SMTP_PASS') ? '••••••••' : htmlspecialchars($smtpPass); ?>" placeholder="App password" <?php echo defined('SMTP_PASS') ? 'disabled style="background:#f5f5f5;cursor:not-allowed;"' : ''; ?>>
+                            <?php if(defined('SMTP_PASS')): ?><input type="hidden" name="smtp_pass" value=""><?php endif; ?>
                         </div>
                     </div>
                 </div>
