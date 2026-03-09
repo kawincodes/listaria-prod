@@ -25,7 +25,7 @@ A luxury e-commerce marketplace platform built in PHP with SQLite.
 ## Project Structure
 
 - Root `.php` files - Frontend pages (index, thrift, about, stores, vendor, etc.)
-- `admin_*.php` - Admin panel pages (dashboard, settings, email templates, etc.)
+- `admin_*.php` - Admin panel pages (dashboard, settings, email templates, pages, etc.)
 - `includes/` - Shared PHP includes (db, config, header, footer, email templates, etc.)
 - `uploads/` - User-uploaded images
 
