@@ -1,0 +1,181 @@
+================================================================================
+  LISTARIA — CHANGELOG
+  All changes are listed from newest to oldest.
+================================================================================
+
+[c20aa84c] 2026-03-09 18:44
+  Enhance system by sending emails for various user and admin actions
+  - Added sendTemplateMail() unified helper to includes/email_templates.php
+  - Added 6 new email templates: new_sale_notification, vendor_approved,
+    vendor_rejected, return_submitted, return_status_update, order_status_update
+  - register.php: Registration now uses welcome_email template with verify link
+  - place_order.php: Buyer gets order confirmation + seller gets sale alert (COD)
+  - admin_transactions.php: Emails buyer on status change (Shipped, Delivered,
+    or generic update); sends order confirmation after PhonePe payment verified
+  - admin_listings.php: Approval uses template; rejection now emails seller too
+  - admin_users.php: Vendor approval and rejection both trigger template emails
+  - admin_returns.php: Buyer emailed on every return status change with context
+  - profile.php: Buyer gets confirmation email when return request is submitted
+  - admin_support.php: Support replies now use SMTP template (replaces mail())
+
+--------------------------------------------------------------------------------
+
+[db277774] 2026-03-09 18:36
+  Make category bar icons and items larger and center them
+  - Icon box increased from 48px to 60px (desktop), 42px to 52px (mobile)
+  - Category item width increased from 62px to 76px (desktop), 54px to 64px
+  - Icon font size increased to 1.65rem (desktop), 1.45rem (mobile)
+  - Label font size increased to 0.76rem (desktop), 0.70rem (mobile)
+  - Gap and padding adjusted for better spacing
+  - Removed justify-content: center (caused left-side overflow on mobile)
+
+--------------------------------------------------------------------------------
+
+[8b0bab63] 2026-03-09 18:34
+  Improve progressive web app functionality and mobile installation
+  - manifest.json: Added "id" field for unique PWA identity
+  - manifest.json: Separated icon "purpose" into individual entries (any vs maskable)
+  - manifest.json: Fixed screenshot "sizes" from "any" to real pixel dimensions (1584x396)
+  - sw.js: Bumped cache version from listaria-v1 to listaria-v2 to force reinstall
+
+--------------------------------------------------------------------------------
+
+[a1f368f2] 2026-03-09 18:30
+  Improve category display and layout on mobile devices
+  - Added display: block to .categories-container to override style.css flex
+  - Added width: 100% to .categories-scroll-area for full-width fill
+  - Added white-space: initial to .categories-wrapper (overrides nowrap from style.css)
+  - Added flex-shrink: 0 and align-items: flex-start to prevent item compression
+  - Mobile: category items sized at 54px, icons at 42px, labels at 0.65rem
+  - Category bar changed from position: relative to sticky top: 60px on mobile
+
+--------------------------------------------------------------------------------
+
+[1f2f5731] 2026-03-09 18:22
+  Enable offline access and PWA features for improved user experience
+  - Generated 8 app icon sizes (72–512px) from logo.jpg using PHP GD
+  - Created manifest.json with shortcuts, screenshots, theme color (#6B21A8)
+  - Created sw.js: network-first for HTML, cache-first for assets, offline fallback
+  - Created offline.php: branded offline page shown when network is unavailable
+  - includes/footer.php: Added service worker registration + slide-up install banner
+  - includes/header.php: Added manifest link, apple-touch-icons, PWA meta tags
+
+--------------------------------------------------------------------------------
+
+[05f78de4] 2026-03-09 18:17
+  Fix sitemap generation by correcting database column references
+  - admin_seo.php: Fixed products sitemap query (no updated_at column, uses created_at)
+  - admin_seo.php: Removed blogs status filter (blogs table has no status column)
+
+--------------------------------------------------------------------------------
+
+[679b4343] 2026-03-09 18:16
+  Add consistent admin page layout and fix broken sidebar display
+  - admin_seo.php: Removed non-existent assets/admin.css reference
+  - Added inline CSS matching other admin pages (sidebar 260px fixed, main-content
+    margin-left: 260px, body display: flex)
+
+--------------------------------------------------------------------------------
+
+[08a1a11a] 2026-03-09 18:13
+  Redesign admin SEO page with collapsible sections and improved saving
+  - Replaced single-form layout with accordion-style collapsible sections
+  - Sections: Meta Tags, Open Graph, Tracking & Verification, XML Sitemap, robots.txt
+  - Each section saves independently
+  - Sitemap generation now correctly loops all products, blogs, and static pages
+  - robots.txt editor with live preview and save
+
+--------------------------------------------------------------------------------
+
+[8e078930] 2026-03-09 18:09
+  Add a dedicated admin page for managing SEO and sitemap settings
+  - Created admin_seo.php with full SEO management UI
+  - Created robots.php for dynamic robots.txt generation
+  - Added "SEO & Sitemap" link to includes/admin_sidebar.php
+  - includes/header.php: Injects canonical URL, OG tags, GA4/GTM, GSC verification,
+    Twitter card meta tags on every public page
+
+--------------------------------------------------------------------------------
+
+[e8533f78] 2026-03-09 18:02
+  Add navigation to product image viewer
+  - product_details.php: Lightbox viewer now has prev/next arrow buttons
+  - Keyboard arrow key support for navigating images in the viewer
+
+--------------------------------------------------------------------------------
+
+[6d44d6b1] 2026-03-09 17:59
+  Add interactive image viewer for product details
+  - product_details.php: Click any product image to open fullscreen lightbox
+  - Lightbox has close button, click-outside-to-close, and smooth animation
+
+--------------------------------------------------------------------------------
+
+[d679f89f] 2026-03-09 17:56
+  Add vendor-specific navigation and user role indicators to the menu
+  - includes/header.php: Vendor badge shown next to profile name when logged in
+  - Navigation shows "My Listings" link for vendor accounts
+  - Role-based menu items toggled based on account_type session variable
+
+--------------------------------------------------------------------------------
+
+[e5934058] 2026-03-09 17:53
+  Improve vendor dashboard experience and messaging
+  - profile.php: Improved empty states with actionable CTA buttons
+  - Better status badges for listing approval states (pending, approved, rejected)
+  - Vendor KYC status banner updated with clearer messaging and styling
+
+--------------------------------------------------------------------------------
+
+[d014cd66] 2026-03-09 17:51
+  Add a "My Sales" section to the vendor orders tab and fix styling issues
+  - profile.php: Vendors now see a "My Sales" tab showing orders for their products
+  - Seller info (buyer name, amount, date, status) shown per sale
+  - Fixed tab active state styling overlap between buyer orders and seller sales
+
+--------------------------------------------------------------------------------
+
+[5a8733a1] 2026-03-09 17:44
+  Add bulk management features for vendors to edit and delete listings
+  - profile.php: Checkbox selection for multiple listings
+  - Bulk actions: Publish, Unpublish, Delete selected listings
+  - Inline confirmation dialog before destructive bulk actions
+
+--------------------------------------------------------------------------------
+
+[03b9f65e] 2026-03-09 17:39
+  Add Google login button to login and registration pages
+  - login.php: "Continue with Google" button added below standard form
+  - register.php: "Sign up with Google" button added
+  - google_auth.php: OAuth2 flow with Google, creates or logs in user on callback
+
+--------------------------------------------------------------------------------
+
+[65433717] 2026-03-09 17:36
+  Set up CAPTCHA protection for user security
+  - admin_settings.php: CAPTCHA section added (enable/disable, reCAPTCHA / Turnstile)
+  - register.php: CAPTCHA widget rendered and verified on submit
+  - includes/config.php: verifyCaptcha() and getCaptchaProvider() helpers added
+
+--------------------------------------------------------------------------------
+
+[a4769b60] 2026-03-09 17:31
+  Disable CAPTCHA by updating its status in the database
+  - Set captcha_enabled = 0 in site_settings via migration script
+
+--------------------------------------------------------------------------------
+
+[531dbcc7] 2026-03-09 17:27
+  Update PHP configuration to improve application performance
+  - php.ini: Increased memory_limit, max_execution_time, upload limits
+  - Enabled opcache settings for better PHP performance
+
+--------------------------------------------------------------------------------
+
+[ee42b2f7] 2026-03-09 22:52
+  Update .env
+  - Initial environment variable setup for SMTP, database, and app configuration
+
+================================================================================
+  END OF CHANGELOG  |  Listaria Pvt Ltd  |  listaria.in
+================================================================================
