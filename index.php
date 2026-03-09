@@ -75,12 +75,12 @@ include 'includes/header.php';
     display: flex;
     gap: 30px;
     overflow-x: auto;
+    scroll-behavior: smooth;
     scrollbar-width: none;
     -ms-overflow-style: none;
     padding: 10px 20px;
     max-width: 1200px;
     margin: 0 auto;
-    overscroll-behavior-x: contain;
 }
 
 .categories-wrapper::-webkit-scrollbar {
@@ -266,24 +266,6 @@ include 'includes/header.php';
             ?>
         </div>
     </div>
-
-    <script>
-    (function() {
-        var wrapper = document.querySelector('.categories-wrapper');
-        if (!wrapper) return;
-        var container = document.querySelector('.categories-container');
-
-        container.addEventListener('wheel', function(e) {
-            var absX = Math.abs(e.deltaX);
-            var absY = Math.abs(e.deltaY);
-            if (absY > absX) {
-                return;
-            }
-            e.preventDefault();
-            wrapper.scrollLeft += e.deltaX;
-        }, { passive: false });
-    })();
-    </script>
 
     <!-- Dynamic Banner Carousel -->
     <div class="carousel-container">
