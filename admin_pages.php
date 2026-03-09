@@ -425,6 +425,63 @@ if (isset($_GET['created'])) {
         .modal-box h3 { margin: 0 0 0.5rem; font-size: 1.1rem; color: #1a1a1a; }
         .modal-box p { color: #888; font-size: 0.88rem; margin-bottom: 1.5rem; }
         .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+        .visual-editor-wrap { border: 1px solid #e5e5e5; border-radius: 10px; overflow: hidden; }
+        .visual-editor-wrap:focus-within { border-color: #6B21A8; box-shadow: 0 0 0 3px rgba(107,33,168,0.08); }
+        .visual-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px;
+            padding: 8px 10px;
+            background: #f8f8f8;
+            border-bottom: 1px solid #e5e5e5;
+            align-items: center;
+        }
+        .visual-toolbar button {
+            width: 32px; height: 30px; border: none; background: none; cursor: pointer;
+            border-radius: 6px; display: flex; align-items: center; justify-content: center;
+            font-size: 0.85rem; color: #555; transition: all 0.15s; font-weight: 600;
+            font-family: 'Inter', serif;
+        }
+        .visual-toolbar button:hover { background: #e5e5e5; color: #1a1a1a; }
+        .visual-toolbar button.active { background: #f3e8ff; color: #6B21A8; }
+        .visual-toolbar select {
+            padding: 4px 8px; border: 1px solid #e5e5e5; border-radius: 6px;
+            font-size: 0.8rem; font-family: 'Inter', sans-serif; background: white;
+            cursor: pointer; color: #555; outline: none;
+        }
+        .visual-toolbar select:focus { border-color: #6B21A8; }
+        .toolbar-sep { width: 1px; height: 20px; background: #ddd; margin: 0 4px; }
+        .visual-editor-area {
+            min-height: 400px; max-height: 600px; overflow-y: auto;
+            padding: 1.2rem; outline: none; font-size: 0.9rem;
+            font-family: 'Inter', sans-serif; line-height: 1.7; color: #333; background: white;
+        }
+        .visual-editor-area:empty::before { content: attr(data-placeholder); color: #bbb; }
+        .visual-editor-area h1 { font-size: 1.8rem; margin: 0.6em 0 0.3em; }
+        .visual-editor-area h2 { font-size: 1.4rem; margin: 0.5em 0 0.3em; }
+        .visual-editor-area h3 { font-size: 1.15rem; margin: 0.5em 0 0.3em; }
+        .visual-editor-area blockquote {
+            border-left: 3px solid #a855f7; margin: 0.5em 0; padding: 0.5em 1em;
+            background: #faf5ff; border-radius: 0 8px 8px 0; color: #555;
+        }
+        .visual-editor-area a { color: #6B21A8; }
+        .visual-editor-area ul, .visual-editor-area ol { padding-left: 1.5em; }
+        .visual-editor-area img { max-width: 100%; border-radius: 8px; }
+        .visual-editor-area pre {
+            background: #1a1a1a; color: #e5e5e5; padding: 1rem; border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; overflow-x: auto;
+        }
+        .visual-editor-area table { border-collapse: collapse; width: 100%; }
+        .visual-editor-area td, .visual-editor-area th {
+            border: 1px solid #e5e5e5; padding: 8px 12px; text-align: left;
+        }
+        .visual-editor-area th { background: #f8f8f8; font-weight: 600; }
+        .color-btn-wrap { position: relative; }
+        .color-btn-wrap input[type="color"] {
+            position: absolute; bottom: -4px; left: 0; width: 32px; height: 0; border: none;
+            padding: 0; opacity: 0; cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -529,11 +586,69 @@ if (isset($_GET['created'])) {
                         </div>
                     <?php else: ?>
                         <div class="editor-tabs">
-                            <div class="editor-tab active" onclick="switchTab('code')">Code Editor</div>
+                            <div class="editor-tab active" onclick="switchTab('visual')">Visual Editor</div>
+                            <div class="editor-tab" onclick="switchTab('code')">Code Editor</div>
                             <div class="editor-tab" onclick="switchTab('preview')">Live Preview</div>
                         </div>
 
-                        <div id="codeTab">
+                        <div id="visualTab">
+                            <div class="visual-editor-wrap">
+                                <div class="visual-toolbar">
+                                    <select onchange="veCmd('formatBlock',this.value);this.selectedIndex=0;" title="Block Type">
+                                        <option value="">Format</option>
+                                        <option value="<p>">Paragraph</option>
+                                        <option value="<h1>">Heading 1</option>
+                                        <option value="<h2>">Heading 2</option>
+                                        <option value="<h3>">Heading 3</option>
+                                        <option value="<blockquote>">Quote</option>
+                                        <option value="<pre>">Code Block</option>
+                                    </select>
+                                    <select onchange="veCmd('fontSize',this.value);this.selectedIndex=0;" title="Font Size">
+                                        <option value="">Size</option>
+                                        <option value="1">Small</option>
+                                        <option value="3">Normal</option>
+                                        <option value="5">Large</option>
+                                        <option value="7">Huge</option>
+                                    </select>
+                                    <div class="toolbar-sep"></div>
+                                    <button type="button" onclick="veCmd('bold')" title="Bold"><b>B</b></button>
+                                    <button type="button" onclick="veCmd('italic')" title="Italic"><i>I</i></button>
+                                    <button type="button" onclick="veCmd('underline')" title="Underline"><u>U</u></button>
+                                    <button type="button" onclick="veCmd('strikeThrough')" title="Strikethrough"><s>S</s></button>
+                                    <div class="toolbar-sep"></div>
+                                    <div class="color-btn-wrap">
+                                        <button type="button" onclick="this.nextElementSibling.click()" title="Text Color" style="color:var(--primary);">A</button>
+                                        <input type="color" value="#6B21A8" onchange="veCmd('foreColor',this.value)">
+                                    </div>
+                                    <div class="color-btn-wrap">
+                                        <button type="button" onclick="this.nextElementSibling.click()" title="Highlight" style="background:#fef08a;border-radius:4px;width:28px;height:26px;font-size:0.78rem;">H</button>
+                                        <input type="color" value="#fef08a" onchange="veCmd('hiliteColor',this.value)">
+                                    </div>
+                                    <div class="toolbar-sep"></div>
+                                    <button type="button" onclick="veCmd('justifyLeft')" title="Align Left"><ion-icon name="reorder-two-outline"></ion-icon></button>
+                                    <button type="button" onclick="veCmd('justifyCenter')" title="Align Center"><ion-icon name="reorder-three-outline"></ion-icon></button>
+                                    <button type="button" onclick="veCmd('justifyRight')" title="Align Right"><ion-icon name="reorder-two-outline" style="transform:scaleX(-1)"></ion-icon></button>
+                                    <button type="button" onclick="veCmd('justifyFull')" title="Justify"><ion-icon name="reorder-four-outline"></ion-icon></button>
+                                    <div class="toolbar-sep"></div>
+                                    <button type="button" onclick="veCmd('insertUnorderedList')" title="Bullet List"><ion-icon name="list-outline"></ion-icon></button>
+                                    <button type="button" onclick="veCmd('insertOrderedList')" title="Numbered List"><ion-icon name="reorder-four-outline"></ion-icon></button>
+                                    <button type="button" onclick="veCmd('indent')" title="Indent"><ion-icon name="arrow-forward-outline" style="font-size:0.9rem;"></ion-icon></button>
+                                    <button type="button" onclick="veCmd('outdent')" title="Outdent"><ion-icon name="arrow-back-outline" style="font-size:0.9rem;"></ion-icon></button>
+                                    <div class="toolbar-sep"></div>
+                                    <button type="button" onclick="veInsertLink()" title="Insert Link"><ion-icon name="link-outline"></ion-icon></button>
+                                    <button type="button" onclick="veInsertImage()" title="Insert Image"><ion-icon name="image-outline"></ion-icon></button>
+                                    <button type="button" onclick="veInsertHR()" title="Horizontal Line"><ion-icon name="remove-outline"></ion-icon></button>
+                                    <button type="button" onclick="veInsertTable()" title="Insert Table"><ion-icon name="grid-outline"></ion-icon></button>
+                                    <div class="toolbar-sep"></div>
+                                    <button type="button" onclick="veCmd('removeFormat')" title="Clear Formatting"><ion-icon name="close-circle-outline"></ion-icon></button>
+                                    <button type="button" onclick="veCmd('undo')" title="Undo"><ion-icon name="arrow-undo-outline"></ion-icon></button>
+                                    <button type="button" onclick="veCmd('redo')" title="Redo"><ion-icon name="arrow-redo-outline"></ion-icon></button>
+                                </div>
+                                <div class="visual-editor-area" id="visualEditor" contenteditable="true" data-placeholder="Start typing your page content..."><?php echo $content; ?></div>
+                            </div>
+                        </div>
+
+                        <div id="codeTab" style="display:none;">
                             <textarea name="page_content" class="editor-textarea" id="pageEditor"
                                       placeholder="Enter page content (HTML supported)..."><?php echo htmlspecialchars($content); ?></textarea>
                         </div>
@@ -613,11 +728,69 @@ if (isset($_GET['created'])) {
                     </div>
 
                     <div class="editor-tabs">
-                        <div class="editor-tab active" onclick="switchTab('code')">Code Editor</div>
+                        <div class="editor-tab active" onclick="switchTab('visual')">Visual Editor</div>
+                        <div class="editor-tab" onclick="switchTab('code')">Code Editor</div>
                         <div class="editor-tab" onclick="switchTab('preview')">Live Preview</div>
                     </div>
 
-                    <div id="codeTab">
+                    <div id="visualTab">
+                        <div class="visual-editor-wrap">
+                            <div class="visual-toolbar">
+                                <select onchange="veCmd('formatBlock',this.value);this.selectedIndex=0;" title="Block Type">
+                                    <option value="">Format</option>
+                                    <option value="<p>">Paragraph</option>
+                                    <option value="<h1>">Heading 1</option>
+                                    <option value="<h2>">Heading 2</option>
+                                    <option value="<h3>">Heading 3</option>
+                                    <option value="<blockquote>">Quote</option>
+                                    <option value="<pre>">Code Block</option>
+                                </select>
+                                <select onchange="veCmd('fontSize',this.value);this.selectedIndex=0;" title="Font Size">
+                                    <option value="">Size</option>
+                                    <option value="1">Small</option>
+                                    <option value="3">Normal</option>
+                                    <option value="5">Large</option>
+                                    <option value="7">Huge</option>
+                                </select>
+                                <div class="toolbar-sep"></div>
+                                <button type="button" onclick="veCmd('bold')" title="Bold"><b>B</b></button>
+                                <button type="button" onclick="veCmd('italic')" title="Italic"><i>I</i></button>
+                                <button type="button" onclick="veCmd('underline')" title="Underline"><u>U</u></button>
+                                <button type="button" onclick="veCmd('strikeThrough')" title="Strikethrough"><s>S</s></button>
+                                <div class="toolbar-sep"></div>
+                                <div class="color-btn-wrap">
+                                    <button type="button" onclick="this.nextElementSibling.click()" title="Text Color" style="color:var(--primary);">A</button>
+                                    <input type="color" value="#6B21A8" onchange="veCmd('foreColor',this.value)">
+                                </div>
+                                <div class="color-btn-wrap">
+                                    <button type="button" onclick="this.nextElementSibling.click()" title="Highlight" style="background:#fef08a;border-radius:4px;width:28px;height:26px;font-size:0.78rem;">H</button>
+                                    <input type="color" value="#fef08a" onchange="veCmd('hiliteColor',this.value)">
+                                </div>
+                                <div class="toolbar-sep"></div>
+                                <button type="button" onclick="veCmd('justifyLeft')" title="Align Left"><ion-icon name="reorder-two-outline"></ion-icon></button>
+                                <button type="button" onclick="veCmd('justifyCenter')" title="Align Center"><ion-icon name="reorder-three-outline"></ion-icon></button>
+                                <button type="button" onclick="veCmd('justifyRight')" title="Align Right"><ion-icon name="reorder-two-outline" style="transform:scaleX(-1)"></ion-icon></button>
+                                <button type="button" onclick="veCmd('justifyFull')" title="Justify"><ion-icon name="reorder-four-outline"></ion-icon></button>
+                                <div class="toolbar-sep"></div>
+                                <button type="button" onclick="veCmd('insertUnorderedList')" title="Bullet List"><ion-icon name="list-outline"></ion-icon></button>
+                                <button type="button" onclick="veCmd('insertOrderedList')" title="Numbered List"><ion-icon name="reorder-four-outline"></ion-icon></button>
+                                <button type="button" onclick="veCmd('indent')" title="Indent"><ion-icon name="arrow-forward-outline" style="font-size:0.9rem;"></ion-icon></button>
+                                <button type="button" onclick="veCmd('outdent')" title="Outdent"><ion-icon name="arrow-back-outline" style="font-size:0.9rem;"></ion-icon></button>
+                                <div class="toolbar-sep"></div>
+                                <button type="button" onclick="veInsertLink()" title="Insert Link"><ion-icon name="link-outline"></ion-icon></button>
+                                <button type="button" onclick="veInsertImage()" title="Insert Image"><ion-icon name="image-outline"></ion-icon></button>
+                                <button type="button" onclick="veInsertHR()" title="Horizontal Line"><ion-icon name="remove-outline"></ion-icon></button>
+                                <button type="button" onclick="veInsertTable()" title="Insert Table"><ion-icon name="grid-outline"></ion-icon></button>
+                                <div class="toolbar-sep"></div>
+                                <button type="button" onclick="veCmd('removeFormat')" title="Clear Formatting"><ion-icon name="close-circle-outline"></ion-icon></button>
+                                <button type="button" onclick="veCmd('undo')" title="Undo"><ion-icon name="arrow-undo-outline"></ion-icon></button>
+                                <button type="button" onclick="veCmd('redo')" title="Redo"><ion-icon name="arrow-redo-outline"></ion-icon></button>
+                            </div>
+                            <div class="visual-editor-area" id="visualEditor" contenteditable="true" data-placeholder="Start typing your page content..."><?php echo $editCustomPage['content']; ?></div>
+                        </div>
+                    </div>
+
+                    <div id="codeTab" style="display:none;">
                         <textarea name="page_content" class="editor-textarea" id="pageEditor"
                                   placeholder="Enter page content (HTML supported)..."><?php echo htmlspecialchars($editCustomPage['content']); ?></textarea>
                     </div>
@@ -751,45 +924,135 @@ if (isset($_GET['created'])) {
     </div>
 
     <script>
-    function switchTab(tab) {
-        const codeTab = document.getElementById('codeTab');
-        const previewTab = document.getElementById('previewTab');
-        const tabs = document.querySelectorAll('.editor-tab');
-        tabs.forEach(t => t.classList.remove('active'));
+    var activeTab = 'visual';
 
-        if (tab === 'preview') {
-            codeTab.style.display = 'none';
-            previewTab.style.display = 'block';
+    function switchTab(tab) {
+        var visualTab = document.getElementById('visualTab');
+        var codeTab = document.getElementById('codeTab');
+        var previewTab = document.getElementById('previewTab');
+        var tabs = document.querySelectorAll('.editor-tab');
+        var ve = document.getElementById('visualEditor');
+        var ce = document.getElementById('pageEditor');
+
+        tabs.forEach(function(t) { t.classList.remove('active'); });
+
+        if (visualTab) visualTab.style.display = 'none';
+        if (codeTab) codeTab.style.display = 'none';
+        if (previewTab) previewTab.style.display = 'none';
+
+        if (tab === 'visual') {
+            if (visualTab) visualTab.style.display = 'block';
+            tabs[0].classList.add('active');
+            if (activeTab === 'code' && ce && ve) {
+                ve.innerHTML = ce.value;
+            }
+        } else if (tab === 'code') {
+            if (codeTab) codeTab.style.display = 'block';
             tabs[1].classList.add('active');
-            const editor = document.getElementById('pageEditor');
-            const previewFrame = document.getElementById('previewFrame');
-            if (editor && previewFrame) {
-                const doc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+            if (activeTab === 'visual' && ve && ce) {
+                ce.value = ve.innerHTML;
+            }
+        } else if (tab === 'preview') {
+            if (previewTab) previewTab.style.display = 'block';
+            tabs[2].classList.add('active');
+            var html = '';
+            if (activeTab === 'visual' && ve) {
+                html = ve.innerHTML;
+                if (ce) ce.value = html;
+            } else if (ce) {
+                html = ce.value;
+            }
+            var previewFrame = document.getElementById('previewFrame');
+            if (previewFrame) {
+                var doc = previewFrame.contentDocument || previewFrame.contentWindow.document;
                 doc.open();
-                doc.write('<!DOCTYPE html><html><head><style>body{font-family:Inter,sans-serif;padding:1rem;color:#333;line-height:1.6;}</style></head><body>' + editor.value + '</body></html>');
+                doc.write('<!DOCTYPE html><html><head><style>body{font-family:Inter,sans-serif;padding:1.5rem;color:#333;line-height:1.7;max-width:800px;margin:0 auto;}img{max-width:100%;border-radius:8px;}blockquote{border-left:3px solid #a855f7;margin:0.5em 0;padding:0.5em 1em;background:#faf5ff;border-radius:0 8px 8px 0;}a{color:#6B21A8;}table{border-collapse:collapse;width:100%;}td,th{border:1px solid #e5e5e5;padding:8px 12px;}th{background:#f8f8f8;font-weight:600;}</style></head><body>' + html + '</body></html>');
                 doc.close();
             }
-        } else {
-            codeTab.style.display = 'block';
-            previewTab.style.display = 'none';
-            tabs[0].classList.add('active');
+        }
+        activeTab = tab;
+        updateCharCount();
+    }
+
+    function veCmd(cmd, val) {
+        document.execCommand(cmd, false, val || null);
+        var ve = document.getElementById('visualEditor');
+        if (ve) ve.focus();
+    }
+
+    function veInsertLink() {
+        var url = prompt('Enter URL:', 'https://');
+        if (url) document.execCommand('createLink', false, url);
+    }
+
+    function veInsertImage() {
+        var url = prompt('Enter image URL:', 'https://');
+        if (url) document.execCommand('insertImage', false, url);
+    }
+
+    function veInsertHR() {
+        document.execCommand('insertHTML', false, '<hr>');
+    }
+
+    function veInsertTable() {
+        var rows = prompt('Number of rows:', '3');
+        var cols = prompt('Number of columns:', '3');
+        if (rows && cols) {
+            var r = parseInt(rows), c = parseInt(cols);
+            if (r > 0 && c > 0 && r <= 20 && c <= 10) {
+                var html = '<table><thead><tr>';
+                for (var j = 0; j < c; j++) html += '<th>Header ' + (j+1) + '</th>';
+                html += '</tr></thead><tbody>';
+                for (var i = 0; i < r-1; i++) {
+                    html += '<tr>';
+                    for (var j = 0; j < c; j++) html += '<td>&nbsp;</td>';
+                    html += '</tr>';
+                }
+                html += '</tbody></table><p>&nbsp;</p>';
+                document.execCommand('insertHTML', false, html);
+            }
         }
     }
 
-    const editor = document.getElementById('pageEditor');
-    const charCount = document.getElementById('charCount');
-    if (editor && charCount) {
-        editor.addEventListener('input', function() {
-            charCount.textContent = this.value.length + ' characters';
+    function updateCharCount() {
+        var charCount = document.getElementById('charCount');
+        var ve = document.getElementById('visualEditor');
+        var ce = document.getElementById('pageEditor');
+        if (!charCount) return;
+        var len = 0;
+        if (activeTab === 'visual' && ve) len = ve.innerHTML.length;
+        else if (ce) len = ce.value.length;
+        charCount.textContent = len + ' characters';
+    }
+
+    var ve = document.getElementById('visualEditor');
+    var ce = document.getElementById('pageEditor');
+
+    if (ve) {
+        ve.addEventListener('input', function() {
+            if (ce) ce.value = this.innerHTML;
+            updateCharCount();
+        });
+    }
+    if (ce) {
+        ce.addEventListener('input', updateCharCount);
+    }
+
+    var form = document.querySelector('.editor-container form, .create-form-card form');
+    if (form && ve && ce) {
+        form.addEventListener('submit', function() {
+            if (activeTab === 'visual') {
+                ce.value = ve.innerHTML;
+            }
         });
     }
 
-    const titleInput = document.getElementById('newTitleInput');
-    const slugPreview = document.getElementById('slugPreview');
-    const slugText = document.getElementById('slugText');
+    var titleInput = document.getElementById('newTitleInput');
+    var slugPreview = document.getElementById('slugPreview');
+    var slugText = document.getElementById('slugText');
     if (titleInput) {
         titleInput.addEventListener('input', function() {
-            const slug = this.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+            var slug = this.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
             if (slugPreview) slugPreview.value = slug;
             if (slugText) slugText.textContent = slug || '...';
         });
