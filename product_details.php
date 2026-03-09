@@ -145,13 +145,16 @@ include 'includes/header.php';
         
         <!-- Left: Gallery -->
         <div class="product-gallery-section">
-            <div class="main-image-wrapper">
+            <div class="main-image-wrapper" onclick="openZoom(document.getElementById('mainImage').src)" style="cursor:zoom-in;">
                 <span class="condition-badge <?php 
                     if($product['condition_tag'] == 'Brand New') echo 'brand-new';
                     elseif($product['condition_tag'] == 'Lightly Used') echo 'lightly-used';
                     else echo 'regularly-used';
                 ?>"><?php echo htmlspecialchars($product['condition_tag']); ?></span>
                 <img src="<?php echo htmlspecialchars($main_image); ?>" alt="<?php echo htmlspecialchars($product['title']); ?>" id="mainImage" class="main-product-image">
+                <div style="position:absolute; bottom:10px; right:10px; background:rgba(0,0,0,0.45); color:white; border-radius:50%; width:34px; height:34px; display:flex; align-items:center; justify-content:center; pointer-events:none;">
+                    <ion-icon name="expand-outline" style="font-size:1.1rem;"></ion-icon>
+                </div>
             </div>
             
             <?php if (count($images) > 1): ?>
@@ -1312,6 +1315,214 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+</script>
+
+<!-- Image Zoom Lightbox -->
+<div id="zoomLightbox" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:99999; flex-direction:column; align-items:center; justify-content:center; touch-action:none;">
+    <!-- Top Bar -->
+    <div style="position:absolute; top:0; left:0; right:0; display:flex; justify-content:space-between; align-items:center; padding:12px 16px; z-index:2; background:linear-gradient(rgba(0,0,0,0.5),transparent);">
+        <div id="zoomLevel" style="color:white; font-size:0.85rem; font-weight:600; background:rgba(255,255,255,0.15); padding:4px 12px; border-radius:20px;">100%</div>
+        <div style="display:flex; gap:10px; align-items:center;">
+            <button onclick="adjustZoom(0.5)" style="background:rgba(255,255,255,0.15); border:none; color:white; width:36px; height:36px; border-radius:50%; font-size:1.3rem; cursor:pointer; display:flex; align-items:center; justify-content:center;">−</button>
+            <button onclick="adjustZoom(-0.5)" style="background:rgba(255,255,255,0.15); border:none; color:white; width:36px; height:36px; border-radius:50%; font-size:1.3rem; cursor:pointer; display:flex; align-items:center; justify-content:center;">+</button>
+            <button onclick="resetZoom()" style="background:rgba(255,255,255,0.15); border:none; color:white; width:36px; height:36px; border-radius:50%; font-size:1rem; cursor:pointer; display:flex; align-items:center; justify-content:center;" title="Reset">
+                <ion-icon name="refresh-outline"></ion-icon>
+            </button>
+            <button onclick="closeZoom()" style="background:rgba(255,255,255,0.15); border:none; color:white; width:36px; height:36px; border-radius:50%; font-size:1.3rem; cursor:pointer; display:flex; align-items:center; justify-content:center;">✕</button>
+        </div>
+    </div>
+
+    <!-- Image Container -->
+    <div id="zoomContainer" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+        <img id="zoomImage" src="" style="max-width:100%; max-height:100%; object-fit:contain; transform-origin:center center; transition:none; will-change:transform; user-select:none; -webkit-user-drag:none;">
+    </div>
+
+    <!-- Hint -->
+    <div id="zoomHint" style="position:absolute; bottom:20px; left:50%; transform:translateX(-50%); color:rgba(255,255,255,0.6); font-size:0.78rem; text-align:center; pointer-events:none; transition:opacity 0.5s;">
+        Scroll or pinch to zoom · Drag to pan
+    </div>
+</div>
+
+<style>
+#zoomLightbox.active { display:flex !important; }
+#zoomImage[data-zoomed="true"] { cursor:grab; }
+#zoomImage[data-dragging="true"] { cursor:grabbing !important; transition:none !important; }
+</style>
+
+<script>
+(function() {
+    const allImages = <?php echo json_encode(array_values((array)$images)); ?>;
+    let currentZoomSrc = '';
+    let scale = 1, minScale = 1, maxScale = 5;
+    let tx = 0, ty = 0;
+    let isDragging = false, startX = 0, startY = 0, lastTx = 0, lastTy = 0;
+    let lastPinchDist = 0;
+    let hintTimer;
+
+    const lb = document.getElementById('zoomLightbox');
+    const img = document.getElementById('zoomImage');
+    const levelEl = document.getElementById('zoomLevel');
+    const hint = document.getElementById('zoomHint');
+
+    function applyTransform(animated) {
+        img.style.transition = animated ? 'transform 0.2s ease' : 'none';
+        img.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+        levelEl.textContent = Math.round(scale * 100) + '%';
+        img.dataset.zoomed = scale > 1 ? 'true' : 'false';
+    }
+
+    function clampTranslate() {
+        // Allow panning only within scaled bounds
+        const rect = img.getBoundingClientRect();
+        const lbRect = lb.getBoundingClientRect();
+        const maxTx = Math.max(0, (rect.width - lbRect.width) / 2);
+        const maxTy = Math.max(0, (rect.height - lbRect.height) / 2);
+        tx = Math.max(-maxTx, Math.min(maxTx, tx));
+        ty = Math.max(-maxTy, Math.min(maxTy, ty));
+    }
+
+    function hideHint() {
+        clearTimeout(hintTimer);
+        hintTimer = setTimeout(() => { hint.style.opacity = '0'; }, 2000);
+    }
+
+    window.openZoom = function(src) {
+        currentZoomSrc = src;
+        img.src = src;
+        scale = 1; tx = 0; ty = 0;
+        applyTransform(false);
+        lb.style.display = 'flex';
+        lb.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        hint.style.opacity = '1';
+        hideHint();
+    };
+
+    window.closeZoom = function() {
+        lb.style.display = 'none';
+        lb.classList.remove('active');
+        document.body.style.overflow = '';
+    };
+
+    window.resetZoom = function() {
+        scale = 1; tx = 0; ty = 0;
+        applyTransform(true);
+    };
+
+    window.adjustZoom = function(delta) {
+        // delta > 0 = zoom out (−), delta < 0 = zoom in (+)
+        scale = Math.min(maxScale, Math.max(minScale, scale - delta));
+        if (scale === 1) { tx = 0; ty = 0; }
+        clampTranslate();
+        applyTransform(true);
+        hideHint();
+    };
+
+    // Close on backdrop click
+    lb.addEventListener('click', function(e) {
+        if (e.target === lb || e.target === document.getElementById('zoomContainer')) closeZoom();
+    });
+
+    // Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeZoom();
+    });
+
+    // --- Mouse Wheel Zoom ---
+    lb.addEventListener('wheel', function(e) {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -0.3 : 0.3;
+        scale = Math.min(maxScale, Math.max(minScale, scale + delta));
+        if (scale === 1) { tx = 0; ty = 0; }
+        clampTranslate();
+        applyTransform(false);
+        hideHint();
+    }, { passive: false });
+
+    // --- Mouse Drag ---
+    img.addEventListener('mousedown', function(e) {
+        if (scale <= 1) return;
+        e.preventDefault();
+        isDragging = true;
+        img.dataset.dragging = 'true';
+        startX = e.clientX - tx;
+        startY = e.clientY - ty;
+    });
+
+    document.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        tx = e.clientX - startX;
+        ty = e.clientY - startY;
+        clampTranslate();
+        applyTransform(false);
+    });
+
+    document.addEventListener('mouseup', function() {
+        isDragging = false;
+        img.dataset.dragging = 'false';
+    });
+
+    // --- Touch: Pinch & Pan ---
+    let touches = [];
+    lb.addEventListener('touchstart', function(e) {
+        touches = Array.from(e.touches);
+        if (touches.length === 2) {
+            lastPinchDist = Math.hypot(
+                touches[0].clientX - touches[1].clientX,
+                touches[0].clientY - touches[1].clientY
+            );
+        } else if (touches.length === 1 && scale > 1) {
+            isDragging = true;
+            startX = touches[0].clientX - tx;
+            startY = touches[0].clientY - ty;
+        }
+    }, { passive: true });
+
+    lb.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+        touches = Array.from(e.touches);
+
+        if (touches.length === 2) {
+            // Pinch zoom
+            const dist = Math.hypot(
+                touches[0].clientX - touches[1].clientX,
+                touches[0].clientY - touches[1].clientY
+            );
+            const ratio = dist / lastPinchDist;
+            scale = Math.min(maxScale, Math.max(minScale, scale * ratio));
+            lastPinchDist = dist;
+            if (scale === 1) { tx = 0; ty = 0; }
+            clampTranslate();
+            applyTransform(false);
+            hideHint();
+        } else if (touches.length === 1 && isDragging && scale > 1) {
+            // Pan
+            tx = touches[0].clientX - startX;
+            ty = touches[0].clientY - startY;
+            clampTranslate();
+            applyTransform(false);
+        }
+    }, { passive: false });
+
+    lb.addEventListener('touchend', function(e) {
+        if (e.touches.length === 0) isDragging = false;
+        touches = Array.from(e.touches);
+    }, { passive: true });
+
+    // Double-tap to zoom in/out
+    let lastTap = 0;
+    lb.addEventListener('touchend', function(e) {
+        const now = Date.now();
+        if (now - lastTap < 300) {
+            if (scale > 1) { scale = 1; tx = 0; ty = 0; }
+            else { scale = 2.5; }
+            clampTranslate();
+            applyTransform(true);
+            e.preventDefault();
+        }
+        lastTap = now;
+    });
+})();
 </script>
 
 <?php include 'includes/footer.php'; ?>
