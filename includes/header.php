@@ -212,31 +212,78 @@ $current_page = basename($_SERVER['PHP_SELF']);
         </div>
         <div class="drawer-links">
          <?php if(isset($_SESSION['user_id'])): 
-            // Ensure we have user name
+            // Fetch user name and account_type fresh from DB for accuracy
             $dName = 'User';
+            $menuAccountType = $_SESSION['account_type'] ?? 'customer';
             if(isset($user['full_name'])) {
                 $dName = $user['full_name'];
+                $menuAccountType = $user['account_type'] ?? $menuAccountType;
             } else {
-                // Quick fetch if not available
                 try {
-                    $stmt = $pdo->prepare("SELECT full_name FROM users WHERE id = ?");
+                    $stmt = $pdo->prepare("SELECT full_name, account_type FROM users WHERE id = ?");
                     $stmt->execute([$_SESSION['user_id']]);
                     $u = $stmt->fetch();
-                    if($u) $dName = $u['full_name'];
+                    if($u) {
+                        $dName = $u['full_name'];
+                        $menuAccountType = $u['account_type'] ?? $menuAccountType;
+                        // Sync session if out of date
+                        if($_SESSION['account_type'] !== $menuAccountType) {
+                            $_SESSION['account_type'] = $menuAccountType;
+                        }
+                    }
                 } catch(PDOException $e) {}
             }
          ?>
-            <!-- New Profile Block -->
+            <!-- Profile Block -->
             <div style="padding-bottom:15px; margin-bottom:15px; border-bottom:1px solid var(--border-color);">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                    <h3 style="margin:0; font-size:1.1rem; font-weight:700; color:var(--primary-text);"><?php echo htmlspecialchars($dName); ?></h3>
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                    <div style="width:38px; height:38px; border-radius:50%; background:var(--brand-color); color:white; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1rem; flex-shrink:0;">
+                        <?php echo strtoupper(substr($dName, 0, 1)); ?>
+                    </div>
+                    <div>
+                        <div style="font-weight:700; color:var(--primary-text); font-size:0.95rem;"><?php echo htmlspecialchars($dName); ?></div>
+                        <?php if($menuAccountType === 'vendor'): ?>
+                        <div style="font-size:0.75rem; color:#7c3aed; font-weight:600;">Vendor</div>
+                        <?php elseif($menuAccountType === 'admin'): ?>
+                        <div style="font-size:0.75rem; color:#dc2626; font-weight:600;">Admin</div>
+                        <?php endif; ?>
+                    </div>
                 </div>
-                <a href="profile.php" style="display:block; text-align:center; background:var(--brand-color); color:white; padding:12px; border-radius:8px; text-decoration:none; font-weight:700; font-size:0.95rem;">
+                <a href="profile.php" style="display:block; text-align:center; background:var(--brand-color); color:white; padding:10px; border-radius:8px; text-decoration:none; font-weight:700; font-size:0.9rem;">
                     My Profile
                 </a>
             </div>
+
+            <?php if($menuAccountType === 'vendor'): ?>
+            <!-- Vendor Section -->
+            <div style="margin-bottom:15px; padding-bottom:15px; border-bottom:1px solid var(--border-color);">
+                <div style="font-size:0.7rem; font-weight:700; color:#7c3aed; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px; padding-left:4px;">Vendor</div>
+                <a href="vendor_settings.php" class="mobile-link" style="display:flex; align-items:center; gap:10px;">
+                    <ion-icon name="settings-outline" style="font-size:1.2rem; color:#7c3aed;"></ion-icon> Vendor Settings
+                </a>
+                <a href="sell.php" class="mobile-link" style="display:flex; align-items:center; gap:10px;">
+                    <ion-icon name="add-circle-outline" style="font-size:1.2rem; color:#7c3aed;"></ion-icon> New Listing
+                </a>
+                <a href="sell.php?source=thrift" class="mobile-link" style="display:flex; align-items:center; gap:10px;">
+                    <ion-icon name="leaf-outline" style="font-size:1.2rem; color:#27ae60;"></ion-icon> Sell on Thrift+
+                </a>
+                <a href="profile.php?tab=orders" class="mobile-link" style="display:flex; align-items:center; gap:10px;">
+                    <ion-icon name="receipt-outline" style="font-size:1.2rem; color:#7c3aed;"></ion-icon> My Sales
+                </a>
+            </div>
+            <?php endif; ?>
+
+            <?php if($menuAccountType === 'admin'): ?>
+            <!-- Admin Section -->
+            <div style="margin-bottom:15px; padding-bottom:15px; border-bottom:1px solid var(--border-color);">
+                <div style="font-size:0.7rem; font-weight:700; color:#dc2626; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px; padding-left:4px;">Admin</div>
+                <a href="admin.php" class="mobile-link" style="display:flex; align-items:center; gap:10px;">
+                    <ion-icon name="shield-outline" style="font-size:1.2rem; color:#dc2626;"></ion-icon> Admin Panel
+                </a>
+            </div>
+            <?php endif; ?>
             
-            <!-- Other Links -->
+            <!-- General Links -->
             <a href="requests.php" class="mobile-link">Requests</a>
             <a href="blogs.php" class="mobile-link">Blogs</a>
             <a href="about.php" class="mobile-link">About Us</a>
