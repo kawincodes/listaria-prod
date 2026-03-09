@@ -236,14 +236,18 @@ $adminDarkMode = getSetting($pdo, 'admin_dark_mode', '0');
         
         .toggle-switch {
             position: relative;
+            display: inline-block;
             width: 48px;
+            min-width: 48px;
             height: 26px;
+            flex-shrink: 0;
         }
         
         .toggle-switch input {
             opacity: 0;
             width: 0;
             height: 0;
+            position: absolute;
         }
         
         .toggle-slider {
@@ -256,6 +260,7 @@ $adminDarkMode = getSetting($pdo, 'admin_dark_mode', '0');
             background-color: #e5e5e5;
             transition: 0.3s;
             border-radius: 26px;
+            z-index: 1;
         }
         
         .toggle-slider:before {
