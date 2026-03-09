@@ -15,10 +15,10 @@ $msg = '';
 try {
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS site_settings (
-            id INT AUTO_INCREMENT PRIMARY KEY,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
             setting_key VARCHAR(100) NOT NULL UNIQUE,
             setting_value TEXT,
-            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     ");
 } catch(Exception $e) {}
@@ -56,8 +56,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ];
     
     foreach ($settings as $key => $value) {
-        $stmt = $pdo->prepare("INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
-        $stmt->execute([$key, $value, $value]);
+        $stmt = $pdo->prepare("INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON CONFLICT(setting_key) DO UPDATE SET setting_value = excluded.setting_value, updated_at = CURRENT_TIMESTAMP");
+        $stmt->execute([$key, $value]);
     }
     
     $msg = "Settings saved successfully!";
