@@ -74,15 +74,12 @@ include 'includes/header.php';
 .categories-wrapper {
     display: flex;
     gap: 30px;
-    overflow-x: auto;
-    scroll-behavior: smooth;
+    overflow-x: hidden;
     scrollbar-width: none;
     -ms-overflow-style: none;
     padding: 10px 20px;
     max-width: 1200px;
     margin: 0 auto;
-    overscroll-behavior-x: contain;
-    -webkit-overflow-scrolling: touch;
 }
 
 .categories-wrapper::-webkit-scrollbar {
@@ -272,14 +269,28 @@ include 'includes/header.php';
     <script>
     (function() {
         const wrapper = document.querySelector('.categories-wrapper');
-        if (wrapper) {
-            wrapper.addEventListener('wheel', function(e) {
-                if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-                    e.preventDefault();
-                    window.scrollBy(0, e.deltaY);
-                }
-            }, { passive: false });
-        }
+        if (!wrapper) return;
+
+        let isDown = false, startX, scrollLeft;
+
+        wrapper.addEventListener('mousedown', function(e) {
+            isDown = true;
+            wrapper.style.cursor = 'grabbing';
+            startX = e.pageX - wrapper.offsetLeft;
+            scrollLeft = wrapper.scrollLeft;
+        });
+        wrapper.addEventListener('mouseleave', function() { isDown = false; wrapper.style.cursor = 'grab'; });
+        wrapper.addEventListener('mouseup', function() { isDown = false; wrapper.style.cursor = 'grab'; });
+        wrapper.addEventListener('mousemove', function(e) {
+            if (!isDown) return;
+            e.preventDefault();
+            var x = e.pageX - wrapper.offsetLeft;
+            wrapper.style.overflow = 'auto';
+            wrapper.scrollLeft = scrollLeft - (x - startX);
+        });
+
+        wrapper.addEventListener('touchstart', function() { wrapper.style.overflowX = 'auto'; }, { passive: true });
+        wrapper.addEventListener('touchend', function() { setTimeout(function(){ wrapper.style.overflowX = 'hidden'; }, 300); });
     })();
     </script>
 
