@@ -39,15 +39,14 @@ A luxury e-commerce marketplace platform built in PHP with SQLite.
 - 7 default templates: order_confirmation, shipping_update, listing_approved, listing_rejected, welcome_email, order_delivered, support_reply
 - Use `renderEmailTemplate($pdo, 'template_key', ['var' => 'value'])` to render
 
-## CAPTCHA (Cloudflare Turnstile)
+## CAPTCHA (Dual Provider: Turnstile + reCAPTCHA)
 
-- Replaced Google reCAPTCHA with Cloudflare Turnstile
-- `config.php` defines `isCaptchaActive($pdo)` and `verifyCaptcha($token)` helper functions
-- Toggle on/off from Admin Settings > CAPTCHA Protection section (stored in `site_settings.captcha_enabled`)
-- Falls back to `CAPTCHA_ENABLED` env var if no DB setting exists
-- Active on `login.php` and `register.php` forms
-- Turnstile JS: `https://challenges.cloudflare.com/turnstile/v0/api.js`
-- Widget class: `cf-turnstile`, verify URL: `https://challenges.cloudflare.com/turnstile/v0/siteverify`
+- Supports both Cloudflare Turnstile and Google reCAPTCHA v2
+- `config.php` defines `getCaptchaConfig($pdo)`, `isCaptchaActive($pdo)`, `getCaptchaProvider($pdo)`, `getCaptchaSiteKey($pdo)`, `verifyCaptcha($token, $pdo)`
+- Admin Settings > CAPTCHA Protection: toggle on/off, choose provider, edit all 4 keys (saved to DB `site_settings`)
+- DB keys: `captcha_enabled`, `captcha_provider`, `turnstile_site_key`, `turnstile_secret_key`, `recaptcha_site_key`, `recaptcha_secret_key`
+- Env vars used as defaults, DB values override them
+- Active on `login.php` and `register.php` forms, auto-switches widget/script per provider
 
 ## Running
 

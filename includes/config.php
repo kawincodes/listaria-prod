@@ -41,58 +41,85 @@ if (getenv('GOOGLE_CLIENT_ID')) {
     }
 }
 
-$captchaEnabled = strtolower(getenv('CAPTCHA_ENABLED') ?: 'false');
-if (!defined('CAPTCHA_ENABLED')) {
-    define('CAPTCHA_ENABLED', in_array($captchaEnabled, ['true', '1', 'yes']));
-}
+function getCaptchaConfig($pdo = null) {
+    $config = [
+        'enabled' => false,
+        'provider' => 'turnstile',
+        'turnstile_site_key' => getenv('TURNSTILE_SITE_KEY') ?: '',
+        'turnstile_secret_key' => getenv('TURNSTILE_SECRET_KEY') ?: '',
+        'recaptcha_site_key' => getenv('RECAPTCHA_SITE_KEY') ?: '',
+        'recaptcha_secret_key' => getenv('RECAPTCHA_SECRET_KEY') ?: '',
+    ];
 
-if (getenv('TURNSTILE_SITE_KEY')) {
-    if (!defined('TURNSTILE_SITE_KEY')) {
-        define('TURNSTILE_SITE_KEY', getenv('TURNSTILE_SITE_KEY'));
-    }
-}
-if (getenv('TURNSTILE_SECRET_KEY')) {
-    if (!defined('TURNSTILE_SECRET_KEY')) {
-        define('TURNSTILE_SECRET_KEY', getenv('TURNSTILE_SECRET_KEY'));
-    }
-}
+    $envEnabled = strtolower(getenv('CAPTCHA_ENABLED') ?: 'false');
+    $config['enabled'] = in_array($envEnabled, ['true', '1', 'yes']);
 
-if (getenv('RECAPTCHA_SITE_KEY')) {
-    if (!defined('RECAPTCHA_SITE_KEY')) {
-        define('RECAPTCHA_SITE_KEY', getenv('RECAPTCHA_SITE_KEY'));
-    }
-}
-if (getenv('RECAPTCHA_SECRET_KEY')) {
-    if (!defined('RECAPTCHA_SECRET_KEY')) {
-        define('RECAPTCHA_SECRET_KEY', getenv('RECAPTCHA_SECRET_KEY'));
-    }
-}
-
-function isCaptchaActive($pdo = null) {
-    if (!defined('TURNSTILE_SITE_KEY') || !TURNSTILE_SITE_KEY) return false;
-    if (!defined('TURNSTILE_SECRET_KEY') || !TURNSTILE_SECRET_KEY) return false;
+    $envProvider = strtolower(getenv('CAPTCHA_PROVIDER') ?: '');
+    if ($envProvider) $config['provider'] = $envProvider;
 
     if ($pdo) {
         try {
-            $stmt = $pdo->prepare("SELECT setting_value FROM site_settings WHERE setting_key = 'captcha_enabled'");
+            $stmt = $pdo->prepare("SELECT setting_key, setting_value FROM site_settings WHERE setting_key IN ('captcha_enabled','captcha_provider','turnstile_site_key','turnstile_secret_key','recaptcha_site_key','recaptcha_secret_key')");
             $stmt->execute();
-            $val = $stmt->fetchColumn();
-            if ($val !== false) return $val === '1';
+            $rows = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+
+            if (isset($rows['captcha_enabled'])) $config['enabled'] = $rows['captcha_enabled'] === '1';
+            if (!empty($rows['captcha_provider'])) $config['provider'] = $rows['captcha_provider'];
+            if (!empty($rows['turnstile_site_key'])) $config['turnstile_site_key'] = $rows['turnstile_site_key'];
+            if (!empty($rows['turnstile_secret_key'])) $config['turnstile_secret_key'] = $rows['turnstile_secret_key'];
+            if (!empty($rows['recaptcha_site_key'])) $config['recaptcha_site_key'] = $rows['recaptcha_site_key'];
+            if (!empty($rows['recaptcha_secret_key'])) $config['recaptcha_secret_key'] = $rows['recaptcha_secret_key'];
         } catch (Exception $e) {}
     }
 
-    return defined('CAPTCHA_ENABLED') && CAPTCHA_ENABLED;
+    return $config;
+}
+
+function isCaptchaActive($pdo = null) {
+    $cfg = getCaptchaConfig($pdo);
+    if (!$cfg['enabled']) return false;
+
+    if ($cfg['provider'] === 'turnstile') {
+        return !empty($cfg['turnstile_site_key']) && !empty($cfg['turnstile_secret_key']);
+    } elseif ($cfg['provider'] === 'recaptcha') {
+        return !empty($cfg['recaptcha_site_key']) && !empty($cfg['recaptcha_secret_key']);
+    }
+    return false;
+}
+
+function getCaptchaProvider($pdo = null) {
+    $cfg = getCaptchaConfig($pdo);
+    return $cfg['provider'];
+}
+
+function getCaptchaSiteKey($pdo = null) {
+    $cfg = getCaptchaConfig($pdo);
+    if ($cfg['provider'] === 'turnstile') return $cfg['turnstile_site_key'];
+    if ($cfg['provider'] === 'recaptcha') return $cfg['recaptcha_site_key'];
+    return '';
 }
 
 function verifyCaptcha($token, $pdo = null) {
     if (!isCaptchaActive($pdo)) return true;
     if (empty($token)) return false;
 
-    $ch = curl_init('https://challenges.cloudflare.com/turnstile/v0/siteverify');
+    $cfg = getCaptchaConfig($pdo);
+
+    if ($cfg['provider'] === 'turnstile') {
+        $url = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+        $secret = $cfg['turnstile_secret_key'];
+    } elseif ($cfg['provider'] === 'recaptcha') {
+        $url = 'https://www.google.com/recaptcha/api/siteverify';
+        $secret = $cfg['recaptcha_secret_key'];
+    } else {
+        return true;
+    }
+
+    $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_POST => true,
         CURLOPT_POSTFIELDS => http_build_query([
-            'secret' => TURNSTILE_SECRET_KEY,
+            'secret' => $secret,
             'response' => $token,
             'remoteip' => $_SERVER['REMOTE_ADDR'] ?? ''
         ]),
@@ -104,7 +131,7 @@ function verifyCaptcha($token, $pdo = null) {
     curl_close($ch);
 
     if ($err) {
-        error_log("Turnstile verification error: " . $err);
+        error_log("CAPTCHA verification error ({$cfg['provider']}): " . $err);
         return false;
     }
 

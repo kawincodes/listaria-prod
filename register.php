@@ -18,8 +18,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $error = "Passwords do not match.";
     } else {
         if (isCaptchaActive($pdo)) {
-            $turnstile_token = $_POST['cf-turnstile-response'] ?? '';
-            if (!verifyCaptcha($turnstile_token, $pdo)) {
+            $provider = getCaptchaProvider($pdo);
+            $captcha_token = ($provider === 'turnstile')
+                ? ($_POST['cf-turnstile-response'] ?? '')
+                : ($_POST['g-recaptcha-response'] ?? '');
+            if (!verifyCaptcha($captcha_token, $pdo)) {
                 $error = "CAPTCHA verification failed. Please try again.";
             }
         }
@@ -79,9 +82,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <?php include 'includes/header.php'; ?>
 <!-- Load Google Identity Services -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
-<?php if (isCaptchaActive($pdo)): ?>
+<?php if (isCaptchaActive($pdo)):
+    $captchaProvider = getCaptchaProvider($pdo);
+    if ($captchaProvider === 'turnstile'): ?>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-<?php endif; ?>
+<?php else: ?>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<?php endif; endif; ?>
 <body>
 
 <div class="auth-container">
@@ -155,11 +162,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
             </div>
             
-            <?php if(isCaptchaActive($pdo)): ?>
+            <?php if(isCaptchaActive($pdo)):
+                $cProvider = getCaptchaProvider($pdo);
+                $cSiteKey = getCaptchaSiteKey($pdo);
+                if ($cProvider === 'turnstile'): ?>
             <div class="form-group">
-                <div class="cf-turnstile" data-sitekey="<?php echo TURNSTILE_SITE_KEY; ?>" data-theme="light"></div>
+                <div class="cf-turnstile" data-sitekey="<?php echo htmlspecialchars($cSiteKey); ?>" data-theme="light"></div>
             </div>
-            <?php endif; ?>
+            <?php else: ?>
+            <div class="form-group">
+                <div class="g-recaptcha" data-sitekey="<?php echo htmlspecialchars($cSiteKey); ?>"></div>
+            </div>
+            <?php endif; endif; ?>
 
             <button type="submit" class="btn-primary" style="width: 100%;">Create Account</button>
         </form>

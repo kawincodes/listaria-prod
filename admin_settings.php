@@ -33,6 +33,9 @@ function getSetting($pdo, $key, $default = '') {
 
 // Save settings
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isset($_POST['csrf_token']) || !isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        $msg = "Invalid request. Please try again.";
+    } else {
     $settings = [
         'site_name' => $_POST['site_name'] ?? 'Listaria',
         'site_tagline' => $_POST['site_tagline'] ?? '',
@@ -54,6 +57,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'kyc_required' => isset($_POST['kyc_required']) ? '1' : '0',
         'admin_dark_mode' => isset($_POST['admin_dark_mode']) ? '1' : '0',
         'captcha_enabled' => isset($_POST['captcha_enabled']) ? '1' : '0',
+        'captcha_provider' => in_array($_POST['captcha_provider'] ?? '', ['turnstile', 'recaptcha']) ? $_POST['captcha_provider'] : 'turnstile',
+        'turnstile_site_key' => trim($_POST['turnstile_site_key'] ?? ''),
+        'turnstile_secret_key' => trim($_POST['turnstile_secret_key'] ?? ''),
+        'recaptcha_site_key' => trim($_POST['recaptcha_site_key'] ?? ''),
+        'recaptcha_secret_key' => trim($_POST['recaptcha_secret_key'] ?? ''),
     ];
     
     foreach ($settings as $key => $value) {
@@ -68,6 +76,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo->prepare("INSERT INTO admin_activity_logs (admin_id, action, details, ip_address) VALUES (?, ?, ?, ?)")
             ->execute([$_SESSION['user_id'], "Settings updated", "Site settings modified", $_SERVER['REMOTE_ADDR'] ?? '']);
     } catch(Exception $e) {}
+    }
+}
+
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
 // Load current settings
@@ -91,7 +104,13 @@ $walletEnabled = getSetting($pdo, 'wallet_enabled', '1');
 $chatEnabled = getSetting($pdo, 'chat_enabled', '1');
 $kycRequired = getSetting($pdo, 'kyc_required', '0');
 $adminDarkMode = getSetting($pdo, 'admin_dark_mode', '0');
-$captchaEnabledSetting = getSetting($pdo, 'captcha_enabled', defined('CAPTCHA_ENABLED') && CAPTCHA_ENABLED ? '1' : '0');
+$captchaCfg = getCaptchaConfig($pdo);
+$captchaEnabledSetting = $captchaCfg['enabled'] ? '1' : '0';
+$captchaProvider = $captchaCfg['provider'];
+$turnstileSiteKey = $captchaCfg['turnstile_site_key'];
+$turnstileSecretKey = $captchaCfg['turnstile_secret_key'];
+$recaptchaSiteKey = $captchaCfg['recaptcha_site_key'];
+$recaptchaSecretKey = $captchaCfg['recaptcha_secret_key'];
 
 ?>
 <!DOCTYPE html>
@@ -356,6 +375,7 @@ $captchaEnabledSetting = getSetting($pdo, 'captcha_enabled', defined('CAPTCHA_EN
         <?php endif; ?>
 
         <form method="POST">
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
             <div class="settings-grid">
                 
                 <!-- General Settings -->
@@ -470,29 +490,65 @@ $captchaEnabledSetting = getSetting($pdo, 'captcha_enabled', defined('CAPTCHA_EN
 
                     <div class="toggle-group">
                         <div class="toggle-info">
-                            <div class="toggle-label">Cloudflare Turnstile CAPTCHA</div>
+                            <div class="toggle-label">Enable CAPTCHA</div>
                             <div class="toggle-desc">Protect login &amp; registration forms from bots</div>
                         </div>
                         <label class="toggle-switch">
-                            <input type="checkbox" name="captcha_enabled" <?php echo $captchaEnabledSetting === '1' ? 'checked' : ''; ?>>
+                            <input type="checkbox" name="captcha_enabled" id="captcha_enabled_toggle" <?php echo $captchaEnabledSetting === '1' ? 'checked' : ''; ?>>
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
 
-                    <div style="margin-top: 1rem; padding: 1rem; background: #f3f0ff; border-radius: 8px; border: 1px solid #e9e0ff;">
-                        <div style="font-size: 0.85rem; color: #555; margin-bottom: 0.5rem;">
-                            <strong>Site Key:</strong>
-                            <span style="font-family: monospace; background: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem;">
-                                <?php echo defined('TURNSTILE_SITE_KEY') && TURNSTILE_SITE_KEY ? htmlspecialchars(TURNSTILE_SITE_KEY) : '<em style="color:#999;">Not configured</em>'; ?>
-                            </span>
+                    <div id="captcha_settings_panel" style="margin-top: 1rem; <?php echo $captchaEnabledSetting !== '1' ? 'display:none;' : ''; ?>">
+                        <div class="form-group" style="margin-bottom: 1.2rem;">
+                            <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">CAPTCHA Provider</label>
+                            <div style="display: flex; gap: 1rem;">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 0.75rem 1.2rem; border-radius: 8px; border: 2px solid <?php echo $captchaProvider === 'turnstile' ? '#6B21A8' : '#ddd'; ?>; background: <?php echo $captchaProvider === 'turnstile' ? '#f3f0ff' : '#fff'; ?>; flex:1;">
+                                    <input type="radio" name="captcha_provider" value="turnstile" <?php echo $captchaProvider === 'turnstile' ? 'checked' : ''; ?> onchange="toggleCaptchaProvider()" style="width: auto;">
+                                    <div>
+                                        <div style="font-weight: 600; font-size: 0.9rem;">Cloudflare Turnstile</div>
+                                        <div style="font-size: 0.75rem; color: #888;">Privacy-friendly, no puzzles</div>
+                                    </div>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 0.75rem 1.2rem; border-radius: 8px; border: 2px solid <?php echo $captchaProvider === 'recaptcha' ? '#6B21A8' : '#ddd'; ?>; background: <?php echo $captchaProvider === 'recaptcha' ? '#f3f0ff' : '#fff'; ?>; flex:1;">
+                                    <input type="radio" name="captcha_provider" value="recaptcha" <?php echo $captchaProvider === 'recaptcha' ? 'checked' : ''; ?> onchange="toggleCaptchaProvider()" style="width: auto;">
+                                    <div>
+                                        <div style="font-weight: 600; font-size: 0.9rem;">Google reCAPTCHA</div>
+                                        <div style="font-size: 0.75rem; color: #888;">v2 checkbox challenge</div>
+                                    </div>
+                                </label>
+                            </div>
                         </div>
-                        <div style="font-size: 0.85rem; color: #555;">
-                            <strong>Secret Key:</strong>
-                            <span style="font-family: monospace; background: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem;">
-                                <?php echo defined('TURNSTILE_SECRET_KEY') && TURNSTILE_SECRET_KEY ? '••••••••' . substr(TURNSTILE_SECRET_KEY, -4) : '<em style="color:#999;">Not configured</em>'; ?>
-                            </span>
+
+                        <div id="turnstile_keys" style="padding: 1rem; background: #f3f0ff; border-radius: 8px; border: 1px solid #e9e0ff; margin-bottom: 1rem; <?php echo $captchaProvider !== 'turnstile' ? 'display:none;' : ''; ?>">
+                            <div style="font-weight: 600; margin-bottom: 0.75rem; font-size: 0.9rem; color: #6B21A8;">
+                                <ion-icon name="shield-outline" style="vertical-align: middle;"></ion-icon> Cloudflare Turnstile Keys
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0.75rem;">
+                                <label style="font-size: 0.85rem;">Site Key</label>
+                                <input type="text" name="turnstile_site_key" value="<?php echo htmlspecialchars($turnstileSiteKey); ?>" placeholder="0x4AAAAAAC..." style="font-family: monospace; font-size: 0.85rem;">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label style="font-size: 0.85rem;">Secret Key</label>
+                                <input type="text" name="turnstile_secret_key" value="<?php echo htmlspecialchars($turnstileSecretKey); ?>" placeholder="0x4AAAAAAC..." style="font-family: monospace; font-size: 0.85rem;">
+                            </div>
                         </div>
-                        <p style="font-size: 0.75rem; color: #888; margin: 0.5rem 0 0;">Keys are managed via environment variables (TURNSTILE_SITE_KEY, TURNSTILE_SECRET_KEY)</p>
+
+                        <div id="recaptcha_keys" style="padding: 1rem; background: #e8f0fe; border-radius: 8px; border: 1px solid #c4d7f5; margin-bottom: 1rem; <?php echo $captchaProvider !== 'recaptcha' ? 'display:none;' : ''; ?>">
+                            <div style="font-weight: 600; margin-bottom: 0.75rem; font-size: 0.9rem; color: #1a73e8;">
+                                <ion-icon name="logo-google" style="vertical-align: middle;"></ion-icon> Google reCAPTCHA v2 Keys
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0.75rem;">
+                                <label style="font-size: 0.85rem;">Site Key</label>
+                                <input type="text" name="recaptcha_site_key" value="<?php echo htmlspecialchars($recaptchaSiteKey); ?>" placeholder="6Lc..." style="font-family: monospace; font-size: 0.85rem;">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label style="font-size: 0.85rem;">Secret Key</label>
+                                <input type="text" name="recaptcha_secret_key" value="<?php echo htmlspecialchars($recaptchaSecretKey); ?>" placeholder="6Lc..." style="font-family: monospace; font-size: 0.85rem;">
+                            </div>
+                        </div>
+
+                        <p style="font-size: 0.75rem; color: #888; margin: 0;">Keys entered here are saved to the database. Environment variables (if set) are used as defaults.</p>
                     </div>
                 </div>
 
@@ -608,5 +664,27 @@ $captchaEnabledSetting = getSetting($pdo, 'captcha_enabled', defined('CAPTCHA_EN
             </div>
         </form>
     </main>
+<script>
+document.getElementById('captcha_enabled_toggle').addEventListener('change', function() {
+    document.getElementById('captcha_settings_panel').style.display = this.checked ? '' : 'none';
+});
+
+function toggleCaptchaProvider() {
+    var provider = document.querySelector('input[name="captcha_provider"]:checked').value;
+    document.getElementById('turnstile_keys').style.display = provider === 'turnstile' ? '' : 'none';
+    document.getElementById('recaptcha_keys').style.display = provider === 'recaptcha' ? '' : 'none';
+
+    document.querySelectorAll('input[name="captcha_provider"]').forEach(function(radio) {
+        var lbl = radio.closest('label');
+        if (radio.value === provider) {
+            lbl.style.borderColor = '#6B21A8';
+            lbl.style.background = '#f3f0ff';
+        } else {
+            lbl.style.borderColor = '#ddd';
+            lbl.style.background = '#fff';
+        }
+    });
+}
+</script>
 </body>
 </html>
