@@ -18,7 +18,8 @@ if (!$action || empty($ids)) {
     exit;
 }
 
-$user_id = $_SESSION['user_id'];
+$ids = array_map('intval', $ids);
+$user_id = (int) $_SESSION['user_id'];
 $placeholders = implode(',', array_fill(0, count($ids), '?'));
 
 try {
@@ -28,12 +29,18 @@ try {
     } elseif ($action === 'delete') {
         $stmt = $pdo->prepare("DELETE FROM products WHERE id IN ($placeholders) AND user_id = ?");
         $stmt->execute(array_merge($ids, [$user_id]));
+    } elseif ($action === 'publish') {
+        $stmt = $pdo->prepare("UPDATE products SET is_published = 1 WHERE id IN ($placeholders) AND user_id = ?");
+        $stmt->execute(array_merge($ids, [$user_id]));
+    } elseif ($action === 'unpublish') {
+        $stmt = $pdo->prepare("UPDATE products SET is_published = 0 WHERE id IN ($placeholders) AND user_id = ?");
+        $stmt->execute(array_merge($ids, [$user_id]));
     } else {
         echo json_encode(['success' => false, 'error' => 'Invalid action']);
         exit;
     }
 
-    echo json_encode(['success' => true]);
+    echo json_encode(['success' => true, 'affected' => $pdo->exec("SELECT changes()")]);
 } catch (PDOException $e) {
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }

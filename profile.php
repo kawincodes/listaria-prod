@@ -372,6 +372,15 @@ usort($all_negotiations, function($a, $b) {
              </div>
 
             <?php if (count($my_products) > 0): ?>
+                <?php if ($_SESSION['account_type'] === 'vendor'): ?>
+                <div style="display:flex; align-items:center; gap:10px; padding: 8px 4px; margin-bottom:6px;">
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.85rem; color:#555; user-select:none;">
+                        <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)" style="width:18px; height:18px; cursor:pointer; accent-color: var(--brand-color);">
+                        Select All
+                    </label>
+                    <span id="selectionHint" style="font-size:0.78rem; color:#999; display:none;">Tap items to select</span>
+                </div>
+                <?php endif; ?>
                 <div class="listings-list">
                     <?php 
                     foreach ($my_products as $product): 
@@ -379,15 +388,19 @@ usort($all_negotiations, function($a, $b) {
                         $thumb = $images[0] ?? 'https://via.placeholder.com/100';
                         $pStatus = $product['approval_status'] ?? 'pending';
                         if(isset($product['status']) && $product['status'] === 'sold') $pStatus = 'Sold';
+                        $isUnpublished = isset($product['is_published']) && $product['is_published'] == 0;
                     ?>
-                        <div class="listing-card" data-status="<?php echo strtolower($product['status'] ?? 'active'); ?>" data-approval="<?php echo strtolower($product['approval_status'] ?? 'pending'); ?>" data-id="<?php echo $product['id']; ?>">
+                        <div class="listing-card" data-status="<?php echo strtolower($product['status'] ?? 'active'); ?>" data-approval="<?php echo strtolower($product['approval_status'] ?? 'pending'); ?>" data-id="<?php echo $product['id']; ?>" <?php if($isUnpublished): ?>style="opacity:0.6;"<?php endif; ?>>
                             <?php if ($_SESSION['account_type'] === 'vendor'): ?>
                             <div class="batch-checkbox-wrapper" style="padding: 0 5px; display: flex; align-items: center;">
-                                <input type="checkbox" class="listing-batch-checkbox" value="<?php echo $product['id']; ?>" onclick="event.stopPropagation(); updateBatchBar();" style="width: 20px; height: 20px; cursor: pointer;">
+                                <input type="checkbox" class="listing-batch-checkbox" value="<?php echo $product['id']; ?>" onchange="onCheckboxChange(this);" style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--brand-color);">
                             </div>
                             <?php endif; ?>
                             <div class="card-img">
                                 <img src="<?php echo htmlspecialchars($thumb); ?>" alt="Product">
+                                <?php if($isUnpublished): ?>
+                                <div style="position:absolute;top:4px;left:4px;background:#6b7280;color:#fff;font-size:0.65rem;padding:2px 5px;border-radius:4px;font-weight:600;">HIDDEN</div>
+                                <?php endif; ?>
                             </div>
                             <div class="card-details">
                                 <div style="display:flex; justify-content:space-between; align-items:start;">
@@ -574,61 +587,115 @@ usort($all_negotiations, function($a, $b) {
 
 <!-- Bulk Actions Bar (Vendor Only) -->
 <?php if ($_SESSION['account_type'] === 'vendor'): ?>
-<div id="bulkActionsBar" class="bulk-actions-bar" style="display:none; position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:white; padding:15px 25px; border-radius:40px; box-shadow:0 10px 40px rgba(0,0,0,0.2); z-index:9000; width:90%; max-width:500px; justify-content:space-between; align-items:center; border:2px solid var(--brand-color);">
-    <div style="font-weight:700; color:var(--brand-color);"><span id="selectedCount">0</span> Selected</div>
-    <div style="display:flex; gap:10px;">
-        <button onclick="bulkAction('sold')" class="bulk-btn" style="background:#27ae60; color:white; border:none; padding:8px 15px; border-radius:20px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:5px;"><ion-icon name="checkmark-done-outline"></ion-icon> Sold</button>
-        <button onclick="bulkAction('delete')" class="bulk-btn" style="background:#e74c3c; color:white; border:none; padding:8px 15px; border-radius:20px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:5px;"><ion-icon name="trash-outline"></ion-icon> Delete</button>
+<div id="bulkActionsBar" style="display:none; position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:white; padding:12px 16px; border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.18); z-index:9000; width:92%; max-width:520px; border:2px solid var(--brand-color);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <div style="font-weight:700; color:var(--brand-color); font-size:0.95rem;"><span id="selectedCount">0</span> listing(s) selected</div>
+        <button onclick="clearSelection()" style="background:none;border:none;color:#999;cursor:pointer;font-size:0.8rem;padding:0;">Clear</button>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:8px;">
+        <button onclick="bulkAction('publish')" style="background:#10b981;color:white;border:none;padding:9px 6px;border-radius:10px;font-weight:600;cursor:pointer;font-size:0.78rem;display:flex;flex-direction:column;align-items:center;gap:3px;">
+            <ion-icon name="eye-outline" style="font-size:1.1rem;"></ion-icon>Publish
+        </button>
+        <button onclick="bulkAction('unpublish')" style="background:#6b7280;color:white;border:none;padding:9px 6px;border-radius:10px;font-weight:600;cursor:pointer;font-size:0.78rem;display:flex;flex-direction:column;align-items:center;gap:3px;">
+            <ion-icon name="eye-off-outline" style="font-size:1.1rem;"></ion-icon>Hide
+        </button>
+        <button onclick="bulkAction('sold')" style="background:#f59e0b;color:white;border:none;padding:9px 6px;border-radius:10px;font-weight:600;cursor:pointer;font-size:0.78rem;display:flex;flex-direction:column;align-items:center;gap:3px;">
+            <ion-icon name="checkmark-done-outline" style="font-size:1.1rem;"></ion-icon>Sold
+        </button>
+        <button onclick="bulkAction('delete')" style="background:#e74c3c;color:white;border:none;padding:9px 6px;border-radius:10px;font-weight:600;cursor:pointer;font-size:0.78rem;display:flex;flex-direction:column;align-items:center;gap:3px;">
+            <ion-icon name="trash-outline" style="font-size:1.1rem;"></ion-icon>Delete
+        </button>
     </div>
 </div>
 
 <script>
+function onCheckboxChange(checkbox) {
+    const card = checkbox.closest('.listing-card');
+    if (checkbox.checked) {
+        card.style.outline = '2px solid var(--brand-color)';
+        card.style.background = '#f5f3ff';
+    } else {
+        card.style.outline = '';
+        card.style.background = '';
+    }
+    updateBatchBar();
+    syncSelectAll();
+}
+
+function toggleSelectAll(masterCb) {
+    const boxes = document.querySelectorAll('.listing-batch-checkbox');
+    boxes.forEach(cb => {
+        cb.checked = masterCb.checked;
+        onCheckboxChange(cb);
+    });
+    updateBatchBar();
+}
+
+function syncSelectAll() {
+    const all = document.querySelectorAll('.listing-batch-checkbox');
+    const checked = document.querySelectorAll('.listing-batch-checkbox:checked');
+    const master = document.getElementById('selectAllCheckbox');
+    if (!master) return;
+    master.indeterminate = checked.length > 0 && checked.length < all.length;
+    master.checked = all.length > 0 && checked.length === all.length;
+}
+
+function clearSelection() {
+    document.querySelectorAll('.listing-batch-checkbox:checked').forEach(cb => {
+        cb.checked = false;
+        onCheckboxChange(cb);
+    });
+    const master = document.getElementById('selectAllCheckbox');
+    if (master) { master.checked = false; master.indeterminate = false; }
+    updateBatchBar();
+}
+
 function updateBatchBar() {
     const checked = document.querySelectorAll('.listing-batch-checkbox:checked');
     const bar = document.getElementById('bulkActionsBar');
     const countSpan = document.getElementById('selectedCount');
-    
     if (checked.length > 0) {
-        bar.style.display = 'flex';
+        bar.style.display = 'block';
         countSpan.textContent = checked.length;
     } else {
         bar.style.display = 'none';
     }
 }
 
+const actionLabels = {
+    publish: 'publish',
+    unpublish: 'hide',
+    sold: 'mark as Sold',
+    delete: 'permanently delete'
+};
+
 async function bulkAction(action) {
     const checked = document.querySelectorAll('.listing-batch-checkbox:checked');
     const ids = Array.from(checked).map(c => c.value);
-    
     if (ids.length === 0) return;
-    
-    if (!confirm(`Are you sure you want to mark ${ids.length} items as ${action}?`)) return;
 
-    const btn = event.currentTarget;
-    const originalText = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = '<ion-icon name="hourglass-outline"></ion-icon>';
+    const label = actionLabels[action] || action;
+    if (!confirm(`${ids.length} listing(s) will be ${label}d. Continue?`)) return;
+
+    const buttons = document.querySelectorAll('#bulkActionsBar button:not([onclick="clearSelection()"])');
+    buttons.forEach(b => { b.disabled = true; b.style.opacity = '0.6'; });
 
     try {
         const response = await fetch('api/bulk_listing_action.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: action, ids: ids })
+            body: JSON.stringify({ action, ids })
         });
-        
         const res = await response.json();
         if (res.success) {
             location.reload();
         } else {
-            alert('Failed to perform action: ' + (res.error || 'Unknown error'));
-            btn.disabled = false;
-            btn.innerHTML = originalText;
+            alert('Action failed: ' + (res.error || 'Unknown error'));
+            buttons.forEach(b => { b.disabled = false; b.style.opacity = '1'; });
         }
     } catch (e) {
-        console.error(e);
-        alert('An error occurred.');
-        btn.disabled = false;
-        btn.innerHTML = originalText;
+        alert('A network error occurred. Please try again.');
+        buttons.forEach(b => { b.disabled = false; b.style.opacity = '1'; });
     }
 }
 </script>
@@ -808,7 +875,7 @@ async function bulkAction(action) {
     }
     .card-img {
         width: 80px; height: 80px; background: var(--hover-bg); border-radius: 8px; overflow: hidden;
-        display: flex; align-items: center; justify-content: center;
+        display: flex; align-items: center; justify-content: center; position: relative;
     }
     .card-img img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; }
     
