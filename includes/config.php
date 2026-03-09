@@ -41,13 +41,13 @@ if (getenv('GOOGLE_CLIENT_ID')) {
     }
 }
 
-if (getenv('RECAPTCHA_SITE_KEY')) {
+if (getenv('RECAPTCHA_SITE_KEY') && !getenv('REPL_ID')) {
     if (!defined('RECAPTCHA_SITE_KEY')) {
         define('RECAPTCHA_SITE_KEY', getenv('RECAPTCHA_SITE_KEY'));
     }
 }
 
-if (getenv('RECAPTCHA_SECRET_KEY')) {
+if (getenv('RECAPTCHA_SECRET_KEY') && !getenv('REPL_ID')) {
     if (!defined('RECAPTCHA_SECRET_KEY')) {
         define('RECAPTCHA_SECRET_KEY', getenv('RECAPTCHA_SECRET_KEY'));
     }
