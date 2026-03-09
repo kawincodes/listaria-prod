@@ -119,6 +119,11 @@ $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->execute([$user_id]);
 $user = $stmt->fetch();
 
+// Sync session account_type with DB (admin may have approved/rejected since last login)
+if (isset($user['account_type']) && $_SESSION['account_type'] !== $user['account_type']) {
+    $_SESSION['account_type'] = $user['account_type'];
+}
+
 // Fetch User's Products
 $stmt = $pdo->prepare("SELECT * FROM products WHERE user_id = ? ORDER BY created_at DESC");
 $stmt->execute([$user_id]);
@@ -226,8 +231,25 @@ usort($all_negotiations, function($a, $b) {
 });
 ?>
 
-<?php if (isset($_GET['msg']) && $_GET['msg'] === 'vendor_profile_deleted'): ?>
-<div class="alert success" style="margin: 20px;">Your vendor profile has been successfully deleted. You are now a standard customer.</div>
+<?php if (isset($_GET['msg'])): ?>
+    <?php if ($_GET['msg'] === 'vendor_profile_deleted'): ?>
+    <div class="alert success" style="margin: 20px;">Your vendor profile has been successfully deleted. You are now a standard customer.</div>
+    <?php elseif ($_GET['msg'] === 'already_vendor'): ?>
+    <div class="alert success" style="margin: 20px; background:#f0fdf4; color:#15803d; border-left:4px solid #22c55e; padding:15px; border-radius:8px;">
+        <ion-icon name="checkmark-circle-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon>
+        <strong>You are already a verified vendor.</strong> Use the Vendor Dashboard to manage your store.
+    </div>
+    <?php elseif ($_GET['msg'] === 'business_updated'): ?>
+    <div class="alert success" style="margin: 20px; background:#f0fdf4; color:#15803d; border-left:4px solid #22c55e; padding:15px; border-radius:8px;">
+        <ion-icon name="checkmark-circle-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon>
+        Business profile updated successfully.
+    </div>
+    <?php elseif ($_GET['msg'] === 'update_failed'): ?>
+    <div class="alert error" style="margin: 20px; background:#fef2f2; color:#dc2626; border-left:4px solid #dc2626; padding:15px; border-radius:8px;">
+        <ion-icon name="alert-circle-outline" style="vertical-align:middle; margin-right:6px;"></ion-icon>
+        Failed to update business profile. Please try again.
+    </div>
+    <?php endif; ?>
 <?php endif; ?>
 
 <div class="profile-page-wrapper">
@@ -254,7 +276,7 @@ usort($all_negotiations, function($a, $b) {
         </div>
 
         <?php 
-        $user_account_type = $_SESSION['account_type'] ?? 'customer';
+        $user_account_type = $user['account_type'] ?? 'customer';
         $vendor_status = $user['vendor_status'] ?? 'none';
         
         if ($user_account_type === 'vendor'): 
