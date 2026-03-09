@@ -1321,7 +1321,10 @@ document.addEventListener('DOMContentLoaded', () => {
 <div id="zoomLightbox" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:99999; flex-direction:column; align-items:center; justify-content:center; touch-action:none;">
     <!-- Top Bar -->
     <div style="position:absolute; top:0; left:0; right:0; display:flex; justify-content:space-between; align-items:center; padding:12px 16px; z-index:2; background:linear-gradient(rgba(0,0,0,0.5),transparent);">
-        <div id="zoomLevel" style="color:white; font-size:0.85rem; font-weight:600; background:rgba(255,255,255,0.15); padding:4px 12px; border-radius:20px;">100%</div>
+        <div style="display:flex; align-items:center; gap:10px;">
+            <div id="zoomLevel" style="color:white; font-size:0.85rem; font-weight:600; background:rgba(255,255,255,0.15); padding:4px 12px; border-radius:20px;">100%</div>
+            <div id="zoomCounter" style="color:rgba(255,255,255,0.7); font-size:0.82rem;"></div>
+        </div>
         <div style="display:flex; gap:10px; align-items:center;">
             <button onclick="adjustZoom(0.5)" style="background:rgba(255,255,255,0.15); border:none; color:white; width:36px; height:36px; border-radius:50%; font-size:1.3rem; cursor:pointer; display:flex; align-items:center; justify-content:center;">−</button>
             <button onclick="adjustZoom(-0.5)" style="background:rgba(255,255,255,0.15); border:none; color:white; width:36px; height:36px; border-radius:50%; font-size:1.3rem; cursor:pointer; display:flex; align-items:center; justify-content:center;">+</button>
@@ -1332,14 +1335,27 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
     </div>
 
+    <!-- Left Arrow -->
+    <button id="zoomPrev" onclick="navigateZoom(-1)" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.15); border:none; color:white; width:46px; height:46px; border-radius:50%; font-size:1.5rem; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:3; backdrop-filter:blur(4px); transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+    </button>
+
     <!-- Image Container -->
     <div id="zoomContainer" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; overflow:hidden;">
         <img id="zoomImage" src="" style="max-width:100%; max-height:100%; object-fit:contain; transform-origin:center center; transition:none; will-change:transform; user-select:none; -webkit-user-drag:none;">
     </div>
 
+    <!-- Right Arrow -->
+    <button id="zoomNext" onclick="navigateZoom(1)" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.15); border:none; color:white; width:46px; height:46px; border-radius:50%; font-size:1.5rem; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:3; backdrop-filter:blur(4px); transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+    </button>
+
+    <!-- Dot Indicators -->
+    <div id="zoomDots" style="position:absolute; bottom:28px; left:50%; transform:translateX(-50%); display:flex; gap:6px; z-index:3;"></div>
+
     <!-- Hint -->
-    <div id="zoomHint" style="position:absolute; bottom:20px; left:50%; transform:translateX(-50%); color:rgba(255,255,255,0.6); font-size:0.78rem; text-align:center; pointer-events:none; transition:opacity 0.5s;">
-        Scroll or pinch to zoom · Drag to pan
+    <div id="zoomHint" style="position:absolute; bottom:10px; left:50%; transform:translateX(-50%); color:rgba(255,255,255,0.5); font-size:0.72rem; text-align:center; pointer-events:none; transition:opacity 0.5s; white-space:nowrap;">
+        Scroll or pinch to zoom · Drag to pan · ← → to navigate
     </div>
 </div>
 
@@ -1347,22 +1363,65 @@ document.addEventListener('DOMContentLoaded', () => {
 #zoomLightbox.active { display:flex !important; }
 #zoomImage[data-zoomed="true"] { cursor:grab; }
 #zoomImage[data-dragging="true"] { cursor:grabbing !important; transition:none !important; }
+#zoomPrev:disabled, #zoomNext:disabled { opacity:0.25; cursor:default; pointer-events:none; }
 </style>
 
 <script>
 (function() {
     const allImages = <?php echo json_encode(array_values((array)$images)); ?>;
-    let currentZoomSrc = '';
+    let currentIndex = 0;
     let scale = 1, minScale = 1, maxScale = 5;
     let tx = 0, ty = 0;
-    let isDragging = false, startX = 0, startY = 0, lastTx = 0, lastTy = 0;
+    let isDragging = false, startX = 0, startY = 0;
     let lastPinchDist = 0;
     let hintTimer;
+    let swipeStartX = 0, swipeStartY = 0;
 
     const lb = document.getElementById('zoomLightbox');
     const img = document.getElementById('zoomImage');
     const levelEl = document.getElementById('zoomLevel');
     const hint = document.getElementById('zoomHint');
+    const counterEl = document.getElementById('zoomCounter');
+    const dotsEl = document.getElementById('zoomDots');
+    const prevBtn = document.getElementById('zoomPrev');
+    const nextBtn = document.getElementById('zoomNext');
+
+    function buildDots() {
+        dotsEl.innerHTML = '';
+        if (allImages.length <= 1) return;
+        allImages.forEach((_, i) => {
+            const d = document.createElement('div');
+            d.style.cssText = `width:7px;height:7px;border-radius:50%;background:${i===currentIndex?'white':'rgba(255,255,255,0.35)'};transition:background 0.2s;cursor:pointer;`;
+            d.onclick = () => goToIndex(i);
+            dotsEl.appendChild(d);
+        });
+    }
+
+    function updateNav() {
+        prevBtn.disabled = currentIndex === 0;
+        nextBtn.disabled = currentIndex === allImages.length - 1;
+        counterEl.textContent = allImages.length > 1 ? `${currentIndex + 1} / ${allImages.length}` : '';
+        buildDots();
+    }
+
+    function goToIndex(i) {
+        currentIndex = Math.max(0, Math.min(allImages.length - 1, i));
+        img.src = allImages[currentIndex];
+        // Also sync the main page thumbnail highlight
+        document.querySelectorAll('.thumbnail-img').forEach((t, ti) => {
+            t.classList.toggle('active', ti === currentIndex);
+        });
+        if (document.getElementById('mainImage')) {
+            document.getElementById('mainImage').src = allImages[currentIndex];
+        }
+        scale = 1; tx = 0; ty = 0;
+        applyTransform(false);
+        updateNav();
+    }
+
+    window.navigateZoom = function(dir) {
+        goToIndex(currentIndex + dir);
+    };
 
     function applyTransform(animated) {
         img.style.transition = animated ? 'transform 0.2s ease' : 'none';
@@ -1372,7 +1431,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function clampTranslate() {
-        // Allow panning only within scaled bounds
         const rect = img.getBoundingClientRect();
         const lbRect = lb.getBoundingClientRect();
         const maxTx = Math.max(0, (rect.width - lbRect.width) / 2);
@@ -1383,14 +1441,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function hideHint() {
         clearTimeout(hintTimer);
-        hintTimer = setTimeout(() => { hint.style.opacity = '0'; }, 2000);
+        hintTimer = setTimeout(() => { hint.style.opacity = '0'; }, 2500);
     }
 
     window.openZoom = function(src) {
-        currentZoomSrc = src;
-        img.src = src;
+        currentIndex = allImages.indexOf(src);
+        if (currentIndex < 0) currentIndex = 0;
+        img.src = allImages[currentIndex];
         scale = 1; tx = 0; ty = 0;
         applyTransform(false);
+        updateNav();
         lb.style.display = 'flex';
         lb.classList.add('active');
         document.body.style.overflow = 'hidden';
@@ -1423,9 +1483,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === lb || e.target === document.getElementById('zoomContainer')) closeZoom();
     });
 
-    // Escape key
+    // Keyboard navigation
     document.addEventListener('keydown', function(e) {
+        if (!lb.classList.contains('active')) return;
         if (e.key === 'Escape') closeZoom();
+        if (e.key === 'ArrowLeft') navigateZoom(-1);
+        if (e.key === 'ArrowRight') navigateZoom(1);
     });
 
     // --- Mouse Wheel Zoom ---
@@ -1462,7 +1525,7 @@ document.addEventListener('DOMContentLoaded', () => {
         img.dataset.dragging = 'false';
     });
 
-    // --- Touch: Pinch & Pan ---
+    // --- Touch: Pinch, Pan & Swipe Navigate ---
     let touches = [];
     lb.addEventListener('touchstart', function(e) {
         touches = Array.from(e.touches);
@@ -1471,10 +1534,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 touches[0].clientX - touches[1].clientX,
                 touches[0].clientY - touches[1].clientY
             );
-        } else if (touches.length === 1 && scale > 1) {
-            isDragging = true;
-            startX = touches[0].clientX - tx;
-            startY = touches[0].clientY - ty;
+        } else if (touches.length === 1) {
+            swipeStartX = touches[0].clientX;
+            swipeStartY = touches[0].clientY;
+            if (scale > 1) {
+                isDragging = true;
+                startX = touches[0].clientX - tx;
+                startY = touches[0].clientY - ty;
+            }
         }
     }, { passive: true });
 
@@ -1483,7 +1550,6 @@ document.addEventListener('DOMContentLoaded', () => {
         touches = Array.from(e.touches);
 
         if (touches.length === 2) {
-            // Pinch zoom
             const dist = Math.hypot(
                 touches[0].clientX - touches[1].clientX,
                 touches[0].clientY - touches[1].clientY
@@ -1496,7 +1562,6 @@ document.addEventListener('DOMContentLoaded', () => {
             applyTransform(false);
             hideHint();
         } else if (touches.length === 1 && isDragging && scale > 1) {
-            // Pan
             tx = touches[0].clientX - startX;
             ty = touches[0].clientY - startY;
             clampTranslate();
@@ -1505,7 +1570,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive: false });
 
     lb.addEventListener('touchend', function(e) {
-        if (e.touches.length === 0) isDragging = false;
+        if (e.touches.length === 0) {
+            // Swipe to navigate only when not zoomed
+            if (scale <= 1 && allImages.length > 1) {
+                const dx = (e.changedTouches[0]?.clientX ?? swipeStartX) - swipeStartX;
+                const dy = Math.abs((e.changedTouches[0]?.clientY ?? swipeStartY) - swipeStartY);
+                if (Math.abs(dx) > 50 && dy < 60) {
+                    navigateZoom(dx < 0 ? 1 : -1);
+                }
+            }
+            isDragging = false;
+        }
         touches = Array.from(e.touches);
     }, { passive: true });
 
