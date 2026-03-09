@@ -17,36 +17,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } elseif ($password !== $confirm_password) {
         $error = "Passwords do not match.";
     } else {
-        // Validate reCAPTCHA
-        $recaptcha_secret = defined('RECAPTCHA_SECRET_KEY') ? RECAPTCHA_SECRET_KEY : '';
-        $recaptcha_response = $_POST['g-recaptcha-response'] ?? '';
-        
-        if ($recaptcha_secret) {
-            $verify_url = 'https://www.google.com/recaptcha/api/siteverify';
-            $data = [
-                'secret' => $recaptcha_secret,
-                'response' => $recaptcha_response,
-                'remoteip' => $_SERVER['REMOTE_ADDR']
-            ];
-
-            $ch = curl_init($verify_url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Disable SSL verify for compatibility
-
-            $verify_response = curl_exec($ch);
-            $curl_error = curl_error($ch);
-            curl_close($ch);
-
-            if ($curl_error) {
-                 error_log("reCAPTCHA cURL Error: " . $curl_error);
-                 $error = "reCAPTCHA connection failed. Please try again.";
-            } else {
-                $response_data = json_decode($verify_response);
-                if (!$response_data || !$response_data->success) {
-                    $error = "reCAPTCHA verification failed. Please try again.";
-                }
+        if (isCaptchaActive($pdo)) {
+            $turnstile_token = $_POST['cf-turnstile-response'] ?? '';
+            if (!verifyCaptcha($turnstile_token, $pdo)) {
+                $error = "CAPTCHA verification failed. Please try again.";
             }
         }
 
@@ -105,8 +79,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <?php include 'includes/header.php'; ?>
 <!-- Load Google Identity Services -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
-<!-- Load reCAPTCHA -->
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<?php if (isCaptchaActive($pdo)): ?>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<?php endif; ?>
 <body>
 
 <div class="auth-container">
@@ -180,9 +155,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
             </div>
             
-            <?php if(defined('RECAPTCHA_SITE_KEY') && RECAPTCHA_SITE_KEY): ?>
+            <?php if(isCaptchaActive($pdo)): ?>
             <div class="form-group">
-                <div class="g-recaptcha" data-sitekey="<?php echo RECAPTCHA_SITE_KEY; ?>"></div>
+                <div class="cf-turnstile" data-sitekey="<?php echo TURNSTILE_SITE_KEY; ?>" data-theme="light"></div>
             </div>
             <?php endif; ?>
 

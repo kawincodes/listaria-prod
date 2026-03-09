@@ -36,3 +36,10 @@ externalPort = 80
 [deployment]
 deploymentTarget = "autoscale"
 run = ["php", "-c", "php.ini", "-S", "0.0.0.0:5000"]
+
+[userenv]
+
+[userenv.shared]
+CAPTCHA_ENABLED = "true"
+TURNSTILE_SITE_KEY = "0x4AAAAAACJyYqpnqfAr4A2k"
+TURNSTILE_SECRET_KEY = "0x4AAAAAACJyYswEtXQ3V5bOvJuf4OlwXCs"

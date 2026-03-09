@@ -41,16 +41,75 @@ if (getenv('GOOGLE_CLIENT_ID')) {
     }
 }
 
-if (getenv('RECAPTCHA_SITE_KEY') && !getenv('REPL_ID')) {
+$captchaEnabled = strtolower(getenv('CAPTCHA_ENABLED') ?: 'false');
+if (!defined('CAPTCHA_ENABLED')) {
+    define('CAPTCHA_ENABLED', in_array($captchaEnabled, ['true', '1', 'yes']));
+}
+
+if (getenv('TURNSTILE_SITE_KEY')) {
+    if (!defined('TURNSTILE_SITE_KEY')) {
+        define('TURNSTILE_SITE_KEY', getenv('TURNSTILE_SITE_KEY'));
+    }
+}
+if (getenv('TURNSTILE_SECRET_KEY')) {
+    if (!defined('TURNSTILE_SECRET_KEY')) {
+        define('TURNSTILE_SECRET_KEY', getenv('TURNSTILE_SECRET_KEY'));
+    }
+}
+
+if (getenv('RECAPTCHA_SITE_KEY')) {
     if (!defined('RECAPTCHA_SITE_KEY')) {
         define('RECAPTCHA_SITE_KEY', getenv('RECAPTCHA_SITE_KEY'));
     }
 }
-
-if (getenv('RECAPTCHA_SECRET_KEY') && !getenv('REPL_ID')) {
+if (getenv('RECAPTCHA_SECRET_KEY')) {
     if (!defined('RECAPTCHA_SECRET_KEY')) {
         define('RECAPTCHA_SECRET_KEY', getenv('RECAPTCHA_SECRET_KEY'));
     }
+}
+
+function isCaptchaActive($pdo = null) {
+    if (!defined('TURNSTILE_SITE_KEY') || !TURNSTILE_SITE_KEY) return false;
+    if (!defined('TURNSTILE_SECRET_KEY') || !TURNSTILE_SECRET_KEY) return false;
+
+    if ($pdo) {
+        try {
+            $stmt = $pdo->prepare("SELECT setting_value FROM site_settings WHERE setting_key = 'captcha_enabled'");
+            $stmt->execute();
+            $val = $stmt->fetchColumn();
+            if ($val !== false) return $val === '1';
+        } catch (Exception $e) {}
+    }
+
+    return defined('CAPTCHA_ENABLED') && CAPTCHA_ENABLED;
+}
+
+function verifyCaptcha($token, $pdo = null) {
+    if (!isCaptchaActive($pdo)) return true;
+    if (empty($token)) return false;
+
+    $ch = curl_init('https://challenges.cloudflare.com/turnstile/v0/siteverify');
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => http_build_query([
+            'secret' => TURNSTILE_SECRET_KEY,
+            'response' => $token,
+            'remoteip' => $_SERVER['REMOTE_ADDR'] ?? ''
+        ]),
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 10,
+    ]);
+    $response = curl_exec($ch);
+    $err = curl_error($ch);
+    curl_close($ch);
+
+    if ($err) {
+        error_log("Turnstile verification error: " . $err);
+        return false;
+    }
+
+    $data = json_decode($response, true);
+    return !empty($data['success']);
 }
 
 if (getenv('SMTP_HOST') && !defined('SMTP_HOST')) {

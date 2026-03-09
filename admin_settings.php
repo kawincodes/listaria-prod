@@ -53,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'chat_enabled' => isset($_POST['chat_enabled']) ? '1' : '0',
         'kyc_required' => isset($_POST['kyc_required']) ? '1' : '0',
         'admin_dark_mode' => isset($_POST['admin_dark_mode']) ? '1' : '0',
+        'captcha_enabled' => isset($_POST['captcha_enabled']) ? '1' : '0',
     ];
     
     foreach ($settings as $key => $value) {
@@ -90,6 +91,7 @@ $walletEnabled = getSetting($pdo, 'wallet_enabled', '1');
 $chatEnabled = getSetting($pdo, 'chat_enabled', '1');
 $kycRequired = getSetting($pdo, 'kyc_required', '0');
 $adminDarkMode = getSetting($pdo, 'admin_dark_mode', '0');
+$captchaEnabledSetting = getSetting($pdo, 'captcha_enabled', defined('CAPTCHA_ENABLED') && CAPTCHA_ENABLED ? '1' : '0');
 
 ?>
 <!DOCTYPE html>
@@ -457,6 +459,40 @@ $adminDarkMode = getSetting($pdo, 'admin_dark_mode', '0');
                             <input type="checkbox" name="chat_enabled" <?php echo $chatEnabled === '1' ? 'checked' : ''; ?>>
                             <span class="toggle-slider"></span>
                         </label>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <div class="card-title">
+                        <ion-icon name="shield-checkmark-outline"></ion-icon>
+                        CAPTCHA Protection
+                    </div>
+
+                    <div class="toggle-group">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Cloudflare Turnstile CAPTCHA</div>
+                            <div class="toggle-desc">Protect login &amp; registration forms from bots</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="captcha_enabled" <?php echo $captchaEnabledSetting === '1' ? 'checked' : ''; ?>>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div style="margin-top: 1rem; padding: 1rem; background: #f3f0ff; border-radius: 8px; border: 1px solid #e9e0ff;">
+                        <div style="font-size: 0.85rem; color: #555; margin-bottom: 0.5rem;">
+                            <strong>Site Key:</strong>
+                            <span style="font-family: monospace; background: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem;">
+                                <?php echo defined('TURNSTILE_SITE_KEY') && TURNSTILE_SITE_KEY ? htmlspecialchars(TURNSTILE_SITE_KEY) : '<em style="color:#999;">Not configured</em>'; ?>
+                            </span>
+                        </div>
+                        <div style="font-size: 0.85rem; color: #555;">
+                            <strong>Secret Key:</strong>
+                            <span style="font-family: monospace; background: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem;">
+                                <?php echo defined('TURNSTILE_SECRET_KEY') && TURNSTILE_SECRET_KEY ? '••••••••' . substr(TURNSTILE_SECRET_KEY, -4) : '<em style="color:#999;">Not configured</em>'; ?>
+                            </span>
+                        </div>
+                        <p style="font-size: 0.75rem; color: #888; margin: 0.5rem 0 0;">Keys are managed via environment variables (TURNSTILE_SITE_KEY, TURNSTILE_SECRET_KEY)</p>
                     </div>
                 </div>
 
