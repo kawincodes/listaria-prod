@@ -1,4 +1,4 @@
-const CACHE_NAME = 'listaria-v1';
+const CACHE_NAME = 'listaria-v2';
 const OFFLINE_PAGE = '/offline.php';
 
 const STATIC_ASSETS = [
