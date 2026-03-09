@@ -143,10 +143,29 @@ $csrf = htmlspecialchars($_SESSION['csrf_token']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SEO & Sitemap — <?php echo htmlspecialchars($siteName); ?> Admin</title>
-    <link rel="stylesheet" href="assets/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     <style>
+        /* ── Base layout (matches all admin pages) ────── */
+        :root {
+            --primary: #6B21A8;
+            --bg: #f8f9fa;
+            --sidebar-bg: #1a1a1a;
+            --card-bg: #fff;
+            --border-color: #e5e7eb;
+            --input-bg: #f9fafb;
+            --text-primary: #111;
+            --text-secondary: #6b7280;
+            --text-muted: #9ca3af;
+        }
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding: 0; display: flex; color: #333; }
+        .sidebar { width: 260px; background: var(--sidebar-bg); height: 100vh; position: fixed; padding: 0.5rem 0; color: white; z-index: 100; overflow-y: auto; }
+        .brand { font-size: 1.2rem; font-weight: 700; color: white; display: flex; align-items: center; gap: 10px; margin-bottom: 0.5rem; text-decoration: none; }
+        .main-content { margin-left: 260px; padding: 2.5rem 3rem; width: calc(100% - 260px); min-height: 100vh; }
+        @media(max-width:768px) { .sidebar { width: 0; } .main-content { margin-left: 0; width: 100%; padding: 1.5rem; } }
+
         /* ── Layout ───────────────────────────────────── */
         .seo-wrap { max-width: 860px; }
 
@@ -414,7 +433,6 @@ $csrf = htmlspecialchars($_SESSION['csrf_token']);
     </style>
 </head>
 <body>
-<div class="admin-layout">
     <?php include 'includes/admin_sidebar.php'; ?>
     <main class="main-content">
         <div class="seo-wrap">
@@ -726,7 +744,6 @@ $csrf = htmlspecialchars($_SESSION['csrf_token']);
             </div><!-- /accordion -->
         </div><!-- /seo-wrap -->
     </main>
-</div>
 
 <script>
 function toggleAcc(id) {
