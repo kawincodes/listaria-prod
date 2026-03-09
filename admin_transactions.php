@@ -145,9 +145,6 @@ $orders = $ordersStmt->fetchAll();
         /* Include Sidebar styles via external CSS if extracted, or inline for now as in Dashboard */
         .sidebar { width: 260px; background: var(--sidebar-bg); height: 100vh; position: fixed; padding: 0.5rem 0; color: white; z-index: 100; }
         .brand { font-size: 1.2rem; font-weight: 700; color: white; display: flex; align-items: center; gap: 10px; margin-bottom: 0.5rem; text-decoration: none; }
-        
-        
-        .menu-item ion-icon { font-size: 1.2rem; }
         .btn-verify {
             border: none; background: #6B21A8; color: white; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600;
             box-shadow: 0 2px 5px rgba(107, 33, 168, 0.3);

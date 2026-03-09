@@ -94,10 +94,6 @@ $allChats = $chatsStmt->fetchAll();
         /* Sidebar styles check */
         .sidebar { width: 260px; background: var(--sidebar-bg); height: 100vh; position: fixed; padding: 0.5rem 0; color: white; z-index: 100; }
         .brand { font-size: 1.2rem; font-weight: 700; color: white; display: flex; align-items: center; gap: 10px; margin-bottom: 0.5rem; text-decoration: none; }
-        
-        
-        .menu-item ion-icon { font-size: 1.2rem; }
-
         /* Chat Modal for Admin */
         .chat-modal {
             display: none;

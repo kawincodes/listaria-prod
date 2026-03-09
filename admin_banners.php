@@ -96,11 +96,8 @@ $banners = $pdo->query("SELECT * FROM banners ORDER BY display_order ASC, create
             background: var(--sidebar-bg); 
             height: 100vh; 
             position: fixed; 
-            padding: 2rem 1.5rem; 
+            padding: 0.5rem 0; 
             color: white;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 4px 0 15px rgba(0,0,0,0.05);
             z-index: 100;
         }
         .brand { font-size: 1.2rem; font-weight: 700; color: white; display: flex; align-items: center; gap: 10px; margin-bottom: 0.5rem; text-decoration: none; }
