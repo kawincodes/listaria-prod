@@ -103,33 +103,9 @@ $banners = $pdo->query("SELECT * FROM banners ORDER BY display_order ASC, create
             box-shadow: 4px 0 15px rgba(0,0,0,0.05);
             z-index: 100;
         }
-        .brand { 
-            font-size: 1.4rem; 
-            font-weight: 800; 
-            color: white; 
-            display:flex; 
-            align-items: center; 
-            gap: 10px;
-            margin-bottom: 3rem; 
-            text-decoration:none;
-            letter-spacing: -0.5px;
-        }
-        .menu-item { 
-            display: flex; 
-            align-items: center; 
-            gap: 12px; 
-            padding: 1rem; 
-            color: var(--text-light); 
-            text-decoration: none; 
-            border-radius: 12px; 
-            margin-bottom: 0.5rem; 
-            transition: all 0.3s ease; 
-            font-weight: 500;
-        }
-        .menu-item:hover, .menu-item.active { 
-            background: #6B21A8; 
-            color: white; 
-        }
+        .brand { font-size: 1.2rem; font-weight: 700; color: white; display: flex; align-items: center; gap: 10px; margin-bottom: 0.5rem; text-decoration: none; }
+        
+        
 
         .main-content { margin-left: 260px; padding: 2rem 3rem; width: calc(100% - 260px); min-height: 100vh; }
         

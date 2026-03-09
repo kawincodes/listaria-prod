@@ -1,31 +1,166 @@
 <?php $isSuperAdmin = ($_SESSION['role'] ?? '') === 'super_admin'; ?>
 <style>
-    /* Global Sidebar Scroll Fix */
     .sidebar {
         display: flex !important;
         flex-direction: column !important;
         overflow-y: auto !important;
         scrollbar-width: thin;
-        scrollbar-color: #333 #1a1a1a;
-        padding-bottom: 2rem !important; /* Ensure bottom content isn't cut off */
+        scrollbar-color: rgba(107,33,168,0.3) transparent;
+        padding-bottom: 1rem !important;
+        background: linear-gradient(180deg, #0f0a1a 0%, #1a1025 50%, #0f0a1a 100%) !important;
     }
-    
-    /* Professional Scrollbar */
-    .sidebar::-webkit-scrollbar { width: 6px; }
-    .sidebar::-webkit-scrollbar-track { background: #1a1a1a; }
-    .sidebar::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
-    .sidebar::-webkit-scrollbar-thumb:hover { background: #444; }
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-track { background: transparent; }
+    .sidebar::-webkit-scrollbar-thumb { background: rgba(107,33,168,0.3); border-radius: 4px; }
+    .sidebar::-webkit-scrollbar-thumb:hover { background: rgba(107,33,168,0.5); }
 
-    /* Prevent item shrinking */
     .menu-item, .brand { flex-shrink: 0 !important; }
+
+    .sidebar .brand {
+        padding: 1.5rem 1.2rem 1rem !important;
+        margin-bottom: 0.5rem !important;
+        border-bottom: 1px solid rgba(107,33,168,0.15);
+        position: relative;
+    }
+    .sidebar .brand::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 1.2rem;
+        width: 40px;
+        height: 2px;
+        background: #6B21A8;
+        border-radius: 1px;
+    }
+    .brand-icon-wrap {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #6B21A8, #9333EA);
+        border-radius: 10px;
+        font-size: 1.1rem;
+        color: white;
+        flex-shrink: 0;
+    }
+    .brand-text {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.2;
+    }
+    .brand-text span:first-child {
+        font-size: 1.1rem;
+        font-weight: 700;
+        letter-spacing: -0.3px;
+    }
+    .brand-text span:last-child {
+        font-size: 0.65rem;
+        color: #6B21A8;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+    }
+
+    .sidebar .nav-section-label {
+        color: rgba(255,255,255,0.3);
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        padding: 1.2rem 1.2rem 0.5rem;
+    }
+
+    .sidebar .menu-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0.7rem 1.2rem;
+        margin: 2px 0.6rem;
+        color: rgba(255,255,255,0.55);
+        text-decoration: none;
+        border-radius: 10px;
+        font-size: 0.88rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+    .sidebar .menu-item ion-icon {
+        font-size: 1.15rem;
+        flex-shrink: 0;
+    }
+    .sidebar .menu-item:hover {
+        color: rgba(255,255,255,0.9);
+        background: rgba(107,33,168,0.12);
+    }
+    .sidebar .menu-item.active {
+        color: white;
+        background: linear-gradient(135deg, rgba(107,33,168,0.35), rgba(147,51,234,0.2));
+        font-weight: 600;
+    }
+    .sidebar .menu-item.active::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 60%;
+        background: #9333EA;
+        border-radius: 0 3px 3px 0;
+    }
+    .sidebar .menu-item.active ion-icon {
+        color: #c084fc;
+    }
+
+    .sidebar .nav-section-label.super-admin-label {
+        color: #9333EA;
+    }
+
+    .sidebar .nav-divider {
+        height: 1px;
+        background: rgba(255,255,255,0.06);
+        margin: 0.5rem 1.2rem;
+    }
+
+    .sidebar .sidebar-footer {
+        border-top: 1px solid rgba(255,255,255,0.06);
+        margin-top: auto;
+        padding-top: 0.5rem;
+    }
+    .sidebar .sidebar-footer .menu-item {
+        font-size: 0.85rem;
+    }
+    .sidebar .menu-item.logout-btn {
+        color: rgba(239,68,68,0.7);
+    }
+    .sidebar .menu-item.logout-btn:hover {
+        color: #ef4444;
+        background: rgba(239,68,68,0.08);
+    }
+
+    .sidebar .menu-badge {
+        margin-left: auto;
+        font-size: 0.65rem;
+        padding: 2px 7px;
+        border-radius: 10px;
+        font-weight: 600;
+        background: rgba(107,33,168,0.25);
+        color: #c084fc;
+    }
 </style>
 <nav class="sidebar">
     <a href="index.php" class="brand">
-        <ion-icon name="shield-checkmark" style="color:#6B21A8;"></ion-icon>
-        listaria admin
+        <div class="brand-icon-wrap">
+            <ion-icon name="shield-checkmark"></ion-icon>
+        </div>
+        <div class="brand-text">
+            <span>Listaria</span>
+            <span>Admin Panel</span>
+        </div>
     </a>
     
-    <div style="color:#666; font-size:0.7rem; text-transform:uppercase; padding:0 1rem; margin-bottom:0.5rem;">Main</div>
+    <div class="nav-section-label">Main</div>
     
     <a href="admin_dashboard.php" class="menu-item <?php echo ($activePage == 'dashboard') ? 'active' : ''; ?>">
         <ion-icon name="grid-outline"></ion-icon> Dashboard
@@ -35,7 +170,8 @@
         <ion-icon name="analytics-outline"></ion-icon> Analytics
     </a>
     
-    <div style="color:#666; font-size:0.7rem; text-transform:uppercase; padding:0 1rem; margin:1rem 0 0.5rem;">Management</div>
+    <div class="nav-divider"></div>
+    <div class="nav-section-label">Management</div>
     
     <a href="admin_users.php" class="menu-item <?php echo ($activePage == 'users') ? 'active' : ''; ?>">
         <ion-icon name="people-outline"></ion-icon> Users
@@ -65,7 +201,8 @@
         <ion-icon name="chatbubbles-outline"></ion-icon> Chats
     </a>
     
-    <div style="color:#666; font-size:0.7rem; text-transform:uppercase; padding:0 1rem; margin:1rem 0 0.5rem;">Content</div>
+    <div class="nav-divider"></div>
+    <div class="nav-section-label">Content</div>
     
     <a href="admin_blogs.php" class="menu-item <?php echo ($activePage == 'blogs') ? 'active' : ''; ?>">
         <ion-icon name="newspaper-outline"></ion-icon> Blogs
@@ -80,8 +217,9 @@
     </a>
     
     <?php if($isSuperAdmin): ?>
-    <div style="color:#6B21A8; font-size:0.7rem; text-transform:uppercase; padding:0 1rem; margin:1rem 0 0.5rem;">
-        <ion-icon name="shield-checkmark" style="vertical-align:middle;"></ion-icon> Super Admin
+    <div class="nav-divider"></div>
+    <div class="nav-section-label super-admin-label">
+        <ion-icon name="shield-checkmark" style="vertical-align:middle;margin-right:4px;font-size:0.75rem;"></ion-icon> Super Admin
     </div>
     
     <a href="admin_roles.php" class="menu-item <?php echo ($activePage == 'roles') ? 'active' : ''; ?>">
@@ -97,7 +235,8 @@
     </a>
     <?php endif; ?>
     
-    <div style="color:#666; font-size:0.7rem; text-transform:uppercase; padding:0 1rem; margin:1rem 0 0.5rem;">Settings</div>
+    <div class="nav-divider"></div>
+    <div class="nav-section-label">Settings</div>
     
     <a href="admin_settings.php" class="menu-item <?php echo ($activePage == 'settings') ? 'active' : ''; ?>">
         <ion-icon name="settings-outline"></ion-icon> Site Settings
@@ -107,13 +246,12 @@
         <ion-icon name="mail-outline"></ion-icon> Email Templates
     </a>
     
-    <div style="flex:1;"></div>
-    
-    <a href="index.php" class="menu-item" style="border-top: 1px solid #333; padding-top: 1rem; margin-top: 1rem;">
-        <ion-icon name="arrow-back-outline"></ion-icon> Back to Site
-    </a>
-    
-    <a href="logout.php" class="menu-item" style="color: #ef4444;">
-        <ion-icon name="log-out-outline"></ion-icon> Logout
-    </a>
+    <div class="sidebar-footer">
+        <a href="index.php" class="menu-item">
+            <ion-icon name="arrow-back-outline"></ion-icon> Back to Site
+        </a>
+        <a href="logout.php" class="menu-item logout-btn">
+            <ion-icon name="log-out-outline"></ion-icon> Logout
+        </a>
+    </div>
 </nav>

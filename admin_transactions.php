@@ -143,43 +143,10 @@ $orders = $ordersStmt->fetchAll();
         tr:hover td { background: #f8fafc; }
         
         /* Include Sidebar styles via external CSS if extracted, or inline for now as in Dashboard */
-        .sidebar { 
-            width: 260px; 
-            background: var(--sidebar-bg); 
-            height: 100vh; 
-            position: fixed; 
-            padding: 2rem 1.5rem; 
-            color: white;
-            box-shadow: 4px 0 15px rgba(0,0,0,0.05);
-            z-index: 100;
-        }
-        .brand { 
-            font-size: 1.4rem; 
-            font-weight: 800; 
-            color: white; 
-            display:flex; 
-            align-items: center; 
-            gap: 10px;
-            margin-bottom: 3rem; 
-            text-decoration:none;
-            letter-spacing: -0.5px;
-        }
-        .menu-item { 
-            display: flex; 
-            align-items: center; 
-            gap: 12px; 
-            padding: 1rem; 
-            color: var(--text-light); 
-            text-decoration: none; 
-            border-radius: 12px; 
-            margin-bottom: 0.5rem; 
-            transition: all 0.3s ease; 
-            font-weight: 500;
-        }
-        .menu-item:hover, .menu-item.active { 
-            background: #6B21A8; 
-            color: white; 
-        }
+        .sidebar { width: 260px; background: var(--sidebar-bg); height: 100vh; position: fixed; padding: 0.5rem 0; color: white; z-index: 100; }
+        .brand { font-size: 1.2rem; font-weight: 700; color: white; display: flex; align-items: center; gap: 10px; margin-bottom: 0.5rem; text-decoration: none; }
+        
+        
         .menu-item ion-icon { font-size: 1.2rem; }
         .btn-verify {
             border: none; background: #6B21A8; color: white; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600;

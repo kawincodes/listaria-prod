@@ -101,9 +101,9 @@ $closedRequests = $pdo->query("SELECT COUNT(*) FROM product_requests WHERE statu
         body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding: 0; display:flex; color: #333; }
         
         .sidebar { width: 260px; background: var(--sidebar-bg); height: 100vh; position: fixed; padding: 2rem 1.5rem; color: white; z-index: 100; display: flex; flex-direction: column; }
-        .brand { font-size: 1.4rem; font-weight: 800; color: white; display:flex; align-items: center; gap: 10px; margin-bottom: 3rem; text-decoration:none; }
-        .menu-item { display: flex; align-items: center; gap: 12px; padding: 1rem; color: var(--text-light); text-decoration: none; border-radius: 12px; margin-bottom: 0.5rem; transition: all 0.2s; font-weight: 500; }
-        .menu-item:hover, .menu-item.active { background: #6B21A8; color: white; }
+        .brand { font-size: 1.2rem; font-weight: 700; color: white; display: flex; align-items: center; gap: 10px; margin-bottom: 0.5rem; text-decoration: none; }
+        
+        
         .menu-item ion-icon { font-size: 1.2rem; }
         
         .main-content { margin-left: 260px; padding: 2rem 2.5rem; width: calc(100% - 260px); min-height: 100vh; }

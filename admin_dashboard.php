@@ -129,43 +129,24 @@ $todayRevenue = $dailyActivity[$todayDate]['revenue'] ?? 0;
         * { box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding: 0; display:flex; color: #333; }
         
-        /* Include Sidebar styles via external or copy. Inline for consistency */
         .sidebar { 
             width: 260px; 
             background: var(--sidebar-bg); 
             height: 100vh; 
             position: fixed; 
-            padding: 2rem 1.5rem; 
+            padding: 0.5rem 0; 
             color: white;
-            box-shadow: 4px 0 15px rgba(0,0,0,0.05);
             z-index: 100;
         }
         .brand { 
-            font-size: 1.4rem; 
-            font-weight: 800; 
+            font-size: 1.2rem; 
+            font-weight: 700; 
             color: white; 
             display:flex; 
             align-items: center; 
             gap: 10px;
-            margin-bottom: 3rem; 
-            text-decoration:none;
-            letter-spacing: -0.5px;
-        }
-        .menu-item { 
-            display: flex; 
-            align-items: center; 
-            gap: 12px; 
-            padding: 1rem; 
-            color: var(--text-light); 
-            text-decoration: none; 
-            border-radius: 12px; 
             margin-bottom: 0.5rem; 
-            transition: all 0.3s ease; 
-            font-weight: 500;
-        }
-        .menu-item:hover, .menu-item.active { 
-            background: #6B21A8; 
-            color: white; 
+            text-decoration:none;
         }
         
         /* Main Content */
