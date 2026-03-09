@@ -69,17 +69,19 @@ include 'includes/header.php';
     position: sticky;
     top: 70px;
     z-index: 100;
+    display: block;
 }
 
 .categories-scroll-area {
     position: relative;
     max-width: 1200px;
     margin: 0 auto;
+    width: 100%;
 }
 
 .categories-wrapper {
     display: flex;
-    gap: 30px;
+    gap: 20px;
     overflow-x: auto;
     scroll-behavior: smooth;
     scrollbar-width: none;
@@ -87,6 +89,8 @@ include 'includes/header.php';
     padding: 10px 20px;
     padding-left: 40px;
     padding-right: 40px;
+    white-space: initial;
+    align-items: flex-start;
 }
 
 .cat-arrow {
@@ -128,8 +132,9 @@ include 'includes/header.php';
     flex-direction: column;
     align-items: center;
     gap: 8px;
-    min-width: 75px;
-    width: 75px;
+    min-width: 62px;
+    width: 62px;
+    flex-shrink: 0;
     text-decoration: none;
     color: #64748b;
     transition: all 0.3s;
@@ -138,25 +143,28 @@ include 'includes/header.php';
 }
 
 .category-icon-box {
-    width: 50px;
-    height: 50px;
+    width: 48px;
+    height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: #fff;
     border-radius: 14px;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     transition: all 0.3s;
     border: 1px solid #f1f5f9;
+    flex-shrink: 0;
 }
 
 .category-item span {
-    font-size: 0.82rem;
+    font-size: 0.72rem;
     font-weight: 500;
     text-align: center;
     white-space: normal;
+    word-break: break-word;
     line-height: 1.2;
+    width: 100%;
 }
 
 .category-item.active {
@@ -240,8 +248,23 @@ include 'includes/header.php';
 
 @media (max-width: 768px) {
     .categories-wrapper {
-        gap: 12px;
-        padding: 5px 12px;
+        gap: 10px;
+        padding: 6px 12px;
+        padding-right: 16px;
+    }
+    .category-item {
+        min-width: 54px;
+        width: 54px;
+        gap: 5px;
+    }
+    .category-icon-box {
+        width: 42px;
+        height: 42px;
+        font-size: 1.2rem;
+        border-radius: 12px;
+    }
+    .category-item span {
+        font-size: 0.65rem;
     }
     .carousel-view { 
         aspect-ratio: 16/8.5; 
@@ -250,16 +273,17 @@ include 'includes/header.php';
     }
     .carousel-container { 
         padding: 0 12px; 
-        margin-top: 80px !important; /* Forced strong clearance */
+        margin-top: 80px !important;
         margin-bottom: 20px;
         margin-left: auto;
         margin-right: auto;
     }
     .categories-container {
-        position: relative; /* Disable sticky on mobile */
-        margin-top: 0; /* Removing the previous 65px gap */
+        position: sticky;
+        top: 60px;
         border-top: 1px solid #f1f5f9;
-        padding: 5px 0 10px; /* Kept top padding clean */
+        padding: 6px 0 8px;
+        display: block;
     }
 }
 </style>
