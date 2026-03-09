@@ -98,7 +98,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <!-- Google Sign-In Button -->
         <?php 
-        $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? "https" : "http";
+        $isHttps = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on')
+            || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
+            || (isset($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], 'localhost') === false && strpos($_SERVER['HTTP_HOST'], '127.0.0.1') === false);
+        $protocol = $isHttps ? "https" : "http";
         $login_uri = $protocol . "://" . $_SERVER['HTTP_HOST'] . "/google_auth.php";
         
         $redirect_param = $_REQUEST['redirect'] ?? '';
