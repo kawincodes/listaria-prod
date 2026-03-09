@@ -1,0 +1,47 @@
+Feature Walkthrough: Shipping, Notifications & Mobile UI
+
+1. Shipping Information Page
+We introduced a dedicated Shipping Information step in the checkout flow to ensure all orders have valid contact details.
+
+Key Changes:
+- New Page: shipping_info.php
+- Logic: Captures Name, Address, and Verified Phone Number (10 digits).
+- Features: Address Autocomplete powered by OpenStreetMap for quick and accurate entry.
+- Flow: payment.php redirects here automatically.
+- UI: Added rich context (Order Summary, Guarantee, Price Breakdown) to match the premium design.
+
+2. Notifications & Chat Improvements
+We enhanced the Dashboard to ensure users never miss a message or offer update.
+
+Key Changes:
+- My Negotiations Tab: Added a tab for Buyers to track their sent offers.
+- Message Previews: Listings now show the last message snippet (e.g., "Can you do 1300?").
+- Smart Notifications:
+  - Red Dot in Header/Menu.
+  - Badge Count on specific tabs ("Incoming Offers" vs "My Negotiations").
+  - Read Receipts: Opening a chat automatically clears the notification.
+
+3. Mobile Layout Refinements
+We fixed layout issues to ensure a smooth experience on mobile devices.
+
+Key Changes:
+- Scrollable Tabs: The Dashboard tabs now scroll horizontally on mobile instead of stacking or shrinking.
+- Responsive Cards: Listings stack vertically on mobile (Image on top, Details below) for better readability.
+- Vertical Tracking: Order tracking steps align vertically on mobile screens.
+
+4. Authentication & Checkout Improvements
+- Smart Redirects: Users are now redirected back to their previous page (like Checkout) after logging in or signing up.
+- Cash on Delivery (COD): Added COD payment option.
+- Instant Order Confirmation: Placing a COD order now shows an instant success popup instead of a page reload.
+
+5. Admin Features
+- Order Cancellation: Admins can now cancel orders.
+- Auto-Restock: Cancelling an order automatically marks the product as Available again.
+
+6. Verification
+- Checkout: Verified flow from "Buy Now" -> "Shipping Info" -> "Payment".
+- Chat: Verified notifications appear/disappear correctly.
+- Mobile: Validated responsive tabs and tracking layout.
+- COD Flow: Verified COD option appears and success popup works.
+- Admin: Verified cancellation updates product status.
+- Address Auto: Verified search suggestions appear and populate address field.

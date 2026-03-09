@@ -1,0 +1,8 @@
+--- SEARCHING FOR PRODUCT 'Loq' ---
+ID: 51
+Title: Loq
+Image Paths (RAW): ["uploads\/699f246aceeb9_D310B914-6120-4067-AAC6-DF98A28050AF.jpg","uploads\/699f246b5e18c_IMG_1990.jpg","uploads\/699f246bc3a58_IMG_1989.jpg"]
+Checking path: uploads/699f246aceeb9_D310B914-6120-4067-AAC6-DF98A28050AF.jpg -> EXISTS
+Checking path: uploads/699f246b5e18c_IMG_1990.jpg -> EXISTS
+Checking path: uploads/699f246bc3a58_IMG_1989.jpg -> EXISTS
+--------------------------

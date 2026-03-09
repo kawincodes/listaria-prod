@@ -1,0 +1,9 @@
+--- VENDOR STATUS OVERVIEW ---
+ID: 4365
+Name: Hemanathan
+Email: hemur5924@gmail.com
+Account Type: vendor
+Vendor Status: approved
+Is Public: 1
+Is Verified: 1
+--------------------------

@@ -1,0 +1,26 @@
+--- USERS TABLE ---
+- id
+- full_name
+- email
+- password
+- created_at
+- address
+- is_admin
+- phone
+- kyc_status
+- role
+- wallet_balance
+- status
+- email_verified
+- verification_token
+- profile_views
+- is_verified_vendor
+- vendor_status
+- account_type
+- business_name
+- profile_image
+- rejection_reason
+- vendor_applied_at
+- business_bio
+- whatsapp_number
+- gst_number

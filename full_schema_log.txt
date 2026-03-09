@@ -1,0 +1,28 @@
+--- USERS TABLE COLUMNS ---
+1. id
+2. full_name
+3. email
+4. password
+5. created_at
+6. address
+7. is_admin
+8. phone
+9. kyc_status
+10. role
+11. wallet_balance
+12. status
+13. email_verified
+14. verification_token
+15. profile_views
+16. is_verified_vendor
+17. vendor_status
+18. account_type
+19. business_name
+20. profile_image
+21. rejection_reason
+22. vendor_applied_at
+23. business_bio
+24. whatsapp_number
+25. gst_number
+
+TOTAL: 25
