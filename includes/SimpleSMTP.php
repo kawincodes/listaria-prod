@@ -26,15 +26,23 @@ class SimpleSMTP {
             
             $this->sendCommand("MAIL FROM: <$from>");
             $this->sendCommand("RCPT TO: <$to>");
-            $this->sendCommand("DATA");
+            $this->sendCommand("DATA", 354);
             
-            $headers = "MIME-Version: 1.0\r\n";
+            $domain     = substr(strrchr($from, '@'), 1) ?: gethostname();
+            $messageId  = '<' . time() . '.' . bin2hex(random_bytes(8)) . '@' . $domain . '>';
+            $date       = date('r');
+
+            $headers  = "Date: $date\r\n";
+            $headers .= "Message-ID: $messageId\r\n";
+            $headers .= "MIME-Version: 1.0\r\n";
             $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
             $headers .= "From: $fromName <$from>\r\n";
+            $headers .= "Reply-To: $from\r\n";
             $headers .= "To: $to\r\n";
             $headers .= "Subject: $subject\r\n";
+            $headers .= "X-Mailer: Listaria-SMTP/1.0\r\n";
             
-            $this->sendCommand($headers . "\r\n" . $body . "\r\n.", 250);
+            $this->sendRaw($headers . "\r\n" . $body . "\r\n.");
             
             $this->sendCommand("QUIT");
             fclose($this->sock);
@@ -75,6 +83,15 @@ class SimpleSMTP {
             $this->sendCommand(base64_encode($this->username), 334);
             $this->sendCommand(base64_encode($this->password), 235);
         }
+    }
+
+    private function sendRaw($data) {
+        fputs($this->sock, $data . "\r\n");
+        $response = $this->readResponse();
+        if (strpos($response, '250') !== 0) {
+            throw new Exception("Unexpected response: $response");
+        }
+        return $response;
     }
 
     private function sendCommand($cmd, $expectedCode = null) {
