@@ -507,6 +507,62 @@ if (isset($_GET['edit'])) {
             gap: 0.75rem;
             justify-content: flex-end;
         }
+
+        .editor-wrap { border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; background: #fafafa; }
+        .editor-wrap:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(107,33,168,0.08); }
+        .editor-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px;
+            padding: 6px 8px;
+            background: #f5f5f5;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .editor-toolbar button {
+            width: 30px;
+            height: 28px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            color: #555;
+            transition: all 0.15s;
+            font-weight: 600;
+            font-family: 'Inter', serif;
+        }
+        .editor-toolbar button:hover { background: #e5e5e5; color: #1a1a1a; }
+        .editor-toolbar button.active { background: var(--primary-bg); color: var(--primary); }
+        .toolbar-sep { width: 1px; background: #ddd; margin: 2px 4px; }
+        .editor-area {
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 12px;
+            outline: none;
+            font-size: 0.88rem;
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: white;
+        }
+        .editor-area:empty::before {
+            content: attr(data-placeholder);
+            color: #aaa;
+        }
+        .editor-area h1, .editor-area h2, .editor-area h3 { margin: 0.5em 0 0.3em; }
+        .editor-area blockquote {
+            border-left: 3px solid var(--primary-light);
+            margin: 0.5em 0;
+            padding: 0.5em 1em;
+            background: var(--primary-bg);
+            border-radius: 0 6px 6px 0;
+        }
+        .editor-area a { color: var(--primary); }
+        .editor-area ul, .editor-area ol { padding-left: 1.5em; }
     </style>
 </head>
 <body>
@@ -580,7 +636,7 @@ if (isset($_GET['edit'])) {
                                 </div>
                             </div>
                             <div class="blog-actions">
-                                <a href="blog_detail.php?id=<?php echo $blog['id']; ?>" class="icon-btn icon-btn-view" title="View" target="_blank">
+                                <a href="blog_details.php?id=<?php echo $blog['id']; ?>" class="icon-btn icon-btn-view" title="View" target="_blank">
                                     <ion-icon name="eye-outline"></ion-icon>
                                 </a>
                                 <button class="icon-btn icon-btn-edit" title="Edit" onclick="openEdit(<?php echo htmlspecialchars(json_encode($blog)); ?>)">
@@ -633,12 +689,35 @@ if (isset($_GET['edit'])) {
                     </div>
                     <div class="form-group">
                         <label>Content</label>
-                        <textarea name="content" class="form-control" rows="8" required placeholder="Write your blog content here..."></textarea>
+                        <div class="editor-wrap">
+                            <div class="editor-toolbar" id="addToolbar">
+                                <button type="button" onclick="execCmd('bold')" title="Bold"><b>B</b></button>
+                                <button type="button" onclick="execCmd('italic')" title="Italic"><i>I</i></button>
+                                <button type="button" onclick="execCmd('underline')" title="Underline"><u>U</u></button>
+                                <button type="button" onclick="execCmd('strikeThrough')" title="Strikethrough"><s>S</s></button>
+                                <div class="toolbar-sep"></div>
+                                <button type="button" onclick="execCmd('formatBlock','<h2>')" title="Heading 2" style="font-size:0.9rem;">H2</button>
+                                <button type="button" onclick="execCmd('formatBlock','<h3>')" title="Heading 3" style="font-size:0.8rem;">H3</button>
+                                <button type="button" onclick="execCmd('formatBlock','<p>')" title="Paragraph" style="font-size:0.78rem;">P</button>
+                                <div class="toolbar-sep"></div>
+                                <button type="button" onclick="execCmd('insertUnorderedList')" title="Bullet List"><ion-icon name="list-outline"></ion-icon></button>
+                                <button type="button" onclick="execCmd('insertOrderedList')" title="Numbered List"><ion-icon name="reorder-four-outline"></ion-icon></button>
+                                <button type="button" onclick="execCmd('formatBlock','<blockquote>')" title="Quote"><ion-icon name="chatbox-outline"></ion-icon></button>
+                                <div class="toolbar-sep"></div>
+                                <button type="button" onclick="insertLink()" title="Insert Link"><ion-icon name="link-outline"></ion-icon></button>
+                                <button type="button" onclick="execCmd('removeFormat')" title="Clear Formatting"><ion-icon name="close-circle-outline"></ion-icon></button>
+                                <div class="toolbar-sep"></div>
+                                <button type="button" onclick="execCmd('justifyLeft')" title="Align Left"><ion-icon name="reorder-two-outline" style="transform:scaleX(-1)"></ion-icon></button>
+                                <button type="button" onclick="execCmd('justifyCenter')" title="Align Center"><ion-icon name="reorder-three-outline"></ion-icon></button>
+                            </div>
+                            <div class="editor-area" id="addEditor" contenteditable="true" data-placeholder="Write your blog content here..."></div>
+                        </div>
+                        <textarea name="content" id="addContentHidden" style="display:none;" required></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-ghost" onclick="closeModal('addModal')">Cancel</button>
-                    <button type="submit" name="add_blog" class="btn btn-primary">
+                    <button type="submit" name="add_blog" class="btn btn-primary" onclick="syncEditor('addEditor','addContentHidden')">
                         <ion-icon name="checkmark-outline"></ion-icon> Publish
                     </button>
                 </div>
@@ -674,12 +753,35 @@ if (isset($_GET['edit'])) {
                     </div>
                     <div class="form-group">
                         <label>Content</label>
-                        <textarea name="content" id="editContent" class="form-control" rows="8" required></textarea>
+                        <div class="editor-wrap">
+                            <div class="editor-toolbar" id="editToolbar">
+                                <button type="button" onclick="execCmd('bold')" title="Bold"><b>B</b></button>
+                                <button type="button" onclick="execCmd('italic')" title="Italic"><i>I</i></button>
+                                <button type="button" onclick="execCmd('underline')" title="Underline"><u>U</u></button>
+                                <button type="button" onclick="execCmd('strikeThrough')" title="Strikethrough"><s>S</s></button>
+                                <div class="toolbar-sep"></div>
+                                <button type="button" onclick="execCmd('formatBlock','<h2>')" title="Heading 2" style="font-size:0.9rem;">H2</button>
+                                <button type="button" onclick="execCmd('formatBlock','<h3>')" title="Heading 3" style="font-size:0.8rem;">H3</button>
+                                <button type="button" onclick="execCmd('formatBlock','<p>')" title="Paragraph" style="font-size:0.78rem;">P</button>
+                                <div class="toolbar-sep"></div>
+                                <button type="button" onclick="execCmd('insertUnorderedList')" title="Bullet List"><ion-icon name="list-outline"></ion-icon></button>
+                                <button type="button" onclick="execCmd('insertOrderedList')" title="Numbered List"><ion-icon name="reorder-four-outline"></ion-icon></button>
+                                <button type="button" onclick="execCmd('formatBlock','<blockquote>')" title="Quote"><ion-icon name="chatbox-outline"></ion-icon></button>
+                                <div class="toolbar-sep"></div>
+                                <button type="button" onclick="insertLink()" title="Insert Link"><ion-icon name="link-outline"></ion-icon></button>
+                                <button type="button" onclick="execCmd('removeFormat')" title="Clear Formatting"><ion-icon name="close-circle-outline"></ion-icon></button>
+                                <div class="toolbar-sep"></div>
+                                <button type="button" onclick="execCmd('justifyLeft')" title="Align Left"><ion-icon name="reorder-two-outline" style="transform:scaleX(-1)"></ion-icon></button>
+                                <button type="button" onclick="execCmd('justifyCenter')" title="Align Center"><ion-icon name="reorder-three-outline"></ion-icon></button>
+                            </div>
+                            <div class="editor-area" id="editEditor" contenteditable="true" data-placeholder="Edit your blog content..."></div>
+                        </div>
+                        <textarea name="content" id="editContentHidden" style="display:none;" required></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-ghost" onclick="closeModal('editModal')">Cancel</button>
-                    <button type="submit" name="update_blog" class="btn btn-primary">
+                    <button type="submit" name="update_blog" class="btn btn-primary" onclick="syncEditor('editEditor','editContentHidden')">
                         <ion-icon name="checkmark-outline"></ion-icon> Save Changes
                     </button>
                 </div>
@@ -696,7 +798,8 @@ if (isset($_GET['edit'])) {
         document.getElementById('editBlogId').value = blog.id;
         document.getElementById('editTitle').value = blog.title;
         document.getElementById('editCategory').value = blog.category || '';
-        document.getElementById('editContent').value = blog.content || '';
+        document.getElementById('editEditor').innerHTML = blog.content || '';
+        document.getElementById('editContentHidden').value = blog.content || '';
         document.getElementById('editModal').classList.add('active');
     }
 
@@ -709,6 +812,28 @@ if (isset($_GET['edit'])) {
             row.style.display = (title.includes(q) || cat.includes(q)) ? 'flex' : 'none';
         });
     }
+
+    function execCmd(cmd, val) {
+        document.execCommand(cmd, false, val || null);
+    }
+
+    function insertLink() {
+        var url = prompt('Enter URL:', 'https://');
+        if (url) document.execCommand('createLink', false, url);
+    }
+
+    function syncEditor(editorId, hiddenId) {
+        var editor = document.getElementById(editorId);
+        var hidden = document.getElementById(hiddenId);
+        hidden.value = editor.innerHTML;
+    }
+
+    document.getElementById('addEditor').addEventListener('input', function() {
+        document.getElementById('addContentHidden').value = this.innerHTML;
+    });
+    document.getElementById('editEditor').addEventListener('input', function() {
+        document.getElementById('editContentHidden').value = this.innerHTML;
+    });
 
     document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
         overlay.addEventListener('click', function(e) {
