@@ -79,7 +79,7 @@ include 'includes/header.php';
     }
 
     .btn-buy-now {
-        background: #1a1a1a !important;
+        background: #6B21A8 !important;
         color: #fff !important;
         padding: 15px 20px !important;
     }
@@ -549,7 +549,7 @@ include 'includes/header.php';
     justify-content: center;
     gap: 8px;
     padding: 14px 20px;
-    background: #22c55e;
+    background: #6B21A8;
     color: #fff;
     border: none;
     border-radius: 10px;
@@ -561,7 +561,7 @@ include 'includes/header.php';
 }
 
 .btn-buy-now:hover {
-    background: #16a34a;
+    background: #581c87;
 }
 
 .btn-make-offer {
