@@ -26,7 +26,16 @@ try {
     // $pdo->sqliteCreateFunction('regexp', function ($pattern, $string) {
     //    return preg_match('/' . str_replace('/', '\/', $pattern) . '/', $string);
     // });
+    $pdo->exec("CREATE TABLE IF NOT EXISTS custom_pages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        slug TEXT NOT NULL UNIQUE,
+        content TEXT DEFAULT '',
+        meta_description TEXT DEFAULT '',
+        is_published INTEGER DEFAULT 1,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )");
 } catch (\PDOException $e) {
-    // In a real app, log this error instead of showing it
     throw new \PDOException($e->getMessage(), (int)$e->getCode());
 }

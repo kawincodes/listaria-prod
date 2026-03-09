@@ -9,7 +9,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Listaria - Luxury Recommerce</title>
+    <title><?php echo isset($pageTitle) ? $pageTitle . ' - Listaria' : 'Listaria - Luxury Recommerce'; ?></title>
+    <?php if (!empty($metaDesc)): ?><meta name="description" content="<?php echo $metaDesc; ?>"><?php endif; ?>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css?v=1.0.2">
     <link rel="stylesheet" href="assets/css/responsive.css?v=1.0.2">
