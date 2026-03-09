@@ -245,6 +245,10 @@
     <a href="admin_email_templates.php" class="menu-item <?php echo ($activePage == 'email_templates') ? 'active' : ''; ?>">
         <ion-icon name="mail-outline"></ion-icon> Email Templates
     </a>
+
+    <a href="admin_seo.php" class="menu-item <?php echo ($activePage == 'seo') ? 'active' : ''; ?>">
+        <ion-icon name="search-outline"></ion-icon> SEO & Sitemap
+    </a>
     
     <div class="sidebar-footer">
         <a href="index.php" class="menu-item">

@@ -9,8 +9,71 @@ $current_page = basename($_SERVER['PHP_SELF']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo isset($pageTitle) ? $pageTitle . ' - Listaria' : 'Listaria - Luxury Recommerce'; ?></title>
-    <?php if (!empty($metaDesc)): ?><meta name="description" content="<?php echo $metaDesc; ?>"><?php endif; ?>
+    <?php
+    if (!function_exists('_getSeoSetting')) {
+        function _getSeoSetting($pdo, $key, $default = '') {
+            try {
+                $s = $pdo->prepare("SELECT setting_value FROM site_settings WHERE setting_key = ?");
+                $s->execute([$key]);
+                $v = $s->fetchColumn();
+                return $v !== false ? $v : $default;
+            } catch(Exception $e) { return $default; }
+        }
+    }
+    $__siteName    = _getSeoSetting($pdo, 'site_name', 'Listaria');
+    $__seoTitle    = _getSeoSetting($pdo, 'seo_meta_title', $__siteName . ' — Luxury Marketplace');
+    $__seoDesc     = _getSeoSetting($pdo, 'seo_meta_description', '');
+    $__seoKw       = _getSeoSetting($pdo, 'seo_meta_keywords', '');
+    $__seoRobots   = _getSeoSetting($pdo, 'seo_robots_default', 'index, follow');
+    $__canonical   = rtrim(_getSeoSetting($pdo, 'seo_canonical_base', 'https://listaria.in'), '/');
+    $__ogTitle     = _getSeoSetting($pdo, 'seo_og_title', '');
+    $__ogDesc      = _getSeoSetting($pdo, 'seo_og_description', '');
+    $__ogImage     = _getSeoSetting($pdo, 'seo_og_image', '');
+    $__gaId        = _getSeoSetting($pdo, 'seo_google_analytics_id', '');
+    $__gtmId       = _getSeoSetting($pdo, 'seo_gtm_id', '');
+    $__gsc         = _getSeoSetting($pdo, 'seo_search_console', '');
+
+    $__finalTitle = isset($pageTitle) ? htmlspecialchars($pageTitle) . ' — ' . htmlspecialchars($__siteName) : htmlspecialchars($__seoTitle);
+    $__finalDesc  = !empty($metaDesc) ? $metaDesc : $__seoDesc;
+    $__finalOgTitle = !empty($__ogTitle) ? $__ogTitle : (isset($pageTitle) ? $pageTitle . ' — ' . $__siteName : $__seoTitle);
+    $__finalOgDesc  = !empty($__ogDesc) ? $__ogDesc : $__finalDesc;
+    $__pageUrl = $__canonical . '/' . basename($_SERVER['PHP_SELF']) . (!empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '');
+    ?>
+    <title><?php echo $__finalTitle; ?></title>
+    <?php if (!empty($__finalDesc)): ?>
+    <meta name="description" content="<?php echo htmlspecialchars($__finalDesc); ?>">
+    <?php endif; ?>
+    <?php if (!empty($__seoKw)): ?>
+    <meta name="keywords" content="<?php echo htmlspecialchars($__seoKw); ?>">
+    <?php endif; ?>
+    <meta name="robots" content="<?php echo htmlspecialchars($__seoRobots); ?>">
+    <link rel="canonical" href="<?php echo htmlspecialchars($__pageUrl); ?>">
+    <?php if (!empty($__gsc)): ?>
+    <meta name="google-site-verification" content="<?php echo htmlspecialchars($__gsc); ?>">
+    <?php endif; ?>
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<?php echo htmlspecialchars($__pageUrl); ?>">
+    <meta property="og:title" content="<?php echo htmlspecialchars($__finalOgTitle); ?>">
+    <?php if (!empty($__finalOgDesc)): ?>
+    <meta property="og:description" content="<?php echo htmlspecialchars($__finalOgDesc); ?>">
+    <?php endif; ?>
+    <?php if (!empty($__ogImage)): ?>
+    <meta property="og:image" content="<?php echo htmlspecialchars($__ogImage); ?>">
+    <?php endif; ?>
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<?php echo htmlspecialchars($__finalOgTitle); ?>">
+    <?php if (!empty($__finalOgDesc)): ?>
+    <meta name="twitter:description" content="<?php echo htmlspecialchars($__finalOgDesc); ?>">
+    <?php endif; ?>
+    <?php if (!empty($__ogImage)): ?>
+    <meta name="twitter:image" content="<?php echo htmlspecialchars($__ogImage); ?>">
+    <?php endif; ?>
+    <?php if (!empty($__gtmId)): ?>
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','<?php echo htmlspecialchars($__gtmId); ?>');</script>
+    <?php elseif (!empty($__gaId)): ?>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo htmlspecialchars($__gaId); ?>"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','<?php echo htmlspecialchars($__gaId); ?>');</script>
+    <?php endif; ?>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css?v=1.0.2">
     <link rel="stylesheet" href="assets/css/responsive.css?v=1.0.2">
