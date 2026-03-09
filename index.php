@@ -81,6 +81,8 @@ include 'includes/header.php';
     padding: 10px 20px;
     max-width: 1200px;
     margin: 0 auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
 }
 
 .categories-wrapper::-webkit-scrollbar {
@@ -266,6 +268,20 @@ include 'includes/header.php';
             ?>
         </div>
     </div>
+
+    <script>
+    (function() {
+        const wrapper = document.querySelector('.categories-wrapper');
+        if (wrapper) {
+            wrapper.addEventListener('wheel', function(e) {
+                if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+                    e.preventDefault();
+                    window.scrollBy(0, e.deltaY);
+                }
+            }, { passive: false });
+        }
+    })();
+    </script>
 
     <!-- Dynamic Banner Carousel -->
     <div class="carousel-container">
