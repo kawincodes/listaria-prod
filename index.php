@@ -81,14 +81,12 @@ include 'includes/header.php';
 
 .categories-wrapper {
     display: flex;
-    gap: 20px;
+    gap: 24px;
     overflow-x: auto;
     scroll-behavior: smooth;
     scrollbar-width: none;
     -ms-overflow-style: none;
-    padding: 10px 20px;
-    padding-left: 40px;
-    padding-right: 40px;
+    padding: 12px 40px;
     white-space: initial;
     align-items: flex-start;
 }
@@ -131,9 +129,9 @@ include 'includes/header.php';
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
-    min-width: 62px;
-    width: 62px;
+    gap: 9px;
+    min-width: 76px;
+    width: 76px;
     flex-shrink: 0;
     text-decoration: none;
     color: #64748b;
@@ -143,22 +141,22 @@ include 'includes/header.php';
 }
 
 .category-icon-box {
-    width: 48px;
-    height: 48px;
+    width: 60px;
+    height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: #fff;
-    border-radius: 14px;
-    font-size: 1.4rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    border-radius: 16px;
+    font-size: 1.65rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06);
     transition: all 0.3s;
     border: 1px solid #f1f5f9;
     flex-shrink: 0;
 }
 
 .category-item span {
-    font-size: 0.72rem;
+    font-size: 0.76rem;
     font-weight: 500;
     text-align: center;
     white-space: normal;
@@ -248,23 +246,23 @@ include 'includes/header.php';
 
 @media (max-width: 768px) {
     .categories-wrapper {
-        gap: 10px;
-        padding: 6px 12px;
-        padding-right: 16px;
+        gap: 14px;
+        padding: 10px 16px;
+        justify-content: flex-start;
     }
     .category-item {
-        min-width: 54px;
-        width: 54px;
-        gap: 5px;
+        min-width: 64px;
+        width: 64px;
+        gap: 7px;
     }
     .category-icon-box {
-        width: 42px;
-        height: 42px;
-        font-size: 1.2rem;
-        border-radius: 12px;
+        width: 52px;
+        height: 52px;
+        font-size: 1.45rem;
+        border-radius: 14px;
     }
     .category-item span {
-        font-size: 0.65rem;
+        font-size: 0.7rem;
     }
     .carousel-view { 
         aspect-ratio: 16/8.5; 
