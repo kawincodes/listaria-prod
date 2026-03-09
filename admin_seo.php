@@ -79,12 +79,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             foreach ($staticPages as $p) {
                 $urls[] = ['loc' => $baseUrl . $p['loc'], 'priority' => $p['priority'], 'freq' => $p['freq'], 'lastmod' => date('Y-m-d')];
             }
-            $products = $pdo->query("SELECT id, updated_at FROM products WHERE approval_status='approved' AND is_published=1 ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC);
+            $products = $pdo->query("SELECT id, created_at FROM products WHERE approval_status='approved' AND is_published=1 ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC);
             foreach ($products as $p) {
-                $urls[] = ['loc' => $baseUrl . '/product_details.php?id=' . $p['id'], 'priority' => '0.9', 'freq' => 'weekly', 'lastmod' => $p['updated_at'] ? date('Y-m-d', strtotime($p['updated_at'])) : date('Y-m-d')];
+                $urls[] = ['loc' => $baseUrl . '/product_details.php?id=' . $p['id'], 'priority' => '0.9', 'freq' => 'weekly', 'lastmod' => $p['created_at'] ? date('Y-m-d', strtotime($p['created_at'])) : date('Y-m-d')];
             }
             try {
-                $blogs = $pdo->query("SELECT id, created_at FROM blogs WHERE status='published' ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC);
+                $blogs = $pdo->query("SELECT id, created_at FROM blogs ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC);
                 foreach ($blogs as $b) {
                     $urls[] = ['loc' => $baseUrl . '/blog_details.php?id=' . $b['id'], 'priority' => '0.7', 'freq' => 'monthly', 'lastmod' => $b['created_at'] ? date('Y-m-d', strtotime($b['created_at'])) : date('Y-m-d')];
                 }
@@ -130,7 +130,7 @@ $sitemapLast  = getSeoSetting($pdo, 'sitemap_last_generated');
 $sitemapCount = getSeoSetting($pdo, 'sitemap_url_count', '0');
 
 $productCount = $pdo->query("SELECT COUNT(*) FROM products WHERE approval_status='approved' AND is_published=1")->fetchColumn();
-try { $blogCount = $pdo->query("SELECT COUNT(*) FROM blogs WHERE status='published'")->fetchColumn(); } catch(Exception $e) { $blogCount = 0; }
+try { $blogCount = $pdo->query("SELECT COUNT(*) FROM blogs")->fetchColumn(); } catch(Exception $e) { $blogCount = 0; }
 $staticCount = 10;
 $totalExpected = $staticCount + $productCount + $blogCount;
 
