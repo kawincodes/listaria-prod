@@ -67,8 +67,14 @@ include 'includes/header.php';
     padding: 15px 0 10px;
     border-bottom: 1px solid #f1f5f9;
     position: sticky;
-    top: 70px; /* Adjust based on header height */
+    top: 70px;
     z-index: 100;
+}
+
+.categories-scroll-area {
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .categories-wrapper {
@@ -79,8 +85,38 @@ include 'includes/header.php';
     scrollbar-width: none;
     -ms-overflow-style: none;
     padding: 10px 20px;
-    max-width: 1200px;
-    margin: 0 auto;
+    padding-left: 40px;
+    padding-right: 40px;
+}
+
+.cat-arrow {
+    display: none;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: white;
+    border: 1px solid #e5e5e5;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    cursor: pointer;
+    z-index: 10;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+.cat-arrow:hover {
+    background: #f5f5f5;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+.cat-arrow-left { left: 4px; }
+.cat-arrow-right { right: 4px; }
+
+@media (min-width: 769px) {
+    .cat-arrow { display: flex; }
 }
 
 .categories-wrapper::-webkit-scrollbar {
@@ -229,7 +265,14 @@ include 'includes/header.php';
 </style>
 
     <div class="categories-container">
-        <div class="categories-wrapper">
+        <div class="categories-scroll-area">
+        <button class="cat-arrow cat-arrow-left" id="catArrowLeft" aria-label="Scroll left">
+            <ion-icon name="chevron-back-outline"></ion-icon>
+        </button>
+        <button class="cat-arrow cat-arrow-right" id="catArrowRight" aria-label="Scroll right">
+            <ion-icon name="chevron-forward-outline"></ion-icon>
+        </button>
+        <div class="categories-wrapper" id="categoriesWrapper">
             <?php
             $category_icons = [
                 'All' => 'bag-handle-outline',
@@ -265,7 +308,37 @@ include 'includes/header.php';
             }
             ?>
         </div>
+        </div>
     </div>
+
+    <script>
+    (function() {
+        var wrapper = document.getElementById('categoriesWrapper');
+        var leftBtn = document.getElementById('catArrowLeft');
+        var rightBtn = document.getElementById('catArrowRight');
+        if (!wrapper || !leftBtn || !rightBtn) return;
+
+        var scrollAmount = 250;
+
+        function updateArrows() {
+            leftBtn.style.opacity = wrapper.scrollLeft <= 5 ? '0' : '1';
+            leftBtn.style.pointerEvents = wrapper.scrollLeft <= 5 ? 'none' : 'auto';
+            var atEnd = wrapper.scrollLeft + wrapper.clientWidth >= wrapper.scrollWidth - 5;
+            rightBtn.style.opacity = atEnd ? '0' : '1';
+            rightBtn.style.pointerEvents = atEnd ? 'none' : 'auto';
+        }
+
+        leftBtn.addEventListener('click', function() {
+            wrapper.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+        });
+        rightBtn.addEventListener('click', function() {
+            wrapper.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        });
+
+        wrapper.addEventListener('scroll', updateArrows);
+        updateArrows();
+    })();
+    </script>
 
     <!-- Dynamic Banner Carousel -->
     <div class="carousel-container">
