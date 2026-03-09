@@ -93,12 +93,13 @@ $orders = $ordersStmt->fetchAll();
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
     <style>
         :root { 
-            --primary: #2c3e50; 
-            --accent: #3498db; 
-            --success: #2ecc71;
+            --primary: #6B21A8; 
+            --primary-dark: #581c87;
+            --accent: #6B21A8; 
+            --success: #22c55e;
             --bg: #f8f9fa; 
-            --sidebar-bg: #1e293b;
-            --text-light: #94a3b8;
+            --sidebar-bg: #1a1a1a;
+            --text-light: #a1a1aa;
         }
         * { box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding: 0; display:flex; color: #333; }
@@ -115,7 +116,7 @@ $orders = $ordersStmt->fetchAll();
             align-items: center; 
             margin-bottom: 2.5rem; 
         }
-        .header h1 { margin: 0; font-size: 1.8rem; font-weight: 700; color: #1e293b; }
+        .header h1 { margin: 0; font-size: 1.8rem; font-weight: 700; color: #1a1a1a; }
         
         .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 1.2rem; color: #334155; display: flex; align-items: center; gap: 8px;}
         .table-container { 
@@ -176,15 +177,15 @@ $orders = $ordersStmt->fetchAll();
             font-weight: 500;
         }
         .menu-item:hover, .menu-item.active { 
-            background: rgba(255,255,255,0.1); 
+            background: #6B21A8; 
             color: white; 
-            transform: translateX(5px);
         }
+        .menu-item ion-icon { font-size: 1.2rem; }
         .btn-verify {
-            border: none; background: #f39c12; color: white; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600;
-            box-shadow: 0 2px 5px rgba(243, 156, 18, 0.3);
+            border: none; background: #6B21A8; color: white; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600;
+            box-shadow: 0 2px 5px rgba(107, 33, 168, 0.3);
         }
-        .btn-verify:hover { background: #e67e22; }
+        .btn-verify:hover { background: #581c87; }
     </style>
 </head>
 <body>
@@ -197,7 +198,7 @@ $orders = $ordersStmt->fetchAll();
             <div>Welcome, <?php echo htmlspecialchars($_SESSION['full_name']); ?></div>
         </div>
 
-        <?php if(isset($msg)) echo "<div style='margin-bottom:20px; color:#2ecc71; font-weight:600; padding:10px; background:white; border-radius:8px;'>$msg</div>"; ?>
+        <?php if(isset($msg)) echo "<div style='margin-bottom:20px; color:#22c55e; font-weight:600; padding:1rem; background:#f0fdf4; border-radius:10px;'>$msg</div>"; ?>
 
         <div class="table-container">
             <table>
@@ -273,7 +274,7 @@ $orders = $ordersStmt->fetchAll();
                                                 $valDate = !empty($order['delivery_date']) ? $order['delivery_date'] : $defaultDate;
                                             ?>
                                             <input type="date" name="delivery_date" value="<?php echo htmlspecialchars($valDate); ?>" style="padding:4px; border-radius:4px; border:1px solid #ccc; font-size:0.8rem; width:100%;">
-                                            <button type="submit" name="update_order_status" style="border:none; background:#3498db; color:white; border-radius:4px; padding:4px 8px; cursor:pointer; font-size:0.8rem;">Save</button>
+                                            <button type="submit" name="update_order_status" style="border:none; background:#6B21A8; color:white; border-radius:4px; padding:4px 8px; cursor:pointer; font-size:0.8rem;">Save</button>
                                         </div>
                                     </form>
                                 <?php endif; ?>

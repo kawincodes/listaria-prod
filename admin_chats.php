@@ -31,12 +31,13 @@ $allChats = $chatsStmt->fetchAll();
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
     <style>
         :root { 
-            --primary: #2c3e50; 
-            --accent: #3498db; 
-            --success: #2ecc71;
+            --primary: #6B21A8; 
+            --primary-dark: #581c87;
+            --accent: #6B21A8; 
+            --success: #22c55e;
             --bg: #f8f9fa; 
-            --sidebar-bg: #1e293b;
-            --text-light: #94a3b8;
+            --sidebar-bg: #1a1a1a;
+            --text-light: #a1a1aa;
         }
         * { box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding: 0; display:flex; color: #333; }
@@ -53,7 +54,7 @@ $allChats = $chatsStmt->fetchAll();
             align-items: center; 
             margin-bottom: 2.5rem; 
         }
-        .header h1 { margin: 0; font-size: 1.8rem; font-weight: 700; color: #1e293b; }
+        .header h1 { margin: 0; font-size: 1.8rem; font-weight: 700; color: #1a1a1a; }
         
         .table-container { 
             background: white; 
@@ -125,10 +126,10 @@ $allChats = $chatsStmt->fetchAll();
             font-weight: 500;
         }
         .menu-item:hover, .menu-item.active { 
-            background: rgba(255,255,255,0.1); 
+            background: #6B21A8; 
             color: white; 
-            transform: translateX(5px);
         }
+        .menu-item ion-icon { font-size: 1.2rem; }
 
         /* Chat Modal for Admin */
         .chat-modal {
