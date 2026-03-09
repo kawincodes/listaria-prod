@@ -74,6 +74,20 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo htmlspecialchars($__gaId); ?>"></script>
     <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','<?php echo htmlspecialchars($__gaId); ?>');</script>
     <?php endif; ?>
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#6B21A8">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Listaria">
+    <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/assets/icons/icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="128x128" href="/assets/icons/icon-128x128.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/icon-96x96.png">
+    <!-- /PWA -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css?v=1.0.2">
     <link rel="stylesheet" href="assets/css/responsive.css?v=1.0.2">

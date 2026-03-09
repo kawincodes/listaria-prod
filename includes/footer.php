@@ -378,5 +378,147 @@ if (in_array($current_page, $allowed_nav_pages)) {
 </style>
 
 <script src="assets/js/script.js"></script>
+
+<!-- PWA: Service Worker Registration + Install Prompt -->
+<script>
+(function() {
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/sw.js', { scope: '/' })
+                .then(function(reg) {
+                    // Check for SW update
+                    reg.addEventListener('updatefound', function() {
+                        const newWorker = reg.installing;
+                        newWorker.addEventListener('statechange', function() {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                newWorker.postMessage({ type: 'SKIP_WAITING' });
+                            }
+                        });
+                    });
+                })
+                .catch(function() {});
+        });
+    }
+
+    // Install prompt (Add to Home Screen)
+    let deferredPrompt = null;
+    const banner = document.getElementById('pwa-install-banner');
+    const installBtn = document.getElementById('pwa-install-btn');
+    const dismissBtn = document.getElementById('pwa-dismiss-btn');
+
+    window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        deferredPrompt = e;
+        // Show banner only if user hasn't dismissed it before
+        if (!localStorage.getItem('pwa_install_dismissed') && banner) {
+            setTimeout(function() { banner.classList.add('show'); }, 2000);
+        }
+    });
+
+    if (installBtn) {
+        installBtn.addEventListener('click', function() {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(function(result) {
+                deferredPrompt = null;
+                if (banner) banner.classList.remove('show');
+                if (result.outcome === 'accepted') {
+                    localStorage.setItem('pwa_install_dismissed', '1');
+                }
+            });
+        });
+    }
+
+    if (dismissBtn) {
+        dismissBtn.addEventListener('click', function() {
+            if (banner) banner.classList.remove('show');
+            localStorage.setItem('pwa_install_dismissed', '1');
+        });
+    }
+
+    // If already installed as PWA, hide the banner
+    window.addEventListener('appinstalled', function() {
+        if (banner) banner.classList.remove('show');
+        localStorage.setItem('pwa_install_dismissed', '1');
+    });
+})();
+</script>
+
+<!-- PWA Install Banner -->
+<div id="pwa-install-banner">
+    <div class="pwa-banner-icon">
+        <img src="/assets/icons/icon-72x72.png" alt="Listaria">
+    </div>
+    <div class="pwa-banner-text">
+        <strong>Add to Home Screen</strong>
+        <span>Install Listaria for faster access &amp; offline browsing</span>
+    </div>
+    <button id="pwa-install-btn">Install</button>
+    <button id="pwa-dismiss-btn" aria-label="Dismiss">&times;</button>
+</div>
+
+<style>
+    #pwa-install-banner {
+        position: fixed;
+        bottom: -120px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100% - 2rem);
+        max-width: 480px;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 18px;
+        box-shadow: 0 8px 40px rgba(0,0,0,0.14);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 1rem 1.2rem;
+        z-index: 9999;
+        transition: bottom 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    #pwa-install-banner.show { bottom: 1.2rem; }
+    @media(max-width:600px) { #pwa-install-banner { max-width: calc(100% - 2rem); } }
+
+    .pwa-banner-icon img {
+        width: 44px; height: 44px;
+        border-radius: 11px;
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+    .pwa-banner-text {
+        flex: 1; min-width: 0;
+        display: flex; flex-direction: column; gap: 2px;
+    }
+    .pwa-banner-text strong { font-size: 0.88rem; font-weight: 700; color: #111; }
+    .pwa-banner-text span { font-size: 0.76rem; color: #6b7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    #pwa-install-btn {
+        flex-shrink: 0;
+        padding: 0.5rem 1.1rem;
+        background: linear-gradient(135deg, #6B21A8, #9333EA);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: opacity 0.15s;
+    }
+    #pwa-install-btn:hover { opacity: 0.88; }
+
+    #pwa-dismiss-btn {
+        flex-shrink: 0;
+        background: none;
+        border: none;
+        font-size: 1.3rem;
+        color: #9ca3af;
+        cursor: pointer;
+        line-height: 1;
+        padding: 2px 4px;
+        margin-left: -4px;
+    }
+    #pwa-dismiss-btn:hover { color: #374151; }
+</style>
 </body>
 </html>
