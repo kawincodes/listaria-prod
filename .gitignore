@@ -2,8 +2,8 @@
 database.sqlite
 database.db
 
-# User sessions
-sessions/
+# User session files (keep the directory and its .htaccess, ignore session data)
+sessions/sess_*
 
 # Environment secrets
 .env
