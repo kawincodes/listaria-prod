@@ -49,8 +49,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     if (isset($_POST['reject'])) {
-        $pdo->prepare("UPDATE products SET approval_status = 'rejected' WHERE id = ?")->execute([$pid]);
-        sendRejectionEmail($pdo, $pid, $_POST['rejection_reason'] ?? '');
+        $rejReason = trim($_POST['rejection_reason'] ?? '');
+        $pdo->prepare("UPDATE products SET approval_status = 'rejected', rejection_reason = ? WHERE id = ?")->execute([$rejReason ?: null, $pid]);
+        sendRejectionEmail($pdo, $pid, $rejReason);
         $msg = "Listing rejected.";
     }
     
@@ -450,7 +451,7 @@ $categories = $pdo->query("SELECT DISTINCT category FROM products WHERE category
                                         <?php endif; ?>
                                         
                                         <?php if($status !== 'rejected'): ?>
-                                        <button type="submit" name="reject" class="dropdown-item">
+                                        <button type="button" class="dropdown-item" onclick="openRejectModal(<?php echo $p['id']; ?>, '<?php echo addslashes(htmlspecialchars($p['title'])); ?>')">
                                             <ion-icon name="close-circle-outline"></ion-icon> Reject
                                         </button>
                                         <?php endif; ?>
@@ -510,7 +511,46 @@ $categories = $pdo->query("SELECT DISTINCT category FROM products WHERE category
         </div>
     </aside>
 
+    <!-- Rejection Reason Modal -->
+    <div id="listingRejectModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+        <div style="background:white;border-radius:16px;padding:1.75rem;width:100%;max-width:460px;margin:1rem;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+            <h3 style="margin:0 0 4px;font-size:1.15rem;color:#1a1a1a;">Reject Listing</h3>
+            <p style="font-size:0.82rem;color:#64748b;margin:0 0 1.25rem;" id="lrModalTitle"></p>
+            <form method="POST" id="lrForm">
+                <input type="hidden" name="product_id" id="lrProductId">
+                <div style="margin-bottom:1rem;">
+                    <label style="display:block;font-weight:600;font-size:0.85rem;color:#333;margin-bottom:0.4rem;">Rejection Reason <span style="color:#ef4444;">*</span></label>
+                    <textarea name="rejection_reason" id="lrReason" rows="3" required
+                        style="width:100%;padding:0.7rem;border:1px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:0.85rem;resize:vertical;outline:none;box-sizing:border-box;"
+                        onfocus="this.style.borderColor='#6B21A8'" onblur="this.style.borderColor='#e2e8f0'"
+                        placeholder="e.g. Poor image quality, prohibited item, missing description..."></textarea>
+                </div>
+                <div style="display:flex;gap:0.6rem;justify-content:flex-end;">
+                    <button type="button" onclick="closeLRModal()" style="padding:0.55rem 1rem;border:1px solid #e2e8f0;border-radius:8px;background:white;color:#555;font-weight:600;cursor:pointer;font-size:0.85rem;">Cancel</button>
+                    <button type="submit" name="reject" style="padding:0.55rem 1.2rem;border:none;border-radius:8px;background:#ef4444;color:white;font-weight:600;cursor:pointer;font-size:0.85rem;display:inline-flex;align-items:center;gap:5px;">
+                        <ion-icon name="close-circle-outline"></ion-icon> Reject Listing
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
+        function openRejectModal(pid, title) {
+            document.getElementById('lrProductId').value = pid;
+            document.getElementById('lrModalTitle').textContent = 'Listing: ' + title;
+            document.getElementById('lrReason').value = '';
+            const m = document.getElementById('listingRejectModal');
+            m.style.display = 'flex';
+            setTimeout(() => document.getElementById('lrReason').focus(), 100);
+        }
+        function closeLRModal() {
+            document.getElementById('listingRejectModal').style.display = 'none';
+        }
+        document.getElementById('listingRejectModal').addEventListener('click', function(e) {
+            if (e.target === this) closeLRModal();
+        });
+
         document.getElementById('selectAll').addEventListener('change', function() {
             document.querySelectorAll('input[name="selected[]"]').forEach(cb => cb.checked = this.checked);
         });

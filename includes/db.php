@@ -30,6 +30,8 @@ try {
     )");
     try { $pdo->exec("ALTER TABLE products ADD COLUMN quantity INTEGER DEFAULT 1"); } catch (\PDOException $e) {}
     try { $pdo->exec("ALTER TABLE users ADD COLUMN last_login_ip TEXT DEFAULT NULL"); } catch (\PDOException $e) {}
+    try { $pdo->exec("ALTER TABLE products ADD COLUMN rejection_reason TEXT DEFAULT NULL"); } catch (\PDOException $e) {}
+    try { $pdo->exec("ALTER TABLE orders ADD COLUMN rejection_reason TEXT DEFAULT NULL"); } catch (\PDOException $e) {}
     $pdo->exec("CREATE TABLE IF NOT EXISTS login_logs (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,

@@ -61,15 +61,25 @@ if ($csrfValid && isset($_POST['verify_payment_id'])) {
 
 if ($csrfValid && isset($_POST['reject_payment_id'])) {
     $oid = $_POST['reject_payment_id'];
-    $stmt = $pdo->prepare("UPDATE orders SET order_status = 'Payment Failed' WHERE id = ? AND order_status IN ('Pending', 'Verification Pending')");
-    $stmt->execute([$oid]);
+    $rejReason = trim($_POST['rejection_reason'] ?? '');
+    $stmt = $pdo->prepare("UPDATE orders SET order_status = 'Payment Failed', rejection_reason = ? WHERE id = ? AND order_status IN ('Pending', 'Verification Pending')");
+    $stmt->execute([$rejReason ?: null, $oid]);
 
     if ($stmt->rowCount() > 0) {
-        $p_stmt = $pdo->prepare("SELECT product_id FROM orders WHERE id = ?");
+        $p_stmt = $pdo->prepare("SELECT o.product_id, u.email, u.full_name, p.title as product_title FROM orders o JOIN users u ON o.user_id = u.id JOIN products p ON o.product_id = p.id WHERE o.id = ?");
         $p_stmt->execute([$oid]);
         $prod = $p_stmt->fetch();
         if ($prod) {
             $pdo->prepare("UPDATE products SET quantity = COALESCE(quantity,0) + 1, status = 'available' WHERE id = ?")->execute([$prod['product_id']]);
+            try {
+                sendTemplateMail($pdo, 'payment_rejected', $prod['email'], [
+                    'customer_name'    => $prod['full_name'],
+                    'order_id'         => $oid,
+                    'product_title'    => $prod['product_title'],
+                    'rejection_reason' => $rejReason ?: 'Payment could not be verified.',
+                    'profile_url'      => 'https://listaria.in/profile.php',
+                ], $prod['full_name']);
+            } catch (Exception $e) {}
         }
         $msg = "Payment rejected for Order #$oid. Status marked as 'Payment Failed'. Stock restored.";
     } else {
@@ -423,17 +433,53 @@ $orders = $ordersStmt->fetchAll();
                             <ion-icon name="checkmark-circle-outline"></ion-icon> Verify Payment
                         </button>
                     </form>
-                    <form method="POST" onsubmit="return confirm('Reject this payment? Order #<?php echo $order['id']; ?> will be marked as Payment Failed and stock will be restored.');">
-                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-                        <input type="hidden" name="reject_payment_id" value="<?php echo $order['id']; ?>">
-                        <button type="submit" class="btn-action btn-reject">
-                            <ion-icon name="close-circle-outline"></ion-icon> Reject Payment
-                        </button>
-                    </form>
+                    <button type="button" class="btn-action btn-reject" onclick="openPayRejectModal(<?php echo $order['id']; ?>, '<?php echo addslashes(htmlspecialchars($order['product_title'])); ?>')">
+                        <ion-icon name="close-circle-outline"></ion-icon> Reject Payment
+                    </button>
                 </div>
             </div>
             <?php endforeach; ?>
         <?php endif; ?>
     </main>
+
+    <!-- Payment Rejection Modal -->
+    <div id="payRejectModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+        <div style="background:white;border-radius:16px;padding:1.75rem;width:100%;max-width:480px;margin:1rem;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+            <h3 style="margin:0 0 4px;font-size:1.15rem;color:#1a1a1a;">Reject Payment</h3>
+            <p style="font-size:0.82rem;color:#64748b;margin:0 0 1.25rem;" id="prModalTitle"></p>
+            <form method="POST" id="prForm">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                <input type="hidden" name="reject_payment_id" id="prOrderId">
+                <div style="margin-bottom:1rem;">
+                    <label style="display:block;font-weight:600;font-size:0.85rem;color:#333;margin-bottom:0.4rem;">Rejection Reason <span style="color:#ef4444;">*</span></label>
+                    <textarea name="rejection_reason" id="prReason" rows="3" required
+                        style="width:100%;padding:0.7rem;border:1px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:0.85rem;resize:vertical;outline:none;box-sizing:border-box;"
+                        onfocus="this.style.borderColor='#6B21A8'" onblur="this.style.borderColor='#e2e8f0'"
+                        placeholder="e.g. Payment slip unclear, incorrect amount, fake transaction ID..."></textarea>
+                </div>
+                <div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:10px 12px;margin-bottom:1rem;font-size:0.8rem;color:#92400e;">
+                    <strong>Note:</strong> The buyer will be notified by email and the reason will be shown on their dashboard. Stock will be restored automatically.
+                </div>
+                <div style="display:flex;gap:0.6rem;justify-content:flex-end;">
+                    <button type="button" onclick="closePRModal()" style="padding:0.55rem 1rem;border:1px solid #e2e8f0;border-radius:8px;background:white;color:#555;font-weight:600;cursor:pointer;font-size:0.85rem;">Cancel</button>
+                    <button type="submit" style="padding:0.55rem 1.2rem;border:none;border-radius:8px;background:#ef4444;color:white;font-weight:600;cursor:pointer;font-size:0.85rem;display:inline-flex;align-items:center;gap:5px;">
+                        <ion-icon name="close-circle-outline"></ion-icon> Reject Payment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        function openPayRejectModal(oid, title) {
+            document.getElementById('prOrderId').value = oid;
+            document.getElementById('prModalTitle').textContent = 'Order #' + oid + ' — ' + title;
+            document.getElementById('prReason').value = '';
+            const m = document.getElementById('payRejectModal');
+            m.style.display = 'flex';
+            setTimeout(() => document.getElementById('prReason').focus(), 100);
+        }
+        function closePRModal() { document.getElementById('payRejectModal').style.display = 'none'; }
+        document.getElementById('payRejectModal').addEventListener('click', function(e) { if (e.target === this) closePRModal(); });
+    </script>
 </body>
 </html>

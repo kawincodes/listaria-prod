@@ -19,9 +19,24 @@ if (isset($_POST['approve_product_id'])) {
 
 // Handle Reject Product (Dashboard Quick Action)
 if (isset($_POST['reject_product_id'])) {
+    require_once __DIR__ . '/includes/email_templates.php';
     $pid = $_POST['reject_product_id'];
-    $stmt = $pdo->prepare("UPDATE products SET approval_status = 'rejected' WHERE id = ?");
-    $stmt->execute([$pid]);
+    $rejReason = trim($_POST['rejection_reason'] ?? '');
+    $pdo->prepare("UPDATE products SET approval_status = 'rejected', rejection_reason = ? WHERE id = ?")->execute([$rejReason ?: null, $pid]);
+    // Send rejection email
+    try {
+        $d = $pdo->prepare("SELECT p.title, u.email, u.full_name FROM products p JOIN users u ON p.user_id = u.id WHERE p.id = ?");
+        $d->execute([$pid]);
+        $d = $d->fetch();
+        if ($d) {
+            sendTemplateMail($pdo, 'listing_rejected', $d['email'], [
+                'seller_name'      => $d['full_name'],
+                'product_title'    => $d['title'],
+                'rejection_reason' => $rejReason ?: 'Does not meet our listing quality standards.',
+                'dashboard_url'    => 'https://listaria.in/profile.php',
+            ], $d['full_name']);
+        }
+    } catch (Exception $e) {}
     $msg = "Product rejected.";
 }
 
@@ -301,10 +316,7 @@ $todayRevenue = $dailyActivity[$todayDate]['revenue'] ?? 0;
                                     <input type="hidden" name="approve_product_id" value="<?php echo $p['id']; ?>">
                                     <button type="submit" class="btn-approve">Approve</button>
                                 </form>
-                                <form method="POST" style="margin:0;" onsubmit="return confirm('Reject this product?');">
-                                    <input type="hidden" name="reject_product_id" value="<?php echo $p['id']; ?>">
-                                    <button type="submit" class="btn-reject">Reject</button>
-                                </form>
+                                <button type="button" class="btn-reject" onclick="openDashRejectModal(<?php echo $p['id']; ?>, '<?php echo addslashes(htmlspecialchars($p['title'])); ?>')">Reject</button>
                             </div>
                         </td>
                     </tr>
@@ -574,5 +586,39 @@ $todayRevenue = $dailyActivity[$todayDate]['revenue'] ?? 0;
             .stats-grid { grid-template-columns: repeat(3, 1fr); }
         }
     </style>
+
+    <!-- Dashboard Product Rejection Modal -->
+    <div id="dashRejectModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+        <div style="background:white;border-radius:16px;padding:1.75rem;width:100%;max-width:460px;margin:1rem;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+            <h3 style="margin:0 0 4px;font-size:1.15rem;color:#1a1a1a;">Reject Product</h3>
+            <p style="font-size:0.82rem;color:#64748b;margin:0 0 1.25rem;" id="drModalTitle"></p>
+            <form method="POST" id="drForm">
+                <input type="hidden" name="reject_product_id" id="drProductId">
+                <div style="margin-bottom:1rem;">
+                    <label style="display:block;font-weight:600;font-size:0.85rem;color:#333;margin-bottom:0.4rem;">Rejection Reason <span style="color:#ef4444;">*</span></label>
+                    <textarea name="rejection_reason" id="drReason" rows="3" required
+                        style="width:100%;padding:0.7rem;border:1px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:0.85rem;resize:vertical;outline:none;box-sizing:border-box;"
+                        onfocus="this.style.borderColor='#6B21A8'" onblur="this.style.borderColor='#e2e8f0'"
+                        placeholder="e.g. Poor image quality, prohibited item, incomplete details..."></textarea>
+                </div>
+                <div style="display:flex;gap:0.6rem;justify-content:flex-end;">
+                    <button type="button" onclick="closeDRModal()" style="padding:0.55rem 1rem;border:1px solid #e2e8f0;border-radius:8px;background:white;color:#555;font-weight:600;cursor:pointer;font-size:0.85rem;">Cancel</button>
+                    <button type="submit" style="padding:0.55rem 1.2rem;border:none;border-radius:8px;background:#ef4444;color:white;font-weight:600;cursor:pointer;font-size:0.85rem;">Reject Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        function openDashRejectModal(pid, title) {
+            document.getElementById('drProductId').value = pid;
+            document.getElementById('drModalTitle').textContent = 'Product: ' + title;
+            document.getElementById('drReason').value = '';
+            const m = document.getElementById('dashRejectModal');
+            m.style.display = 'flex';
+            setTimeout(() => document.getElementById('drReason').focus(), 100);
+        }
+        function closeDRModal() { document.getElementById('dashRejectModal').style.display = 'none'; }
+        document.getElementById('dashRejectModal').addEventListener('click', function(e) { if (e.target === this) closeDRModal(); });
+    </script>
 </body>
 </html>

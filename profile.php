@@ -472,6 +472,11 @@ usort($all_negotiations, function($a, $b) {
                                     <h3 class="card-title"><?php echo htmlspecialchars($product['title']); ?></h3>
                                     <span class="status-badge <?php echo strtolower($pStatus); ?>"><?php echo ucfirst($pStatus); ?></span>
                                 </div>
+                                <?php if(strtolower($pStatus) === 'rejected' && !empty($product['rejection_reason'])): ?>
+                                <div style="margin-top:5px;padding:6px 10px;background:#fff5f5;border-radius:6px;border-left:3px solid #ef4444;font-size:0.78rem;color:#991b1b;">
+                                    <strong>Rejection reason:</strong> <?php echo htmlspecialchars($product['rejection_reason']); ?>
+                                </div>
+                                <?php endif; ?>
                                 <div class="card-price">Listed: ₹<?php echo number_format($product['price_min']); ?></div>
                                 <div class="card-actions-row">
                                      <a href="product_details.php?id=<?php echo $product['id']; ?>" class="action-link"><ion-icon name="eye-outline"></ion-icon> View</a>
@@ -503,9 +508,14 @@ usort($all_negotiations, function($a, $b) {
                                 <h3 class="card-title"><?php echo htmlspecialchars($order['product_title']); ?></h3>
                                 <p style="font-size:0.85rem; color:#666;">Seller: <?php echo htmlspecialchars($order['seller_name']); ?></p>
                                 <div class="card-price" style="margin-top:5px;">₹<?php echo number_format($order['amount']); ?></div>
-                                <div class="status-text" style="color:#27ae60; font-size:0.8rem; margin-top:5px;">
+                                <div class="status-text" style="color:<?php echo strtolower($order['order_status'] ?? '') === 'payment failed' ? '#dc2626' : '#27ae60'; ?>; font-size:0.8rem; margin-top:5px;">
                                     Status: <?php echo htmlspecialchars($order['order_status'] ?? 'Processing'); ?>
                                 </div>
+                                <?php if(strtolower($order['order_status'] ?? '') === 'payment failed' && !empty($order['rejection_reason'])): ?>
+                                <div style="margin-top:5px;padding:6px 10px;background:#fff5f5;border-radius:6px;border-left:3px solid #ef4444;font-size:0.78rem;color:#991b1b;">
+                                    <strong>Rejection reason:</strong> <?php echo htmlspecialchars($order['rejection_reason']); ?>
+                                </div>
+                                <?php endif; ?>
                                 <?php
                                     // Helper to check return eligibility
                                     $deliveryDate = $order['delivery_date'] ?? $order['created_at'];

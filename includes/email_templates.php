@@ -167,6 +167,29 @@ function getDefaultEmailTemplates() {
             'variables' => 'user_name, dashboard_url',
             'description' => 'Sent to the user when their vendor application is approved.'
         ],
+        'payment_rejected' => [
+            'name' => 'Payment Rejected',
+            'subject' => 'Your Payment Could Not Be Verified | Listaria',
+            'body' => '<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;border:1px solid #eee;border-radius:12px;">
+  <div style="text-align:center;margin-bottom:20px;">
+    <h1 style="color:#6B21A8;margin:0;font-size:2rem;letter-spacing:-1px;">listaria</h1>
+  </div>
+  <h2 style="color:#ef4444;margin-top:0;">Payment Not Verified</h2>
+  <p style="color:#475569;">Hi {{customer_name}},</p>
+  <p style="color:#475569;">Unfortunately, we were unable to verify your payment for Order <strong>#{{order_id}}</strong> — <strong>{{product_title}}</strong>.</p>
+  <div style="background:#fff5f5;padding:16px;border-radius:8px;margin:16px 0;border-left:4px solid #ef4444;">
+    <p style="margin:4px 0;color:#1e293b;"><strong>Reason:</strong> {{rejection_reason}}</p>
+  </div>
+  <p style="color:#475569;">The item stock has been restored. Please resubmit a valid payment or contact our support team if you believe this is an error.</p>
+  <p style="text-align:center;margin:20px 0;">
+    <a href="{{profile_url}}" style="background:#6B21A8;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;">View My Orders</a>
+  </p>
+  <hr style="border:0;border-top:1px solid #eee;margin:20px 0;">
+  <p style="font-size:12px;color:#94a3b8;">This is an automated message from Listaria. Please do not reply to this email.</p>
+</div>',
+            'variables' => 'customer_name, order_id, product_title, rejection_reason, profile_url',
+            'description' => 'Sent to the buyer when their payment is rejected by admin.'
+        ],
         'vendor_rejected' => [
             'name' => 'Vendor Application Rejected',
             'subject' => 'Your Vendor Application Status | Listaria',
