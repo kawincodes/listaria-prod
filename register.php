@@ -1,7 +1,7 @@
 <?php
+ob_start();
 require 'includes/db.php';
 require_once 'includes/email_templates.php';
-session_start();
 
 $error = '';
 $success = '';
