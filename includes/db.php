@@ -51,6 +51,16 @@ try {
         sent_by INTEGER,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )");
+    $pdo->exec("CREATE TABLE IF NOT EXISTS product_requests (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL,
+        budget REAL DEFAULT NULL,
+        status TEXT DEFAULT 'open',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id)
+    )");
 } catch (\PDOException $e) {
     $msg = $e->getMessage();
     if (str_contains($msg, 'unable to open') || str_contains($msg, 'permission')) {
