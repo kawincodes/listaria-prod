@@ -70,6 +70,14 @@ A luxury e-commerce marketplace platform built in PHP with SQLite.
 - `api/bulk_listing_action.php` bulk sold sets quantity=0
 - `api/bulk_upload.php` supports quantity as 9th CSV column (optional, defaults to 1)
 
+## Database Editor (Admin)
+
+- `admin_database.php` — Full-featured SQLite database editor in admin panel
+- `api/admin_db.php` — Backend API for CRUD operations and raw SQL queries
+- Features: table browser, search across columns, inline row editing, add/delete rows, SQL console (Ctrl+Enter to run)
+- Protected by super_admin role check + CSRF token validation (only super_admin can access)
+- Sidebar link added under Settings section
+
 ## Running
 
 The app runs via PHP's built-in server on port 5000:

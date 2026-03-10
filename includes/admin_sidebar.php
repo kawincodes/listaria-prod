@@ -249,6 +249,12 @@
     <a href="admin_seo.php" class="menu-item <?php echo ($activePage == 'seo') ? 'active' : ''; ?>">
         <ion-icon name="search-outline"></ion-icon> SEO & Sitemap
     </a>
+
+    <?php if($isSuperAdmin): ?>
+    <a href="admin_database.php" class="menu-item <?php echo ($activePage == 'database') ? 'active' : ''; ?>">
+        <ion-icon name="server-outline"></ion-icon> Database
+    </a>
+    <?php endif; ?>
     
     <div class="sidebar-footer">
         <a href="index.php" class="menu-item">
