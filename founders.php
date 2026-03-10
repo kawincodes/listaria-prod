@@ -1,6 +1,6 @@
 <?php
 require 'includes/db.php';
-session_start();
+require_once __DIR__ . '/includes/session.php';
 
 $settings = $pdo->query("SELECT setting_key, setting_value FROM site_settings")->fetchAll(PDO::FETCH_KEY_PAIR);
 $f1_note = $settings['founder_1_note'] ?? '';

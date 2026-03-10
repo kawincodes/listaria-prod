@@ -1,6 +1,6 @@
 <?php
 require 'includes/db.php';
-session_start();
+require_once __DIR__ . '/includes/session.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['credential'])) {
     $id_token = $_POST['credential'];

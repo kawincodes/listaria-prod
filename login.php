@@ -45,13 +45,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $_SESSION['account_type'] = $user['account_type'] ?? 'customer';
                     $_SESSION['is_admin'] = $user['is_admin'] ?? 0;
 
-                    $base = rtrim((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'], '/');
                     if ($_SESSION['is_admin'] == 1) {
-                        header("Location: $base/admin_dashboard.php");
+                        header("Location: admin_dashboard.php");
                     } else {
                         $redirect = $_POST['redirect'] ?? '';
-                        $redirect = ($redirect && strpos($redirect, '/') === 0) ? $redirect : '/index.php';
-                        header("Location: $base$redirect");
+                        if (!$redirect || preg_match('/^(https?:)?\/\/|[\\\]/', $redirect)) {
+                            $redirect = 'index.php';
+                        }
+                        header("Location: $redirect");
                     }
                     exit;
                 }

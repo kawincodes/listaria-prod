@@ -19,9 +19,7 @@ $image_url = 'https://via.placeholder.com/150';
 $title = 'Product Name';
 $brand = 'Brand';
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once __DIR__ . '/includes/session.php';
 $user_id = $_SESSION['user_id'] ?? null;
 
 if ($product_id) {

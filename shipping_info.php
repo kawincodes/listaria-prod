@@ -1,8 +1,6 @@
 <?php
 require 'includes/db.php';
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once __DIR__ . '/includes/session.php';
 
 // Redirect if not logged in
 if (!isset($_SESSION['user_id'])) {

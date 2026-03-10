@@ -1,6 +1,6 @@
 <?php
 require 'includes/db.php';
-session_start();
+require_once __DIR__ . '/includes/session.php';
 
 if (!isset($_GET['order_id'])) {
     die("Order ID is required");

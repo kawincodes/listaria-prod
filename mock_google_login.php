@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/includes/session.php';
 // Simulate a Google User Login
 $_SESSION['user_id'] = 888; // dummy ID
 $_SESSION['full_name'] = "Google Test User";

@@ -14,14 +14,25 @@ A luxury e-commerce marketplace platform built in PHP with SQLite.
 ## Key Files
 
 - `index.php` - Main marketplace homepage
-- `includes/db.php` - Database connection (SQLite via PDO)
+- `includes/db.php` - Database connection (SQLite via PDO), requires session.php
+- `includes/session.php` - Centralized session init (sets save path to `sessions/`, cookie params, ob_start)
 - `includes/config.php` - Environment variable loader
 - `includes/email_templates.php` - Email template helper (getEmailTemplate, renderEmailTemplate)
 - `database.sqlite` - SQLite database
+- `sessions/` - Session file storage (protected by .htaccess, gitignored except .htaccess)
 - `.env` - Environment variables (SITE_ROOT_URL, Google OAuth)
+- `.user.ini` - PHP settings for LiteSpeed/FastCGI (output_buffering, session cookie flags)
 - Env vars for SMTP: `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` (optional, overrides DB settings)
 - Env vars for CAPTCHA: `CAPTCHA_ENABLED` (true/false), `TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` (Cloudflare Turnstile)
 - `php.ini` - PHP configuration
+
+## Session Management
+
+- All PHP pages use `require_once __DIR__ . '/includes/session.php'` (never raw `session_start()`)
+- `session.php` sets `session_save_path()` to `sessions/` directory in project root
+- This ensures consistent session storage across all pages (critical for login to work)
+- The `sessions/` directory has `.htaccess` with `Deny from all` for web protection
+- Login redirects use relative URLs (not absolute with protocol) to avoid http/https mismatch
 
 ## Project Structure
 

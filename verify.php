@@ -1,6 +1,6 @@
 <?php
 require 'includes/db.php';
-session_start();
+require_once __DIR__ . '/includes/session.php';
 
 if (isset($_GET['token'])) {
     $token = $_GET['token'];
