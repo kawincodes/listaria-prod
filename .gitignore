@@ -1,0 +1,26 @@
+# Live database — never commit this, it contains real user data
+database.sqlite
+database.db
+
+# User sessions
+sessions/
+
+# Environment secrets
+.env
+.env.local
+
+# Uploaded files (keep on server, don't commit)
+uploads/
+
+# Logs
+*.log
+php_errors.log
+
+# Diagnostic/temp scripts
+check_setup.php
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
