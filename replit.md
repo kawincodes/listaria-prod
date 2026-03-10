@@ -151,6 +151,15 @@ The Vendor section in `includes/admin_sidebar.php` contains 7 items:
 - Founder 2: Aryan Biswa (CFMO) — placeholder social URLs
 - Bios and images managed via `site_settings` DB table (admin settings)
 
+## File Manager (Admin)
+
+- `admin_filemanager.php` — Upload, browse, and manage files with permanent URLs
+- Files stored in `uploads/files/` directory
+- Features: drag-and-drop upload, grid/list view toggle, copy URL button, file preview, delete
+- Allowed types: images, documents, fonts, media, archives (20MB max per file)
+- URL button copies full permanent URL (uses SITE_ROOT_URL for production, origin for dev)
+- Admin sidebar link under "Developer Tools" section
+
 ## Running
 
 The app runs via PHP's built-in server on port 5000:

@@ -466,6 +466,10 @@ try {
     <div class="nav-divider"></div>
     <div class="nav-section-label">Developer Tools</div>
 
+    <a href="admin_filemanager.php" class="menu-item <?php echo ($activePage == 'filemanager') ? 'active' : ''; ?>">
+        <ion-icon name="folder-open-outline"></ion-icon> File Manager
+    </a>
+
     <a href="admin_database.php" class="menu-item <?php echo ($activePage == 'database') ? 'active' : ''; ?>">
         <ion-icon name="server-outline"></ion-icon> Database Editor
     </a>
