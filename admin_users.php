@@ -4,6 +4,9 @@ require 'includes/db.php';
 require_once 'includes/email_templates.php';
 
 $activePage = 'users';
+if (isset($_GET['filter']) && $_GET['filter'] === 'vendor_apps') $activePage = 'vendor_apps';
+elseif (isset($_GET['filter']) && $_GET['filter'] === 'verified_vendors') $activePage = 'verified_vendors';
+elseif (isset($_GET['kyc']) && $_GET['kyc'] === 'pending') $activePage = 'kyc_pending';
 
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['is_admin']) || $_SESSION['is_admin'] != 1) {
     header("Location: login.php");
@@ -142,6 +145,8 @@ if ($filter === 'admins') {
     $sql .= " AND u.status = 'suspended'";
 } elseif ($filter === 'vendor_apps') {
     $sql .= " AND u.vendor_status = 'pending'";
+} elseif ($filter === 'verified_vendors') {
+    $sql .= " AND u.is_verified_vendor = 1";
 }
 
 if ($kycFilter) {
@@ -476,6 +481,7 @@ $pendingVendors = $pdo->query("SELECT COUNT(*) FROM users WHERE vendor_status = 
             <a href="?filter=vendor_apps" class="filter-btn <?php echo $filter === 'vendor_apps' ? 'active' : ''; ?>">
                 Vendor Apps <?php if($pendingVendors > 0) echo "<span style='background:red; color:white; padding:2px 6px; border-radius:10px; font-size:0.75rem; margin-left:4px;'>$pendingVendors</span>"; ?>
             </a>
+            <a href="?filter=verified_vendors" class="filter-btn <?php echo $filter === 'verified_vendors' ? 'active' : ''; ?>">Verified Vendors</a>
             <a href="?kyc=pending" class="filter-btn <?php echo $kycFilter === 'pending' ? 'active' : ''; ?>">KYC Pending</a>
             
             <form method="GET" class="search-box">

@@ -1,4 +1,12 @@
-<?php $isSuperAdmin = ($_SESSION['role'] ?? '') === 'super_admin'; ?>
+<?php
+$isSuperAdmin = ($_SESSION['role'] ?? '') === 'super_admin';
+$_sidebarPendingVendors = 0;
+$_sidebarPendingKYC = 0;
+try {
+    $_sidebarPendingVendors = $pdo->query("SELECT COUNT(*) FROM users WHERE vendor_status = 'pending'")->fetchColumn();
+    $_sidebarPendingKYC = $pdo->query("SELECT COUNT(*) FROM users WHERE kyc_status = 'pending'")->fetchColumn();
+} catch (Exception $e) {}
+?>
 <style>
     .sidebar {
         display: flex !important;
@@ -201,6 +209,27 @@
         <ion-icon name="chatbubbles-outline"></ion-icon> Chats
     </a>
     
+    <div class="nav-divider"></div>
+    <div class="nav-section-label">Vendor</div>
+    
+    <a href="admin_users.php?filter=vendor_apps" class="menu-item <?php echo ($activePage == 'vendor_apps') ? 'active' : ''; ?>">
+        <ion-icon name="storefront-outline"></ion-icon> Vendor Applications
+        <?php if($_sidebarPendingVendors > 0): ?>
+        <span class="menu-badge" style="background:rgba(239,68,68,0.2);color:#ef4444;"><?php echo $_sidebarPendingVendors; ?></span>
+        <?php endif; ?>
+    </a>
+    
+    <a href="admin_users.php?kyc=pending" class="menu-item <?php echo ($activePage == 'kyc_pending') ? 'active' : ''; ?>">
+        <ion-icon name="document-attach-outline"></ion-icon> KYC Verification
+        <?php if($_sidebarPendingKYC > 0): ?>
+        <span class="menu-badge" style="background:rgba(239,68,68,0.2);color:#ef4444;"><?php echo $_sidebarPendingKYC; ?></span>
+        <?php endif; ?>
+    </a>
+    
+    <a href="admin_users.php?filter=verified_vendors" class="menu-item <?php echo ($activePage == 'verified_vendors') ? 'active' : ''; ?>">
+        <ion-icon name="checkmark-done-circle-outline"></ion-icon> Verified Vendors
+    </a>
+
     <div class="nav-divider"></div>
     <div class="nav-section-label">Content</div>
     
