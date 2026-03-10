@@ -8,10 +8,23 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+$isAdmin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1;
+if (!$isAdmin) {
+    $uCheck = $pdo->prepare("SELECT account_type, is_verified_vendor, vendor_status FROM users WHERE id = ?");
+    $uCheck->execute([$_SESSION['user_id']]);
+    $uRow = $uCheck->fetch();
+    if (!$uRow || (($uRow['account_type'] ?? '') !== 'vendor' && empty($uRow['is_verified_vendor']) && ($uRow['vendor_status'] ?? '') !== 'approved')) {
+        header("Location: ../index.php");
+        exit;
+    }
+}
+
+$allowedImageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['bulk_file'])) {
     $file = $_FILES['bulk_file'];
     $user_id = $_SESSION['user_id'];
-    if (($_SESSION['account_type'] ?? '') === 'admin' && !empty($_POST['vendor_id'])) {
+    if ($isAdmin && !empty($_POST['vendor_id'])) {
         $user_id = (int)$_POST['vendor_id'];
     }
     
@@ -38,11 +51,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['bulk_file'])) {
                 if ($_FILES['bulk_images']['error'][$i] === UPLOAD_ERR_OK) {
                     $tmp_name = $_FILES['bulk_images']['tmp_name'][$i];
                     $original_name = basename($_FILES['bulk_images']['name'][$i]);
-                    $new_name = uniqid() . '_' . $original_name;
+                    $ext = strtolower(pathinfo($original_name, PATHINFO_EXTENSION));
+                    if (!in_array($ext, $allowedImageExts)) continue;
+                    $new_name = uniqid() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '', $original_name);
                     $target_file = $upload_dir . $new_name;
                     
                     if (move_uploaded_file($tmp_name, $target_file)) {
-                        // Store in lowercase for case-insensitive lookup
                         $imageMap[strtolower($original_name)] = 'uploads/' . $new_name;
                     }
                 }
@@ -171,7 +185,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['bulk_file'])) {
             error_log("Failed to send bulk upload summary email: " . $e->getMessage());
         }
 
-        header("Location: ../profile.php?tab=listings&msg=bulk_complete&success=$successCount&fail=$failCount");
+        $referer = $_SERVER['HTTP_REFERER'] ?? '';
+        if (strpos($referer, 'vendor_bulk_upload') !== false) {
+            header("Location: ../vendor_bulk_upload.php?msg=bulk_complete&success=$successCount&fail=$failCount");
+        } else {
+            header("Location: ../profile.php?tab=listings&msg=bulk_complete&success=$successCount&fail=$failCount");
+        }
     } else {
         die("Could not open file.");
     }

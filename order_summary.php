@@ -64,7 +64,15 @@ if ($negotiated_price !== null) {
     $final_item_price = $negotiated_price;
 }
 
-$total = $final_item_price + $shipping_cost;
+$coupon_discount = 0;
+$applied_coupon_code = '';
+if (isset($_SESSION['applied_coupon']) && !empty($_SESSION['applied_coupon']['discount_amount'])) {
+    $coupon_discount = (float)$_SESSION['applied_coupon']['discount_amount'];
+    $applied_coupon_code = $_SESSION['applied_coupon']['code'];
+}
+
+$total = $final_item_price + $shipping_cost - $coupon_discount;
+if ($total < 0) $total = 0;
 
 include 'includes/header.php';
 ?>
@@ -206,6 +214,12 @@ include 'includes/header.php';
                     <span style="color:#666;">Shipping Fee</span>
                     <span>₹<?php echo number_format($shipping_cost, 2); ?></span>
                 </div>
+                <?php if ($coupon_discount > 0): ?>
+                <div class="summary-row">
+                    <span style="color:#22c55e;">Coupon (<?php echo htmlspecialchars($applied_coupon_code); ?>)</span>
+                    <span style="color:#22c55e;">- ₹<?php echo number_format($coupon_discount, 2); ?></span>
+                </div>
+                <?php endif; ?>
                 <div class="summary-row" style="margin-top:1rem; padding-top:1rem; border-top:1px dashed #eee; font-weight:800; font-size:1.2rem; display:flex; justify-content:space-between;">
                     <span>Total Amount</span>
                     <span>₹<?php echo number_format($total, 2); ?></span>

@@ -350,6 +350,9 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <a href="sell.php?source=thrift" class="mobile-link" style="display:flex; align-items:center; gap:10px;">
                     <ion-icon name="leaf-outline" style="font-size:1.2rem; color:#27ae60;"></ion-icon> Sell on Thrift+
                 </a>
+                <a href="vendor_bulk_upload.php" class="mobile-link" style="display:flex; align-items:center; gap:10px;">
+                    <ion-icon name="cloud-upload-outline" style="font-size:1.2rem; color:#7c3aed;"></ion-icon> Bulk Upload
+                </a>
                 <a href="profile.php?tab=orders#my-sales" class="mobile-link" style="display:flex; align-items:center; gap:10px;">
                     <ion-icon name="receipt-outline" style="font-size:1.2rem; color:#7c3aed;"></ion-icon> My Sales
                 </a>

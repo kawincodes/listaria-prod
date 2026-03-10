@@ -29,6 +29,34 @@ try {
     $pdo->exec($sql);
     echo "Table 'products' created or already exists.\n";
 
+    $pdo->exec("CREATE TABLE IF NOT EXISTS coupons (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        code TEXT NOT NULL UNIQUE,
+        type TEXT NOT NULL DEFAULT 'percentage',
+        value REAL NOT NULL DEFAULT 0,
+        min_order_amount REAL DEFAULT 0,
+        max_discount_amount REAL DEFAULT 0,
+        usage_limit INTEGER DEFAULT 0,
+        used_count INTEGER DEFAULT 0,
+        per_user_limit INTEGER DEFAULT 1,
+        start_date TEXT,
+        end_date TEXT,
+        is_active INTEGER DEFAULT 1,
+        created_by INTEGER,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )");
+    echo "Table 'coupons' created or already exists.\n";
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS coupon_usage (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        coupon_code TEXT NOT NULL,
+        order_id INTEGER,
+        discount_amount REAL DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )");
+    echo "Table 'coupon_usage' created or already exists.\n";
+
 } catch (PDOException $e) {
     echo "Error: " . $e->getMessage() . "\n";
 }

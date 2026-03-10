@@ -247,8 +247,19 @@ try {
         <ion-icon name="cash-outline"></ion-icon> Vendor Sales
     </a>
     
+    <a href="vendor_bulk_upload.php" class="menu-item <?php echo ($activePage ?? '') == 'vendor_bulk_upload' ? 'active' : ''; ?>">
+        <ion-icon name="cloud-upload-outline"></ion-icon> Bulk Upload
+    </a>
+    
     <a href="admin_returns.php?filter=vendor" class="menu-item <?php echo ($activePage == 'vendor_returns') ? 'active' : ''; ?>">
         <ion-icon name="arrow-undo-outline"></ion-icon> Vendor Returns
+    </a>
+
+    <div class="nav-divider"></div>
+    <div class="nav-section-label">Marketing</div>
+
+    <a href="admin_coupons.php" class="menu-item <?php echo ($activePage == 'coupons') ? 'active' : ''; ?>">
+        <ion-icon name="pricetag-outline"></ion-icon> Coupons
     </a>
 
     <div class="nav-divider"></div>

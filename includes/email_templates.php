@@ -322,16 +322,27 @@ function renderEmailTemplate($pdo, $templateKey, $data = []) {
  * Never throws — all errors are logged via error_log().
  */
 function sendTemplateMail($pdo, $templateKey, $toEmail, $data = [], $toName = '') {
-    if (!$toEmail) return false;
+    if (!$toEmail) {
+        error_log("Listaria mailer [{$templateKey}]: No recipient email provided");
+        return false;
+    }
     try {
         require_once __DIR__ . '/config.php';
         $rendered = renderEmailTemplate($pdo, $templateKey, $data);
-        if (!$rendered) return false;
+        if (!$rendered) {
+            error_log("Listaria mailer [{$templateKey}] to {$toEmail}: Template render failed (template inactive or not found)");
+            return false;
+        }
         $smtp = createSmtp($pdo);
-        $smtp->send($toEmail, $rendered['subject'], $rendered['body'], $toName ?: 'Listaria');
-        return true;
+        $result = $smtp->send($toEmail, $rendered['subject'], $rendered['body'], $toName ?: 'Listaria');
+        if ($result) {
+            error_log("Listaria mailer [{$templateKey}] to {$toEmail}: Sent successfully - Subject: {$rendered['subject']}");
+        } else {
+            error_log("Listaria mailer [{$templateKey}] to {$toEmail}: SMTP send returned false");
+        }
+        return $result;
     } catch (Exception $e) {
-        error_log("Listaria mailer [{$templateKey}] to {$toEmail}: " . $e->getMessage());
+        error_log("Listaria mailer [{$templateKey}] to {$toEmail}: EXCEPTION - " . $e->getMessage());
         return false;
     }
 }

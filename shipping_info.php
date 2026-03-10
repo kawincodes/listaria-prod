@@ -73,7 +73,15 @@ if (isset($_SESSION['apply_free_shipping']) && $_SESSION['apply_free_shipping'] 
     $shipping_cost = 0;
 }
 
-$total = $price + $shipping_cost;
+$coupon_discount = 0;
+$applied_coupon_code = '';
+if (isset($_SESSION['applied_coupon']) && !empty($_SESSION['applied_coupon']['discount_amount'])) {
+    $coupon_discount = (float)$_SESSION['applied_coupon']['discount_amount'];
+    $applied_coupon_code = $_SESSION['applied_coupon']['code'];
+}
+
+$total = $price + $shipping_cost - $coupon_discount;
+if ($total < 0) $total = 0;
 $discount = $original_price - $price;
 $discount_pct = round(($discount / $original_price) * 100);
 
@@ -699,9 +707,19 @@ include 'includes/header.php';
 
                 <div class="ship-coupon-section">
                     <label>Discount Code</label>
-                    <div class="ship-coupon-row">
+                    <div class="ship-coupon-row" id="coupon-input-row" style="<?php echo $applied_coupon_code ? 'display:none;' : ''; ?>">
                         <input type="text" id="coupon-code" placeholder="Enter code">
                         <button type="button" onclick="applyCoupon()">Apply</button>
+                    </div>
+                    <div id="coupon-applied" style="<?php echo $applied_coupon_code ? '' : 'display:none;'; ?>padding:8px 12px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:8px;display:flex;align-items:center;justify-content:space-between;font-size:0.9rem;">
+                        <span style="color:#22c55e;font-weight:600;">
+                            <ion-icon name="checkmark-circle" style="vertical-align:middle;margin-right:4px;"></ion-icon>
+                            <span id="coupon-applied-code"><?php echo htmlspecialchars($applied_coupon_code); ?></span>
+                            <span id="coupon-applied-msg" style="font-weight:400;color:#64748b;margin-left:4px;">-₹<?php echo number_format($coupon_discount); ?></span>
+                        </span>
+                        <button type="button" onclick="removeCoupon()" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:1.1rem;padding:0;">
+                            <ion-icon name="close-circle"></ion-icon>
+                        </button>
                     </div>
                 </div>
 
@@ -720,10 +738,14 @@ include 'includes/header.php';
                         <?php echo $shipping_cost === 0 ? 'FREE' : '₹' . number_format($shipping_cost); ?>
                     </span>
                 </div>
+                <div class="ship-summary-row" id="coupon-discount-row" style="<?php echo $coupon_discount > 0 ? '' : 'display:none;'; ?>">
+                    <span class="ship-summary-label" style="color:#22c55e;">Coupon Discount</span>
+                    <span class="ship-summary-val" style="color:#22c55e;" id="coupon-discount-val">-₹<?php echo number_format($coupon_discount); ?></span>
+                </div>
 
                 <div class="ship-total-row">
                     <span>Total</span>
-                    <span>₹<?php echo number_format($total); ?></span>
+                    <span id="summary-total">₹<?php echo number_format($total); ?></span>
                 </div>
 
                 <div class="ship-guarantee">
@@ -747,8 +769,8 @@ include 'includes/header.php';
                 </div>
                 <?php endif; ?>
 
-                <button type="submit" form="shipping-form" class="ship-btn-pay" onclick="validateShipping(event)">
-                    <ion-icon name="lock-closed-outline"></ion-icon> Proceed to Payment — ₹<?php echo number_format($total); ?>
+                <button type="submit" form="shipping-form" class="ship-btn-pay" id="proceed-btn" onclick="validateShipping(event)">
+                    <ion-icon name="lock-closed-outline"></ion-icon> Proceed to Payment — ₹<span id="proceed-total"><?php echo number_format($total); ?></span>
                 </button>
 
                 <div class="ship-payment-icons">
@@ -832,13 +854,49 @@ function validateShipping(event) {
 }
 
 function applyCoupon() {
-    const code = document.getElementById('coupon-code').value;
+    const code = document.getElementById('coupon-code').value.trim();
     if(!code) return;
-    if(code.toLowerCase() === 'listaria_new') {
-        alert("Coupon Applied! (Mock)");
-    } else {
-        alert("Invalid Coupon");
-    }
+    const productId = '<?php echo htmlspecialchars($product_id ?? ''); ?>';
+    fetch('api/validate_coupon.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({code: code, product_id: productId})
+    })
+    .then(r => r.json())
+    .then(data => {
+        if(data.valid) {
+            document.getElementById('coupon-input-row').style.display = 'none';
+            document.getElementById('coupon-applied').style.display = 'flex';
+            document.getElementById('coupon-applied-code').textContent = code.toUpperCase();
+            document.getElementById('coupon-applied-msg').textContent = '-' + data.discount_display;
+            document.getElementById('coupon-discount-row').style.display = 'flex';
+            document.getElementById('coupon-discount-val').textContent = '-' + data.discount_display;
+            const basePrice = <?php echo (float)$price; ?>;
+            const shipping = <?php echo (float)$shipping_cost; ?>;
+            const newTotal = Math.max(0, basePrice + shipping - data.discount_amount);
+            document.getElementById('summary-total').textContent = '₹' + newTotal.toLocaleString('en-IN');
+            document.getElementById('proceed-total').textContent = newTotal.toLocaleString('en-IN');
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(() => alert('Error applying coupon. Please try again.'));
+}
+
+function removeCoupon() {
+    fetch('api/remove_coupon.php', {method: 'POST'})
+    .then(r => r.json())
+    .then(() => {
+        document.getElementById('coupon-input-row').style.display = 'flex';
+        document.getElementById('coupon-applied').style.display = 'none';
+        document.getElementById('coupon-code').value = '';
+        document.getElementById('coupon-discount-row').style.display = 'none';
+        const basePrice = <?php echo (float)$price; ?>;
+        const shipping = <?php echo (float)$shipping_cost; ?>;
+        const newTotal = basePrice + shipping;
+        document.getElementById('summary-total').textContent = '₹' + newTotal.toLocaleString('en-IN');
+        document.getElementById('proceed-total').textContent = newTotal.toLocaleString('en-IN');
+    });
 }
 </script>
 

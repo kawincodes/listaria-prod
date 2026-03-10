@@ -15,14 +15,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_id = $_SESSION['user_id'];
     $product_id = $_POST['product_id'] ?? null;
     $pay_method = $_POST['pay_method'] ?? 'phonepe';
-    $amount = $_POST['amount'] ?? 0;
 
     if ($product_id) {
         try {
-            // Start Transaction
             $pdo->beginTransaction();
 
-            // 0. Atomically reserve stock (decrement quantity only if available)
+            $prodStmt = $pdo->prepare("SELECT price_min FROM products WHERE id = ?");
+            $prodStmt->execute([$product_id]);
+            $prodRow = $prodStmt->fetch();
+            if (!$prodRow) {
+                $pdo->rollBack();
+                header("Location: index.php");
+                exit;
+            }
+            $server_price = (float)$prodRow['price_min'];
+
+            $negStmt = $pdo->prepare("SELECT final_price FROM negotiations WHERE product_id = ? AND buyer_id = ? AND final_price IS NOT NULL");
+            $negStmt->execute([$product_id, $user_id]);
+            $negRow = $negStmt->fetch();
+            if ($negRow) {
+                $server_price = (float)$negRow['final_price'];
+            }
+
+            $shipping_cost = 85.00;
+            if (isset($_SESSION['apply_free_shipping']) && $_SESSION['apply_free_shipping'] === true) {
+                $shipping_cost = 0;
+            }
+
+            $coupon_discount = 0;
+            if (isset($_SESSION['applied_coupon']) && !empty($_SESSION['applied_coupon']['code'])) {
+                $cpn = $_SESSION['applied_coupon'];
+                if ($cpn['type'] === 'percentage') {
+                    $coupon_discount = round($server_price * ($cpn['value'] / 100), 2);
+                    if ($cpn['max_discount_amount'] > 0 && $coupon_discount > $cpn['max_discount_amount']) {
+                        $coupon_discount = $cpn['max_discount_amount'];
+                    }
+                } else {
+                    $coupon_discount = (float)$cpn['value'];
+                }
+                if ($coupon_discount > $server_price) {
+                    $coupon_discount = $server_price;
+                }
+            }
+
+            $amount = max(0, $server_price + $shipping_cost - $coupon_discount);
+
             $reserveStmt = $pdo->prepare("UPDATE products SET quantity = quantity - 1 WHERE id = ? AND COALESCE(quantity,1) > 0 AND COALESCE(status,'available') != 'sold'");
             $reserveStmt->execute([$product_id]);
             if ($reserveStmt->rowCount() === 0) {
@@ -31,21 +68,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             }
 
-            // Mark sold if quantity reached 0
             $pdo->prepare("UPDATE products SET status = 'sold' WHERE id = ? AND COALESCE(quantity,0) <= 0")->execute([$product_id]);
 
-            // 1. Insert Order
             $initialStatus = ($pay_method === 'cod') ? 'Processing' : 'Pending';
             
             $stmt = $pdo->prepare("INSERT INTO orders (user_id, product_id, amount, payment_method, order_status) VALUES (?, ?, ?, ?, ?)");
             $stmt->execute([$user_id, $product_id, $amount, $pay_method, $initialStatus]);
             $order_id = $pdo->lastInsertId();
 
-            // 3. Record Coupon Usage if applied
-            if (isset($_SESSION['apply_free_shipping']) && $_SESSION['apply_free_shipping'] === true) {
-                $stmtCoupon = $pdo->prepare("INSERT INTO coupon_usage (user_id, coupon_code) VALUES (?, 'listarianew')");
-                $stmtCoupon->execute([$user_id]);
-                unset($_SESSION['apply_free_shipping']); 
+            if (isset($_SESSION['applied_coupon']) && !empty($_SESSION['applied_coupon']['code'])) {
+                $cpn = $_SESSION['applied_coupon'];
+                $stmtCoupon = $pdo->prepare("INSERT INTO coupon_usage (user_id, coupon_code, order_id, discount_amount) VALUES (?, ?, ?, ?)");
+                $stmtCoupon->execute([$user_id, $cpn['code'], $order_id, $coupon_discount]);
+                $pdo->prepare("UPDATE coupons SET used_count = used_count + 1 WHERE code = ? AND (usage_limit = 0 OR used_count < usage_limit)")->execute([$cpn['code']]);
+                unset($_SESSION['applied_coupon']);
+            }
+            if (isset($_SESSION['apply_free_shipping'])) {
+                unset($_SESSION['apply_free_shipping']);
             }
 
             // Commit

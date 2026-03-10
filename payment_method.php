@@ -47,7 +47,14 @@ $shipping_cost = 85.00;
 if (isset($_SESSION['apply_free_shipping']) && $_SESSION['apply_free_shipping'] === true) {
     $shipping_cost = 0;
 }
-$total = $price + $shipping_cost;
+$coupon_discount = 0;
+$applied_coupon_code = '';
+if (isset($_SESSION['applied_coupon']) && !empty($_SESSION['applied_coupon']['discount_amount'])) {
+    $coupon_discount = (float)$_SESSION['applied_coupon']['discount_amount'];
+    $applied_coupon_code = $_SESSION['applied_coupon']['code'];
+}
+$total = $price + $shipping_cost - $coupon_discount;
+if ($total < 0) $total = 0;
 $discount = $original_price - $price;
 $discount_pct = round(($discount / $original_price) * 100);
 
@@ -543,9 +550,15 @@ include 'includes/header.php';
                         <?php echo $shipping_cost === 0 ? 'FREE' : '₹' . number_format($shipping_cost); ?>
                     </span>
                 </div>
+                <?php if ($coupon_discount > 0): ?>
+                <div class="pay-row" style="color:#22c55e;">
+                    <span>Coupon (<?php echo htmlspecialchars($applied_coupon_code); ?>)</span>
+                    <span>-₹<?php echo number_format($coupon_discount); ?></span>
+                </div>
+                <?php endif; ?>
                 <div class="pay-row pay-savings">
                     <span>You Save</span>
-                    <span>₹<?php echo number_format($discount); ?> (<?php echo $discount_pct; ?>%)</span>
+                    <span>₹<?php echo number_format($discount + $coupon_discount); ?> (<?php echo round((($discount + $coupon_discount) / $original_price) * 100); ?>%)</span>
                 </div>
 
                 <div class="pay-total-row">

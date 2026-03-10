@@ -116,6 +116,25 @@ The Vendor section in `includes/admin_sidebar.php` contains 7 items:
 - Page-specific `<style>` blocks must be placed BEFORE HTML content, not after
 - CSS version query string (`?v=1.0.3`) used for cache busting
 
+## Coupon/Discount System
+
+- `admin_coupons.php` — Admin coupon management (create, edit, toggle, delete)
+- `api/validate_coupon.php` — Validates coupon codes against `coupons` table (checks active, date range, usage limits, per-user limits, min order amount)
+- `api/remove_coupon.php` — Removes applied coupon from session
+- DB tables: `coupons` (code, type percentage/flat, value, min_order_amount, max_discount_amount, usage_limit, per_user_limit, start_date, end_date, is_active, used_count), `coupon_usage` (user_id, coupon_code, order_id, discount_amount)
+- Session key: `$_SESSION['applied_coupon']` stores code, type, value, discount_amount, coupon_id
+- Coupon discount shown on: `shipping_info.php`, `payment_method.php`, `order_summary.php`
+- `place_order.php` records usage in `coupon_usage`, increments `used_count` in `coupons` table
+- Admin sidebar has "Marketing" section with Coupons link
+
+## Vendor Bulk Upload
+
+- `vendor_bulk_upload.php` — Vendor-facing page for CSV + image bulk upload
+- Uses existing `api/bulk_upload.php` backend
+- Accessible to verified vendors and admins
+- CSV format: Title, Brand, Category, Condition, Location, Description, Price, Image Names, Quantity
+- Admin sidebar has Bulk Upload link in Vendor section
+
 ## Running
 
 The app runs via PHP's built-in server on port 5000:
