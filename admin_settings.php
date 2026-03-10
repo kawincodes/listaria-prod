@@ -57,6 +57,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'kyc_required' => isset($_POST['kyc_required']) ? '1' : '0',
         'admin_dark_mode' => isset($_POST['admin_dark_mode']) ? '1' : '0',
         'captcha_enabled' => isset($_POST['captcha_enabled']) ? '1' : '0',
+        'marquee_enabled' => isset($_POST['marquee_enabled']) ? '1' : '0',
+        'marquee_text' => trim($_POST['marquee_text'] ?? ''),
+        'marquee_bg_color' => trim($_POST['marquee_bg_color'] ?? '#6B21A8'),
+        'marquee_text_color' => trim($_POST['marquee_text_color'] ?? '#ffffff'),
+        'marquee_speed' => in_array($_POST['marquee_speed'] ?? '', ['slow', 'medium', 'fast']) ? $_POST['marquee_speed'] : 'medium',
+        'marquee_link' => trim($_POST['marquee_link'] ?? ''),
+        'marquee_icon' => trim($_POST['marquee_icon'] ?? ''),
+        'founder_socials_visible' => isset($_POST['founder_socials_visible']) ? '1' : '0',
         'captcha_provider' => in_array($_POST['captcha_provider'] ?? '', ['turnstile', 'recaptcha']) ? $_POST['captcha_provider'] : 'turnstile',
         'turnstile_site_key' => trim($_POST['turnstile_site_key'] ?? ''),
         'turnstile_secret_key' => trim($_POST['turnstile_secret_key'] ?? ''),
@@ -104,6 +112,15 @@ $walletEnabled = getSetting($pdo, 'wallet_enabled', '1');
 $chatEnabled = getSetting($pdo, 'chat_enabled', '1');
 $kycRequired = getSetting($pdo, 'kyc_required', '0');
 $adminDarkMode = getSetting($pdo, 'admin_dark_mode', '0');
+$marqueeEnabled = getSetting($pdo, 'marquee_enabled', '0');
+$marqueeText = getSetting($pdo, 'marquee_text', '');
+$marqueeBgColor = getSetting($pdo, 'marquee_bg_color', '#6B21A8');
+$marqueeTextColor = getSetting($pdo, 'marquee_text_color', '#ffffff');
+$marqueeSpeed = getSetting($pdo, 'marquee_speed', 'medium');
+$marqueeLink = getSetting($pdo, 'marquee_link', '');
+$marqueeIcon = getSetting($pdo, 'marquee_icon', '');
+$founderSocialsVisible = getSetting($pdo, 'founder_socials_visible', '1');
+
 $captchaCfg = getCaptchaConfig($pdo);
 $captchaEnabledSetting = $captchaCfg['enabled'] ? '1' : '0';
 $captchaProvider = $captchaCfg['provider'];
@@ -632,6 +649,84 @@ $recaptchaSecretKey = $captchaCfg['recaptcha_secret_key'];
                     </div>
                 </div>
 
+                <div class="settings-card full-width">
+                    <div class="card-title">
+                        <ion-icon name="megaphone-outline"></ion-icon>
+                        Announcement Bar (Marquee)
+                    </div>
+                    
+                    <div class="toggle-group">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Enable Announcement Bar</div>
+                            <div class="toggle-desc">Show a scrolling announcement bar above the header</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="marquee_enabled" id="marquee_toggle" <?php echo $marqueeEnabled === '1' ? 'checked' : ''; ?>>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div id="marquee_settings" style="margin-top: 1rem; <?php echo $marqueeEnabled !== '1' ? 'display:none;' : ''; ?>">
+                        <div class="form-group">
+                            <label>Announcement Text</label>
+                            <input type="text" name="marquee_text" value="<?php echo htmlspecialchars($marqueeText); ?>" placeholder="Welcome to Listaria! Free shipping on orders above ₹999">
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                            <div class="form-group">
+                                <label>Background Color</label>
+                                <div style="display:flex;gap:8px;align-items:center;">
+                                    <input type="color" name="marquee_bg_color" value="<?php echo htmlspecialchars($marqueeBgColor); ?>" style="width:50px;height:36px;padding:2px;border-radius:6px;border:1px solid #ddd;cursor:pointer;">
+                                    <input type="text" value="<?php echo htmlspecialchars($marqueeBgColor); ?>" style="flex:1;font-family:monospace;" onchange="this.previousElementSibling.value=this.value" readonly>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Text Color</label>
+                                <div style="display:flex;gap:8px;align-items:center;">
+                                    <input type="color" name="marquee_text_color" value="<?php echo htmlspecialchars($marqueeTextColor); ?>" style="width:50px;height:36px;padding:2px;border-radius:6px;border:1px solid #ddd;cursor:pointer;">
+                                    <input type="text" value="<?php echo htmlspecialchars($marqueeTextColor); ?>" style="flex:1;font-family:monospace;" onchange="this.previousElementSibling.value=this.value" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                            <div class="form-group">
+                                <label>Scroll Speed</label>
+                                <select name="marquee_speed" style="width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:0.9rem;">
+                                    <option value="slow" <?php echo $marqueeSpeed === 'slow' ? 'selected' : ''; ?>>Slow</option>
+                                    <option value="medium" <?php echo $marqueeSpeed === 'medium' ? 'selected' : ''; ?>>Medium</option>
+                                    <option value="fast" <?php echo $marqueeSpeed === 'fast' ? 'selected' : ''; ?>>Fast</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Link URL (optional)</label>
+                                <input type="url" name="marquee_link" value="<?php echo htmlspecialchars($marqueeLink); ?>" placeholder="https://listaria.in/sale">
+                            </div>
+                            <div class="form-group">
+                                <label>Icon Name (optional)</label>
+                                <input type="text" name="marquee_icon" value="<?php echo htmlspecialchars($marqueeIcon); ?>" placeholder="e.g. gift-outline">
+                                <small>Ionicon name, e.g. megaphone-outline</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-card full-width">
+                    <div class="card-title">
+                        <ion-icon name="people-outline"></ion-icon>
+                        Founders Page
+                    </div>
+                    
+                    <div class="toggle-group">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Show Social Links</div>
+                            <div class="toggle-desc">Display LinkedIn, Instagram, and X icons on the founders page</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="founder_socials_visible" <?php echo $founderSocialsVisible === '1' ? 'checked' : ''; ?>>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
                 <!-- Admin Preferences -->
                 <div class="settings-card full-width">
                     <div class="card-title">
@@ -665,6 +760,10 @@ $recaptchaSecretKey = $captchaCfg['recaptcha_secret_key'];
         </form>
     </main>
 <script>
+document.getElementById('marquee_toggle').addEventListener('change', function() {
+    document.getElementById('marquee_settings').style.display = this.checked ? '' : 'none';
+});
+
 document.getElementById('captcha_enabled_toggle').addEventListener('change', function() {
     document.getElementById('captcha_settings_panel').style.display = this.checked ? '' : 'none';
 });

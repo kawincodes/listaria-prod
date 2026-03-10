@@ -36,14 +36,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->execute([$email]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
+            $login_ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+            $login_ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
+
             if ($user && password_verify($password, $user['password'])) {
                 if ($user['email_verified'] == 0) {
                      $error = "Please verify your email address to login.";
+                     $logStmt = $pdo->prepare("INSERT INTO login_logs (user_id, email, ip_address, user_agent, login_status) VALUES (?, ?, ?, ?, 'failed_unverified')");
+                     $logStmt->execute([$user['id'], $email, $login_ip, $login_ua]);
                 } else {
                     $_SESSION['user_id'] = $user['id'];
                     $_SESSION['full_name'] = $user['full_name'];
                     $_SESSION['account_type'] = $user['account_type'] ?? 'customer';
                     $_SESSION['is_admin'] = $user['is_admin'] ?? 0;
+
+                    $logStmt = $pdo->prepare("INSERT INTO login_logs (user_id, email, ip_address, user_agent, login_status) VALUES (?, ?, ?, ?, 'success')");
+                    $logStmt->execute([$user['id'], $email, $login_ip, $login_ua]);
+                    $pdo->prepare("UPDATE users SET last_login_ip = ? WHERE id = ?")->execute([$login_ip, $user['id']]);
 
                     if ($_SESSION['is_admin'] == 1) {
                         header("Location: admin_dashboard.php");
@@ -58,6 +67,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
             } else {
                 $error = "Invalid email or password.";
+                $logStmt = $pdo->prepare("INSERT INTO login_logs (user_id, email, ip_address, user_agent, login_status) VALUES (?, ?, ?, ?, 'failed')");
+                $logStmt->execute([$user['id'] ?? null, $email, $login_ip, $login_ua]);
             }
         }
     }

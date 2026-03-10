@@ -363,6 +363,10 @@ try {
         <ion-icon name="chatbubbles-outline"></ion-icon> Chats
     </a>
     
+    <a href="admin_login_logs.php" class="menu-item <?php echo ($activePage == 'login_logs') ? 'active' : ''; ?>">
+        <ion-icon name="finger-print-outline"></ion-icon> Login Logs
+    </a>
+    
     <div class="nav-divider"></div>
     <div class="nav-section-label">Vendor</div>
     
@@ -459,12 +463,24 @@ try {
         <ion-icon name="mail-outline"></ion-icon> Email Templates
     </a>
 
+    <a href="admin_email_sender.php" class="menu-item <?php echo ($activePage == 'email_sender') ? 'active' : ''; ?>">
+        <ion-icon name="send-outline"></ion-icon> Email Sender
+    </a>
+
     <a href="admin_seo.php" class="menu-item <?php echo ($activePage == 'seo') ? 'active' : ''; ?>">
         <ion-icon name="search-outline"></ion-icon> SEO & Sitemap
     </a>
 
     <div class="nav-divider"></div>
     <div class="nav-section-label">Developer Tools</div>
+
+    <a href="admin_logs.php" class="menu-item <?php echo ($activePage == 'logs') ? 'active' : ''; ?>">
+        <ion-icon name="terminal-outline"></ion-icon> Logs
+    </a>
+
+    <a href="admin_server_stats.php" class="menu-item <?php echo ($activePage == 'server_stats') ? 'active' : ''; ?>">
+        <ion-icon name="hardware-chip-outline"></ion-icon> Server Stats
+    </a>
 
     <a href="admin_filemanager.php" class="menu-item <?php echo ($activePage == 'filemanager') ? 'active' : ''; ?>">
         <ion-icon name="folder-open-outline"></ion-icon> File Manager

@@ -180,6 +180,35 @@ $current_page = basename($_SERVER['PHP_SELF']);
 </head>
 <body>
 
+<?php
+$__marqueeEnabled = _getSeoSetting($pdo, 'marquee_enabled', '0');
+$__marqueeText = _getSeoSetting($pdo, 'marquee_text', '');
+if ($__marqueeEnabled === '1' && !empty($__marqueeText) && empty($_SESSION['marquee_dismissed'])):
+    $__marqueeBg = _getSeoSetting($pdo, 'marquee_bg_color', '#6B21A8');
+    $__marqueeColor = _getSeoSetting($pdo, 'marquee_text_color', '#ffffff');
+    $__marqueeSpeed = _getSeoSetting($pdo, 'marquee_speed', 'medium');
+    $__marqueeLink = _getSeoSetting($pdo, 'marquee_link', '');
+    $__marqueeIcon = _getSeoSetting($pdo, 'marquee_icon', '');
+    $__speedDuration = ['slow' => '30s', 'medium' => '18s', 'fast' => '10s'][$__marqueeSpeed] ?? '18s';
+?>
+<style>
+    @keyframes marquee-scroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+    .announcement-bar { background: <?php echo htmlspecialchars($__marqueeBg); ?>; color: <?php echo htmlspecialchars($__marqueeColor); ?>; overflow: hidden; position: relative; white-space: nowrap; font-size: 0.82rem; font-family: 'Inter', sans-serif; }
+    .announcement-bar .marquee-content { display: inline-block; padding: 7px 0; animation: marquee-scroll <?php echo $__speedDuration; ?> linear infinite; }
+    .announcement-bar .marquee-content:hover { animation-play-state: paused; }
+    .announcement-bar .marquee-close { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: <?php echo htmlspecialchars($__marqueeColor); ?>; cursor: pointer; font-size: 1rem; opacity: 0.7; z-index: 2; padding: 4px; }
+    .announcement-bar .marquee-close:hover { opacity: 1; }
+    .announcement-bar a { color: inherit; text-decoration: underline; }
+</style>
+<div class="announcement-bar" id="announcementBar">
+    <div class="marquee-content">
+        <?php if (!empty($__marqueeIcon)): ?><ion-icon name="<?php echo htmlspecialchars($__marqueeIcon); ?>" style="vertical-align:middle;margin-right:6px;"></ion-icon><?php endif; ?>
+        <?php if (!empty($__marqueeLink)): ?><a href="<?php echo htmlspecialchars($__marqueeLink); ?>"><?php echo htmlspecialchars($__marqueeText); ?></a><?php else: echo htmlspecialchars($__marqueeText); endif; ?>
+    </div>
+    <button class="marquee-close" onclick="document.getElementById('announcementBar').style.display='none';fetch('marquee_dismiss.php',{method:'POST'});" title="Dismiss">&times;</button>
+</div>
+<?php endif; ?>
+
     <nav class="navbar">
         <!-- Logo -->
         <a href="index.php" class="brand-wrapper" style="display:flex; flex-direction:row; align-items:center; gap:8px;">

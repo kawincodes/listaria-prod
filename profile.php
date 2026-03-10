@@ -333,9 +333,23 @@ usort($all_negotiations, function($a, $b) {
                 <ion-icon name="alert-circle-outline" style="color:#dc2626; font-size:1.5rem;"></ion-icon>
                 <div style="flex:1;">
                     <h3 style="margin:0; font-size:1rem; color:#dc2626;">Application Rejected</h3>
-                    <p style="margin-top:2px; font-size:0.8rem; color:#991b1b;">Your recent application was not approved. Click to re-apply.</p>
+                    <?php if (!empty($user['rejection_reason'])): ?>
+                    <p style="margin-top:2px; font-size:0.8rem; color:#991b1b;"><strong>Reason:</strong> <?php echo htmlspecialchars($user['rejection_reason']); ?></p>
+                    <?php endif; ?>
+                    <p style="margin-top:2px; font-size:0.8rem; color:#991b1b;">Click to re-apply.</p>
                 </div>
                 <button style="background:#fee2e2; color:#dc2626; border:none; padding:5px 12px; border-radius:15px; font-size:0.8rem; font-weight:700;">Re-apply</button>
+            </div>
+        </div>
+        <?php elseif($vendor_status === 'demoted'): ?>
+        <div class="info-banner-card" onclick="location.href='switch_to_vendor.php'" style="cursor: pointer; background: #fffbeb; border: 1px solid #fde68a; margin-top: 10px;">
+            <div style="display:flex; gap:12px; align-items:center;">
+                <ion-icon name="arrow-down-circle-outline" style="color:#d97706; font-size:1.5rem;"></ion-icon>
+                <div style="flex:1;">
+                    <h3 style="margin:0; font-size:1rem; color:#d97706;">Vendor Status Revoked</h3>
+                    <p style="margin-top:2px; font-size:0.8rem; color:#92400e;">Your vendor privileges were revoked and products are on hold. Click to re-apply.</p>
+                </div>
+                <button style="background:#fef3c7; color:#d97706; border:none; padding:5px 12px; border-radius:15px; font-size:0.8rem; font-weight:700;">Re-apply</button>
             </div>
         </div>
         <?php else: ?>

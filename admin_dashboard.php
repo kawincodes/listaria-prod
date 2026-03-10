@@ -226,6 +226,12 @@ $todayRevenue = $dailyActivity[$todayDate]['revenue'] ?? 0;
         .btn-reject {
             border: none; background: #fee2e2; color: #991b1b; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600;
         }
+        .btn-view {
+            display: inline-block; text-decoration: none; background: #dbeafe; color: #1d4ed8; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; font-size: 0.9rem; margin-right: 5px;
+        }
+        .btn-edit {
+            display: inline-block; text-decoration: none; background: #f3e8ff; color: #6B21A8; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; font-size: 0.9rem; margin-right: 5px;
+        }
     </style>
 </head>
 <body>
@@ -288,12 +294,14 @@ $todayRevenue = $dailyActivity[$todayDate]['revenue'] ?? 0;
                         <td><?php echo htmlspecialchars($p['seller_name']); ?></td>
                         <td>₹<?php echo number_format($p['price_min']); ?></td>
                         <td>
-                            <div style="display:flex;">
-                                <form method="POST" style="margin-right:5px;">
+                            <div style="display:flex; align-items:center; flex-wrap:wrap; gap:4px;">
+                                <a href="product_details.php?id=<?php echo $p['id']; ?>" target="_blank" class="btn-view">View</a>
+                                <a href="admin_product_edit.php?id=<?php echo $p['id']; ?>" class="btn-edit">Edit</a>
+                                <form method="POST" style="margin:0;">
                                     <input type="hidden" name="approve_product_id" value="<?php echo $p['id']; ?>">
                                     <button type="submit" class="btn-approve">Approve</button>
                                 </form>
-                                <form method="POST" onsubmit="return confirm('Reject this product?');">
+                                <form method="POST" style="margin:0;" onsubmit="return confirm('Reject this product?');">
                                     <input type="hidden" name="reject_product_id" value="<?php echo $p['id']; ?>">
                                     <button type="submit" class="btn-reject">Reject</button>
                                 </form>

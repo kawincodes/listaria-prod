@@ -119,7 +119,16 @@ $allPermissions = [
     'view_analytics' => 'View Analytics',
     'view_chats' => 'View Chats',
     'delete_users' => 'Delete Users',
-    'manage_roles' => 'Manage Roles'
+    'manage_roles' => 'Manage Roles',
+    'manage_banners' => 'Manage Banners',
+    'manage_coupons' => 'Manage Coupons',
+    'manage_pages' => 'Manage Pages',
+    'manage_email_templates' => 'Manage Email Templates',
+    'manage_vendors' => 'Manage Vendors',
+    'view_logs' => 'View Logs',
+    'manage_files' => 'Manage Files',
+    'manage_returns' => 'Manage Returns',
+    'view_reports' => 'View Reports'
 ];
 
 ?>

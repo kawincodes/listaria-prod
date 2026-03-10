@@ -19,6 +19,7 @@ $f1_twitter = safeUrl($settings['founder_1_twitter'] ?? '');
 $f2_linkedin = safeUrl($settings['founder_2_linkedin'] ?? '');
 $f2_instagram = safeUrl($settings['founder_2_instagram'] ?? '');
 $f2_twitter = safeUrl($settings['founder_2_twitter'] ?? '');
+$showSocials = ($settings['founder_socials_visible'] ?? '1') === '1';
 
 include 'includes/header.php';
 ?>
@@ -78,11 +79,13 @@ include 'includes/header.php';
             <div style="margin-top: 1rem; font-family: 'Inter', sans-serif; color: var(--primary-text);">
                 <h3 style="margin: 0; font-size: 1.2rem;">Harsh Vardhan Jaiswal</h3>
                 <p style="margin: 0.2rem 0 0; font-size: 0.95rem; color: var(--secondary-text);">CEO & Co-Founder, Listaria</p>
+                <?php if ($showSocials): ?>
                 <div class="founder-socials">
                     <a href="<?php echo htmlspecialchars($f1_linkedin); ?>" target="_blank" rel="noopener noreferrer" title="LinkedIn"><ion-icon name="logo-linkedin"></ion-icon></a>
                     <a href="<?php echo htmlspecialchars($f1_instagram); ?>" target="_blank" rel="noopener noreferrer" title="Instagram"><ion-icon name="logo-instagram"></ion-icon></a>
                     <a href="<?php echo htmlspecialchars($f1_twitter); ?>" target="_blank" rel="noopener noreferrer" title="X (Twitter)"><ion-icon name="logo-twitter"></ion-icon></a>
                 </div>
+                <?php endif; ?>
             </div>
         </div>
         <div class="founder-content" style="flex: 1; font-family: 'Inter', sans-serif; line-height: 1.8; color: var(--primary-text);">
@@ -102,11 +105,13 @@ include 'includes/header.php';
             <div style="margin-top: 1rem; font-family: 'Inter', sans-serif; color: var(--primary-text);">
                 <h3 style="margin: 0; font-size: 1.2rem;">Aryan Biswa</h3>
                 <p style="margin: 0.2rem 0 0; font-size: 0.95rem; color: var(--secondary-text);">Co-Founder & CFMO, Listaria</p>
+                <?php if ($showSocials): ?>
                 <div class="founder-socials">
                     <a href="<?php echo htmlspecialchars($f2_linkedin); ?>" target="_blank" rel="noopener noreferrer" title="LinkedIn"><ion-icon name="logo-linkedin"></ion-icon></a>
                     <a href="<?php echo htmlspecialchars($f2_instagram); ?>" target="_blank" rel="noopener noreferrer" title="Instagram"><ion-icon name="logo-instagram"></ion-icon></a>
                     <a href="<?php echo htmlspecialchars($f2_twitter); ?>" target="_blank" rel="noopener noreferrer" title="X (Twitter)"><ion-icon name="logo-twitter"></ion-icon></a>
                 </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>

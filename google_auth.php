@@ -67,7 +67,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['credential'])) {
                 }
             }
 
-            // Redirect to Home
+            $login_ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+            $login_ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
+            $logged_user_id = $_SESSION['user_id'] ?? null;
+            $logStmt = $pdo->prepare("INSERT INTO login_logs (user_id, email, ip_address, user_agent, login_status) VALUES (?, ?, ?, ?, 'success')");
+            $logStmt->execute([$logged_user_id, $email, $login_ip, $login_ua]);
+            if ($logged_user_id) {
+                $pdo->prepare("UPDATE users SET last_login_ip = ? WHERE id = ?")->execute([$login_ip, $logged_user_id]);
+            }
+
             header("Location: index.php");
             exit;
         } else {

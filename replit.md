@@ -160,6 +160,76 @@ The Vendor section in `includes/admin_sidebar.php` contains 7 items:
 - URL button copies full permanent URL (uses SITE_ROOT_URL for production, origin for dev)
 - Admin sidebar link under "Developer Tools" section
 
+## Login Logs (Admin)
+
+- `admin_login_logs.php` — View all login attempts with IP, user agent, status
+- DB table: `login_logs` (id, user_id, email, ip_address, user_agent, login_status, created_at) — auto-migrated in db.php
+- `last_login_ip` column on users table — auto-migrated in db.php
+- Logs success/failed/failed_unverified from `login.php` and `google_auth.php`
+- Stats cards: total, successful, failed, unique IPs
+- Filterable (All/Success/Failed), searchable, paginated
+
+## Vendor Demote (Admin)
+
+- `admin_users.php` has "Demote Vendor" action for verified vendors
+- Sets `is_verified_vendor=0`, `account_type='customer'`, `vendor_status='demoted'`
+- All vendor's approved products set to `approval_status='on_hold'`
+- Sends `vendor_demoted` email template
+- `profile.php` shows demoted status banner with re-apply link
+
+## Vendor Rejection Reason
+
+- `admin_users.php` reject_vendor prompts for reason, saved to `rejection_reason` column
+- `vendor_rejected` email template includes the reason
+- `profile.php` displays rejection reason in the rejected status banner
+
+## Server & Site Logs (Admin)
+
+- `admin_logs.php` — Tabs: Error Log (PHP error log), Activity Log (admin_activity_logs table), Login Log (links to admin_login_logs.php)
+- Color-coded severity highlighting for error log entries
+- Search and pagination for activity logs
+
+## Server Stats (Admin)
+
+- `admin_server_stats.php` — PHP version, OS, SQLite version, disk/memory usage, DB stats, app stats, loaded extensions
+- Auto-refresh every 30 seconds via AJAX
+
+## Custom Email Sender (Admin)
+
+- `admin_email_sender.php` — Compose and send custom emails
+- Send to: individual user, all users, all vendors, all customers, or custom email
+- CC/BCC fields, Quill rich text editor for HTML body
+- Uses `createSmtp($pdo)` from config.php
+- DB table: `sent_emails` (id, from_email, to_email, subject, body, status, sent_by, created_at) — auto-migrated in db.php
+- Sent email history with view/delete below composer
+
+## Marquee Announcement Bar
+
+- Scrolling announcement bar above header in `includes/header.php`
+- DB settings: `marquee_enabled`, `marquee_text`, `marquee_bg_color`, `marquee_text_color`, `marquee_speed` (slow/medium/fast), `marquee_link`, `marquee_icon`
+- Admin config in `admin_settings.php` > "Announcement Bar (Marquee)" section
+- Dismissible per session via `marquee_dismiss.php` (sets `$_SESSION['marquee_dismissed']`)
+- CSS animation with hover-pause
+
+## Founder Social Links Toggle
+
+- `founder_socials_visible` setting in `site_settings` (default: 1)
+- Toggle in `admin_settings.php` > "Founders Page" section
+- `founders.php` conditionally renders social icons based on this setting
+
+## Enhanced User Role Management (Admin)
+
+- `admin_roles.php` has expanded permissions: `manage_banners`, `manage_coupons`, `manage_pages`, `manage_email_templates`, `manage_vendors`, `view_logs`, `manage_files`, `manage_returns`, `view_reports`
+
+## File Manager (Admin)
+
+- `admin_filemanager.php` — Upload, browse, and manage files with permanent URLs
+- Files stored in `uploads/files/` directory
+- Features: drag-and-drop upload, grid/list view toggle, copy URL button, file preview, delete
+- Allowed types: images, documents, fonts, media, archives (20MB max per file)
+- URL button copies full permanent URL (uses SITE_ROOT_URL for production, origin for dev)
+- Admin sidebar link under "Developer Tools" section
+
 ## Running
 
 The app runs via PHP's built-in server on port 5000:

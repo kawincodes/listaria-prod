@@ -92,6 +92,20 @@ if (isset($_POST['action'])) {
             }
             $msg = "Vendor application rejected.";
             break;
+        case 'demote_vendor':
+            $pdo->prepare("UPDATE users SET vendor_status = 'demoted', is_verified_vendor = 0, account_type = 'customer' WHERE id = ?")->execute([$userId]);
+            $pdo->prepare("UPDATE products SET approval_status = 'on_hold' WHERE user_id = ? AND approval_status = 'approved'")->execute([$userId]);
+            $uRowD = $pdo->prepare("SELECT email, full_name FROM users WHERE id = ?");
+            $uRowD->execute([$userId]);
+            $uDataD = $uRowD->fetch();
+            if ($uDataD) {
+                sendTemplateMail($pdo, 'vendor_demoted', $uDataD['email'], [
+                    'user_name'     => $uDataD['full_name'],
+                    'support_url'   => 'https://listaria.in/help_support.php',
+                ], $uDataD['full_name']);
+            }
+            $msg = "Vendor demoted. All products placed on hold.";
+            break;
     }
     
     // Log activity
@@ -637,6 +651,13 @@ $pendingVendors = $pdo->query("SELECT COUNT(*) FROM users WHERE vendor_status = 
                                     </button>
                                     <button type="button" class="dropdown-item" style="color: #ef4444;" onclick="rejectVendorApp(<?php echo $u['id']; ?>)">
                                         <ion-icon name="close-circle-outline"></ion-icon> Reject Vendor App
+                                    </button>
+                                    <?php endif; ?>
+
+                                    <?php if(!empty($u['is_verified_vendor'])): ?>
+                                    <hr style="margin: 5px 0; border-top: 1px solid #eee;">
+                                    <button type="submit" name="action" value="demote_vendor" class="dropdown-item" style="color: #d97706;" onclick="return confirm('Demote this vendor? All their products will be placed on hold.')">
+                                        <ion-icon name="arrow-down-circle-outline"></ion-icon> Demote Vendor
                                     </button>
                                     <?php endif; ?>
                                     

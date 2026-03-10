@@ -29,6 +29,26 @@ try {
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )");
     try { $pdo->exec("ALTER TABLE products ADD COLUMN quantity INTEGER DEFAULT 1"); } catch (\PDOException $e) {}
+    try { $pdo->exec("ALTER TABLE users ADD COLUMN last_login_ip TEXT DEFAULT NULL"); } catch (\PDOException $e) {}
+    $pdo->exec("CREATE TABLE IF NOT EXISTS login_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        email TEXT,
+        ip_address TEXT,
+        user_agent TEXT,
+        login_status TEXT DEFAULT 'success',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )");
+    $pdo->exec("CREATE TABLE IF NOT EXISTS sent_emails (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        from_email TEXT,
+        to_email TEXT,
+        subject TEXT,
+        body TEXT,
+        status TEXT DEFAULT 'sent',
+        sent_by INTEGER,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )");
 } catch (\PDOException $e) {
     $msg = $e->getMessage();
     if (str_contains($msg, 'unable to open') || str_contains($msg, 'permission')) {

@@ -187,6 +187,28 @@ function getDefaultEmailTemplates() {
             'variables' => 'user_name, rejection_reason, support_url',
             'description' => 'Sent to the user when their vendor application is rejected.'
         ],
+        'vendor_demoted' => [
+            'name' => 'Vendor Status Revoked',
+            'subject' => 'Your Vendor Status Has Been Revoked | Listaria',
+            'body' => '<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;border:1px solid #eee;border-radius:12px;">
+  <div style="text-align:center;margin-bottom:20px;">
+    <h1 style="color:#6B21A8;margin:0;font-size:2rem;letter-spacing:-1px;">listaria</h1>
+  </div>
+  <h2 style="color:#d97706;margin-top:0;">Vendor Status Revoked</h2>
+  <p style="color:#475569;">Hi {{user_name}},</p>
+  <p style="color:#475569;">We regret to inform you that your vendor privileges on Listaria have been revoked. All your product listings have been placed <strong>on hold</strong>.</p>
+  <div style="background:#fffbeb;padding:16px;border-radius:8px;margin:16px 0;border-left:4px solid #d97706;">
+    <p style="margin:4px 0;color:#1e293b;">To regain your vendor status, please review your account and reapply through your dashboard. If you believe this was an error, contact our support team.</p>
+  </div>
+  <p style="text-align:center;margin:20px 0;">
+    <a href="{{support_url}}" style="background:#6B21A8;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;">Contact Support</a>
+  </p>
+  <hr style="border:0;border-top:1px solid #eee;margin:20px 0;">
+  <p style="font-size:12px;color:#94a3b8;">This is an automated message from Listaria. Please do not reply to this email.</p>
+</div>',
+            'variables' => 'user_name, support_url',
+            'description' => 'Sent to the vendor when their vendor status is revoked/demoted.'
+        ],
         'return_submitted' => [
             'name' => 'Return Request Received',
             'subject' => 'Return Request Received for Order #{{order_id}} | Listaria',
