@@ -205,9 +205,17 @@ include 'includes/header.php';
                 <?php endif; ?>
             </div>
 
+            <?php $qty = isset($product['quantity']) ? intval($product['quantity']) : 1; ?>
+            <?php if ($qty > 0 && !(isset($product['status']) && $product['status'] === 'sold')): ?>
+            <div class="stock-info" style="margin-bottom:12px; display:flex; align-items:center; gap:6px; font-size:0.88rem;">
+                <ion-icon name="cube-outline" style="color:#22c55e;"></ion-icon>
+                <span style="color:#22c55e; font-weight:600;"><?php echo $qty; ?> available</span>
+            </div>
+            <?php endif; ?>
+
             <!-- Action Buttons -->
             <div class="action-buttons">
-                <?php if (isset($product['status']) && $product['status'] === 'sold'): ?>
+                <?php if ((isset($product['status']) && $product['status'] === 'sold') || $qty <= 0): ?>
                     <button class="btn-sold-out" disabled>Sold Out</button>
                 <?php else: ?>
                     <a href="payment.php?id=<?php echo $product['id']; ?><?php echo (isset($_GET['source']) && $_GET['source'] === 'thrift') ? '&source=thrift' : ''; ?>" class="btn-buy-now">
@@ -297,6 +305,10 @@ include 'includes/header.php';
                         <span class="table-label">Condition</span>
                         <span class="table-value"><?php echo htmlspecialchars($product['condition_tag'] ?? 'N/A'); ?></span>
                     </div>
+                    <div class="table-row">
+                        <span class="table-label">Quantity</span>
+                        <span class="table-value"><?php echo intval($product['quantity'] ?? 1); ?> in stock</span>
+                    </div>
                     <?php if (!empty($product['location'])): ?>
                     <div class="table-row">
                         <span class="table-label">Location</span>
@@ -352,7 +364,7 @@ include 'includes/header.php';
 
 <!-- Mobile Sticky Footer -->
 <div class="mobile-sticky-footer">
-    <?php if (isset($product['status']) && $product['status'] === 'sold'): ?>
+    <?php if ((isset($product['status']) && $product['status'] === 'sold') || $qty <= 0): ?>
         <button class="btn-sold-out" disabled style="width:100%;">Sold Out</button>
     <?php else: ?>
         <div class="footer-actions-grid">

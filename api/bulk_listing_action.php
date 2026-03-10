@@ -24,7 +24,7 @@ $placeholders = implode(',', array_fill(0, count($ids), '?'));
 
 try {
     if ($action === 'sold') {
-        $stmt = $pdo->prepare("UPDATE products SET status = 'sold' WHERE id IN ($placeholders) AND user_id = ?");
+        $stmt = $pdo->prepare("UPDATE products SET quantity = 0, status = 'sold' WHERE id IN ($placeholders) AND user_id = ?");
         $stmt->execute(array_merge($ids, [$user_id]));
     } elseif ($action === 'delete') {
         $stmt = $pdo->prepare("DELETE FROM products WHERE id IN ($placeholders) AND user_id = ?");

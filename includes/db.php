@@ -28,6 +28,7 @@ try {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )");
+    try { $pdo->exec("ALTER TABLE products ADD COLUMN quantity INTEGER DEFAULT 1"); } catch (\PDOException $e) {}
 } catch (\PDOException $e) {
     $msg = $e->getMessage();
     if (str_contains($msg, 'unable to open') || str_contains($msg, 'permission')) {

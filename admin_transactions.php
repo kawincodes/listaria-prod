@@ -22,30 +22,23 @@ if (isset($_POST['reject_payment_id'])) {
     $p_stmt->execute([$oid]);
     $prod = $p_stmt->fetch();
     if ($prod) {
-        $u_stmt = $pdo->prepare("UPDATE products SET status = 'available' WHERE id = ?");
-        $u_stmt->execute([$prod['product_id']]);
+        $pdo->prepare("UPDATE products SET quantity = COALESCE(quantity,0) + 1, status = 'available' WHERE id = ?")->execute([$prod['product_id']]);
     }
 
-    $msg = "Payment rejected for Order #$oid. Status marked as 'Payment Failed'. Product reverted.";
+    $msg = "Payment rejected for Order #$oid. Status marked as 'Payment Failed'. Stock restored.";
 }
 
-// Handle Verify Payment
+// Handle Verify Payment (idempotent: only transition from Pending to Success)
 if (isset($_POST['verify_payment_id'])) {
     $oid = $_POST['verify_payment_id'];
-    $stmt = $pdo->prepare("UPDATE orders SET order_status = 'Success' WHERE id = ?");
-    $stmt->execute([$oid]);
+    $verifyStmt = $pdo->prepare("UPDATE orders SET order_status = 'Success' WHERE id = ? AND order_status = 'Pending'");
+    $verifyStmt->execute([$oid]);
     
-    // Also mark product as sold
-    // Fetch Product ID
-    $p_stmt = $pdo->prepare("SELECT product_id FROM orders WHERE id = ?");
-    $p_stmt->execute([$oid]);
-    $prod = $p_stmt->fetch();
-    if ($prod) {
-        $u_stmt = $pdo->prepare("UPDATE products SET status = 'sold' WHERE id = ?");
-        $u_stmt->execute([$prod['product_id']]);
+    if ($verifyStmt->rowCount() > 0) {
+        $msg = "Payment verified for Order #$oid.";
+    } else {
+        $msg = "Order #$oid was already verified or is not in Pending state.";
     }
-    
-    $msg = "Payment verified for Order #$oid. Product marked as SOLD.";
 }
 
 // Handle Order Status Update
@@ -64,9 +57,8 @@ if (isset($_POST['update_order_status'])) {
             $p_stmt->execute([$oid]);
             $prod = $p_stmt->fetch();
             if ($prod) {
-                $u_stmt = $pdo->prepare("UPDATE products SET status = 'available' WHERE id = ?");
-                $u_stmt->execute([$prod['product_id']]);
-                $msg .= " Product marked as AVAILABLE.";
+                $pdo->prepare("UPDATE products SET quantity = COALESCE(quantity,0) + 1, status = 'available' WHERE id = ?")->execute([$prod['product_id']]);
+                $msg .= " Stock restored. Product marked as AVAILABLE.";
             }
         }
 

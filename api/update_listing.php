@@ -52,8 +52,7 @@ try {
         }
 
     } elseif ($action === 'mark_sold') {
-        $updateStmt = $pdo->prepare("UPDATE products SET status = 'sold' WHERE id = ?");
-        $updateStmt->execute([$product_id]);
+        $pdo->prepare("UPDATE products SET quantity = 0, status = 'sold' WHERE id = ?")->execute([$product_id]);
         
         echo json_encode(['success' => true, 'message' => 'Marked as sold']);
     } else {

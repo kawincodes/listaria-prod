@@ -120,11 +120,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['bulk_file'])) {
             $is_admin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1;
             $status = $is_admin ? 'approved' : 'pending';
 
-            $stmt = $pdo->prepare("INSERT INTO products (title, brand, category, location, condition_tag, description, price_min, price_max, image_paths, user_id, approval_status, is_published) 
-                                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)");
+            $quantity = max(1, intval($data[8] ?? 1));
+
+            $stmt = $pdo->prepare("INSERT INTO products (title, brand, category, location, condition_tag, description, price_min, price_max, image_paths, user_id, approval_status, is_published, quantity) 
+                                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)");
 
             try {
-                if ($stmt->execute([$title, $brand, $category, $location, $condition, $description, $price_min, $price_max, $json_images, $user_id, $status])) {
+                if ($stmt->execute([$title, $brand, $category, $location, $condition, $description, $price_min, $price_max, $json_images, $user_id, $status, $quantity])) {
                     $successCount++;
                 } else {
                     $failCount++;

@@ -59,6 +59,17 @@ A luxury e-commerce marketplace platform built in PHP with SQLite.
 - Env vars used as defaults, DB values override them
 - Active on `login.php` and `register.php` forms, auto-switches widget/script per provider
 
+## Product Quantity/Stock
+
+- Products table has `quantity INTEGER DEFAULT 1` column (auto-migrated in db.php)
+- `sell.php` form includes quantity input field
+- `product_details.php` shows "X available" badge + quantity in details table
+- `place_order.php` validates stock before ordering, decrements quantity on COD, marks sold when qty=0
+- `admin_transactions.php` decrements quantity on payment verification (PhonePe)
+- `api/update_listing.php` mark_sold sets quantity=0
+- `api/bulk_listing_action.php` bulk sold sets quantity=0
+- `api/bulk_upload.php` supports quantity as 9th CSV column (optional, defaults to 1)
+
 ## Running
 
 The app runs via PHP's built-in server on port 5000:

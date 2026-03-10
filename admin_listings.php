@@ -373,6 +373,7 @@ $categories = $pdo->query("SELECT DISTINCT category FROM products WHERE category
                         <th>Product</th>
                         <th>Category</th>
                         <th>Price</th>
+                        <th>Qty</th>
                         <th>Status</th>
                         <th>Orders</th>
                         <th>Created</th>
@@ -403,6 +404,7 @@ $categories = $pdo->query("SELECT DISTINCT category FROM products WHERE category
                         </td>
                         <td><?php echo htmlspecialchars($p['category'] ?? 'Uncategorized'); ?></td>
                         <td><span class="price">₹<?php echo number_format($p['price_min']); ?></span></td>
+                        <td><?php echo intval($p['quantity'] ?? 1); ?></td>
                         <td>
                             <?php if($isSold): ?>
                                 <span class="badge badge-sold">Sold</span>

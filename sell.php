@@ -46,6 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $price = $_POST['price'];
     $price_min = $price;
     $price_max = $price;
+    $quantity = max(1, intval($_POST['quantity'] ?? 1));
 
     $video_path = null;
     if (isset($_FILES['video']) && $_FILES['video']['error'] === UPLOAD_ERR_OK) {
@@ -80,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (count($uploaded_files) >= 3) {
-            $stmt = $pdo->prepare("INSERT INTO products (title, brand, category, location, video_path, condition_tag, description, price_min, price_max, image_paths, user_id, approval_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')");
+            $stmt = $pdo->prepare("INSERT INTO products (title, brand, category, location, video_path, condition_tag, description, price_min, price_max, image_paths, user_id, quantity, approval_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')");
             $stmt->execute([
                 $title, 
                 $brand,
@@ -92,7 +93,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $price_min, 
                 $price_max, 
                 json_encode($uploaded_files),
-                $_SESSION['user_id']
+                $_SESSION['user_id'],
+                $quantity
             ]);
             
             // Send Email Notification
@@ -311,6 +313,11 @@ include 'includes/header.php';
                     <div class="form-group">
                         <label class="form-label">Price (₹)</label>
                         <input type="number" name="price" step="0.01" class="form-input" required placeholder="Enter amount">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Quantity Available</label>
+                        <input type="number" name="quantity" min="1" value="1" class="form-input" required placeholder="How many in stock?">
                     </div>
 
                     <div class="form-group">

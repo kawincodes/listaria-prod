@@ -22,23 +22,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Start Transaction
             $pdo->beginTransaction();
 
+            // 0. Atomically reserve stock (decrement quantity only if available)
+            $reserveStmt = $pdo->prepare("UPDATE products SET quantity = quantity - 1 WHERE id = ? AND COALESCE(quantity,1) > 0 AND COALESCE(status,'available') != 'sold'");
+            $reserveStmt->execute([$product_id]);
+            if ($reserveStmt->rowCount() === 0) {
+                $pdo->rollBack();
+                header("Location: product_details.php?id=" . urlencode($product_id) . "&error=out_of_stock");
+                exit;
+            }
+
+            // Mark sold if quantity reached 0
+            $pdo->prepare("UPDATE products SET status = 'sold' WHERE id = ? AND COALESCE(quantity,0) <= 0")->execute([$product_id]);
+
             // 1. Insert Order
-            // Default status: 'Pending' for Online, 'Success' for COD (assuming COD is auto-confirmed here, or 'Item Collected' as per admin view?)
-            // Admin view shows 'Item Collected'. Let's stick to 'Pending' for PhonePe.
             $initialStatus = ($pay_method === 'cod') ? 'Processing' : 'Pending';
             
-            // Check if columns exist (handled by schema update, but if logic fails, we assume they exist now)
-            // SQL: INSERT INTO orders (user_id, product_id, amount, payment_method, order_status)
             $stmt = $pdo->prepare("INSERT INTO orders (user_id, product_id, amount, payment_method, order_status) VALUES (?, ?, ?, ?, ?)");
             $stmt->execute([$user_id, $product_id, $amount, $pay_method, $initialStatus]);
             $order_id = $pdo->lastInsertId();
-
-            // 2. Update Product Status to 'sold' ONLY IF COD
-            // For PhonePe, we wait for callback.
-            if ($pay_method === 'cod') {
-                $stmtUpdate = $pdo->prepare("UPDATE products SET status = 'sold' WHERE id = ?");
-                $stmtUpdate->execute([$product_id]);
-            }
 
             // 3. Record Coupon Usage if applied
             if (isset($_SESSION['apply_free_shipping']) && $_SESSION['apply_free_shipping'] === true) {
