@@ -88,12 +88,14 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <link rel="icon" type="image/png" sizes="192x192" href="/assets/icons/icon-192x192.png">
     <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/icon-96x96.png">
     <!-- /PWA -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css?v=1.0.2">
-    <link rel="stylesheet" href="assets/css/responsive.css?v=1.0.2">
-    <!-- Ionicons for icons (Filter, Arrows, etc) -->
-    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
-    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="assets/css/style.css?v=1.0.3">
+    <link rel="stylesheet" href="assets/css/responsive.css?v=1.0.3">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet"></noscript>
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js" defer></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js" defer></script>
     <style>
         .nav-badge {
             background-color: #ff4d4f;

@@ -94,202 +94,6 @@ include 'includes/header.php';
 </style>
 <?php endif; ?>
 
-<div class="ship-container">
-    <div class="ship-progress">
-        <div class="ship-step active">
-            <div class="ship-step-circle">
-                <ion-icon name="bag-handle-outline"></ion-icon>
-            </div>
-            <span>Cart</span>
-        </div>
-        <div class="ship-step-line active"></div>
-        <div class="ship-step active current">
-            <div class="ship-step-circle">
-                <ion-icon name="location-outline"></ion-icon>
-            </div>
-            <span>Shipping</span>
-        </div>
-        <div class="ship-step-line"></div>
-        <div class="ship-step">
-            <div class="ship-step-circle">
-                <ion-icon name="card-outline"></ion-icon>
-            </div>
-            <span>Payment</span>
-        </div>
-        <div class="ship-step-line"></div>
-        <div class="ship-step">
-            <div class="ship-step-circle">
-                <ion-icon name="checkmark-done-outline"></ion-icon>
-            </div>
-            <span>Done</span>
-        </div>
-    </div>
-
-    <div class="ship-grid">
-        <div class="ship-left">
-            <div class="ship-card">
-                <div class="ship-card-header">
-                    <div class="ship-card-icon"><ion-icon name="person-outline"></ion-icon></div>
-                    <div>
-                        <h3 class="ship-title">Contact & Shipping</h3>
-                        <p class="ship-subtitle">Where should we deliver your order?</p>
-                    </div>
-                </div>
-
-                <?php if(isset($error)): ?>
-                <div class="ship-error">
-                    <ion-icon name="alert-circle-outline"></ion-icon> <?php echo $error; ?>
-                </div>
-                <?php endif; ?>
-
-                <form action="" method="POST" id="shipping-form">
-                    <div class="ship-fields-grid">
-                        <div class="ship-field">
-                            <label for="ship_fullname"><ion-icon name="person-outline"></ion-icon> Full Name</label>
-                            <input type="text" id="ship_fullname" readonly value="<?php echo htmlspecialchars($user['full_name']); ?>" class="ship-readonly">
-                        </div>
-                        <div class="ship-field">
-                            <label for="ship_email"><ion-icon name="mail-outline"></ion-icon> Email</label>
-                            <input type="email" id="ship_email" readonly value="<?php echo htmlspecialchars($user['email']); ?>" class="ship-readonly">
-                        </div>
-                    </div>
-
-                    <div class="ship-field">
-                        <label for="ship_phone"><ion-icon name="call-outline"></ion-icon> Phone Number</label>
-                        <div class="ship-phone-wrap">
-                            <span class="ship-phone-prefix">
-                                <img src="https://flagcdn.com/w20/in.png" alt="IN" style="width:20px;height:14px;border-radius:2px;"> +91
-                            </span>
-                            <input type="tel" name="phone" id="ship_phone" placeholder="Enter 10-digit number" required
-                                   value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>"
-                                   maxlength="10" pattern="\d{10}" title="Please enter exactly 10 digits"
-                                   oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);">
-                        </div>
-                    </div>
-
-                    <div class="ship-field" style="margin-top:0.5rem; position:relative;">
-                        <label for="addr_search"><ion-icon name="location-outline"></ion-icon> Delivery Address</label>
-                        <div class="ship-addr-search-wrap">
-                            <ion-icon name="search-outline" class="ship-addr-search-icon"></ion-icon>
-                            <input type="text" id="addr_search" placeholder="Search your area, landmark, or city..." autocomplete="off">
-                        </div>
-                        <div id="addr_suggestions" class="ship-suggestions"></div>
-                        <textarea name="address" id="final_address" rows="3" placeholder="Full delivery address with pincode..." required><?php echo htmlspecialchars($user['address'] ?? ''); ?></textarea>
-                    </div>
-
-                    <div class="ship-save-check">
-                        <input type="checkbox" id="save_addr" checked>
-                        <label for="save_addr">Save address for future orders</label>
-                    </div>
-                </form>
-            </div>
-
-            <div class="ship-security-strip">
-                <div class="ship-sec-item">
-                    <ion-icon name="shield-checkmark-outline"></ion-icon>
-                    <span>Secure Checkout</span>
-                </div>
-                <div class="ship-sec-item">
-                    <ion-icon name="lock-closed-outline"></ion-icon>
-                    <span>SSL Encrypted</span>
-                </div>
-                <div class="ship-sec-item">
-                    <ion-icon name="refresh-outline"></ion-icon>
-                    <span>Easy Returns</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="ship-right">
-            <div class="ship-summary-card">
-                <h3 class="ship-summary-title">Order Summary</h3>
-
-                <div class="ship-info-banner">
-                    <ion-icon name="car-outline"></ion-icon>
-                    <div>
-                        <strong>Delivery in 3-5 working days</strong>
-                        <span>We'll contact you before delivery</span>
-                    </div>
-                </div>
-
-                <div class="ship-deal-pill">
-                    <ion-icon name="flash-outline"></ion-icon> Great deal — you're saving ₹<?php echo number_format($discount); ?> (<?php echo $discount_pct; ?>% off)
-                </div>
-
-                <div class="ship-item-row">
-                    <img src="<?php echo htmlspecialchars($image_url); ?>" class="ship-item-thumb" alt="Product">
-                    <div class="ship-item-info">
-                        <div class="ship-item-name"><?php echo htmlspecialchars($title); ?></div>
-                        <div class="ship-item-brand"><?php echo htmlspecialchars($brand); ?></div>
-                        <div class="ship-item-price">₹<?php echo number_format($price); ?></div>
-                    </div>
-                </div>
-
-                <div class="ship-coupon-section">
-                    <label>Discount Code</label>
-                    <div class="ship-coupon-row">
-                        <input type="text" id="coupon-code" placeholder="Enter code">
-                        <button type="button" onclick="applyCoupon()">Apply</button>
-                    </div>
-                </div>
-
-                <div class="ship-divider"></div>
-
-                <div class="ship-summary-row">
-                    <span class="ship-summary-label">Product Price</span>
-                    <span class="ship-summary-val">
-                        <span class="ship-original-price">₹<?php echo number_format($original_price); ?></span>
-                        ₹<?php echo number_format($price); ?>
-                    </span>
-                </div>
-                <div class="ship-summary-row">
-                    <span class="ship-summary-label">Shipping <ion-icon name="information-circle-outline" style="font-size:0.85rem;vertical-align:middle;color:#aaa;"></ion-icon></span>
-                    <span class="ship-summary-val <?php echo $shipping_cost === 0 ? 'ship-free' : ''; ?>">
-                        <?php echo $shipping_cost === 0 ? 'FREE' : '₹' . number_format($shipping_cost); ?>
-                    </span>
-                </div>
-
-                <div class="ship-total-row">
-                    <span>Total</span>
-                    <span>₹<?php echo number_format($total); ?></span>
-                </div>
-
-                <div class="ship-guarantee">
-                    <div class="ship-guarantee-header">
-                        <ion-icon name="shield-checkmark" style="color:#22c55e;font-size:1.3rem;"></ion-icon>
-                        <strong>Listaria Guarantee</strong>
-                    </div>
-                    <p>100% refund within 3 days of delivery under covered scenarios. <a href="refund.php" target="_blank">More Details</a></p>
-                </div>
-
-                <?php if ($total > 10000): ?>
-                <div class="ship-hv-box">
-                    <div class="ship-hv-title">
-                        <ion-icon name="document-text-outline"></ion-icon> High-Value Item Consent
-                    </div>
-                    <p>Listaria provides logistic support but ultimate responsibility lies with the seller. Refunds for high-value goods (&gt;₹10k) are subject to manual review.</p>
-                    <div class="ship-hv-check">
-                        <input type="checkbox" id="high_value_consent">
-                        <label for="high_value_consent">I've reviewed the listing and photos thoroughly</label>
-                    </div>
-                </div>
-                <?php endif; ?>
-
-                <button type="submit" form="shipping-form" class="ship-btn-pay" onclick="validateShipping(event)">
-                    <ion-icon name="lock-closed-outline"></ion-icon> Proceed to Payment — ₹<?php echo number_format($total); ?>
-                </button>
-
-                <div class="ship-payment-icons">
-                    <span>We accept:</span>
-                    <ion-icon name="card-outline" title="Cards"></ion-icon>
-                    <ion-icon name="phone-portrait-outline" title="UPI"></ion-icon>
-                    <ion-icon name="cash-outline" title="COD"></ion-icon>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <style>
     .ship-container { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
 
@@ -761,6 +565,202 @@ include 'includes/header.php';
         .ship-step-circle { width: 36px; height: 36px; font-size: 1rem; }
     }
 </style>
+
+<div class="ship-container">
+    <div class="ship-progress">
+        <div class="ship-step active">
+            <div class="ship-step-circle">
+                <ion-icon name="bag-handle-outline"></ion-icon>
+            </div>
+            <span>Cart</span>
+        </div>
+        <div class="ship-step-line active"></div>
+        <div class="ship-step active current">
+            <div class="ship-step-circle">
+                <ion-icon name="location-outline"></ion-icon>
+            </div>
+            <span>Shipping</span>
+        </div>
+        <div class="ship-step-line"></div>
+        <div class="ship-step">
+            <div class="ship-step-circle">
+                <ion-icon name="card-outline"></ion-icon>
+            </div>
+            <span>Payment</span>
+        </div>
+        <div class="ship-step-line"></div>
+        <div class="ship-step">
+            <div class="ship-step-circle">
+                <ion-icon name="checkmark-done-outline"></ion-icon>
+            </div>
+            <span>Done</span>
+        </div>
+    </div>
+
+    <div class="ship-grid">
+        <div class="ship-left">
+            <div class="ship-card">
+                <div class="ship-card-header">
+                    <div class="ship-card-icon"><ion-icon name="person-outline"></ion-icon></div>
+                    <div>
+                        <h3 class="ship-title">Contact & Shipping</h3>
+                        <p class="ship-subtitle">Where should we deliver your order?</p>
+                    </div>
+                </div>
+
+                <?php if(isset($error)): ?>
+                <div class="ship-error">
+                    <ion-icon name="alert-circle-outline"></ion-icon> <?php echo $error; ?>
+                </div>
+                <?php endif; ?>
+
+                <form action="" method="POST" id="shipping-form">
+                    <div class="ship-fields-grid">
+                        <div class="ship-field">
+                            <label for="ship_fullname"><ion-icon name="person-outline"></ion-icon> Full Name</label>
+                            <input type="text" id="ship_fullname" readonly value="<?php echo htmlspecialchars($user['full_name']); ?>" class="ship-readonly">
+                        </div>
+                        <div class="ship-field">
+                            <label for="ship_email"><ion-icon name="mail-outline"></ion-icon> Email</label>
+                            <input type="email" id="ship_email" readonly value="<?php echo htmlspecialchars($user['email']); ?>" class="ship-readonly">
+                        </div>
+                    </div>
+
+                    <div class="ship-field">
+                        <label for="ship_phone"><ion-icon name="call-outline"></ion-icon> Phone Number</label>
+                        <div class="ship-phone-wrap">
+                            <span class="ship-phone-prefix">
+                                <img src="https://flagcdn.com/w20/in.png" alt="IN" style="width:20px;height:14px;border-radius:2px;"> +91
+                            </span>
+                            <input type="tel" name="phone" id="ship_phone" placeholder="Enter 10-digit number" required
+                                   value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>"
+                                   maxlength="10" pattern="\d{10}" title="Please enter exactly 10 digits"
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);">
+                        </div>
+                    </div>
+
+                    <div class="ship-field" style="margin-top:0.5rem; position:relative;">
+                        <label for="addr_search"><ion-icon name="location-outline"></ion-icon> Delivery Address</label>
+                        <div class="ship-addr-search-wrap">
+                            <ion-icon name="search-outline" class="ship-addr-search-icon"></ion-icon>
+                            <input type="text" id="addr_search" placeholder="Search your area, landmark, or city..." autocomplete="off">
+                        </div>
+                        <div id="addr_suggestions" class="ship-suggestions"></div>
+                        <textarea name="address" id="final_address" rows="3" placeholder="Full delivery address with pincode..." required><?php echo htmlspecialchars($user['address'] ?? ''); ?></textarea>
+                    </div>
+
+                    <div class="ship-save-check">
+                        <input type="checkbox" id="save_addr" checked>
+                        <label for="save_addr">Save address for future orders</label>
+                    </div>
+                </form>
+            </div>
+
+            <div class="ship-security-strip">
+                <div class="ship-sec-item">
+                    <ion-icon name="shield-checkmark-outline"></ion-icon>
+                    <span>Secure Checkout</span>
+                </div>
+                <div class="ship-sec-item">
+                    <ion-icon name="lock-closed-outline"></ion-icon>
+                    <span>SSL Encrypted</span>
+                </div>
+                <div class="ship-sec-item">
+                    <ion-icon name="refresh-outline"></ion-icon>
+                    <span>Easy Returns</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="ship-right">
+            <div class="ship-summary-card">
+                <h3 class="ship-summary-title">Order Summary</h3>
+
+                <div class="ship-info-banner">
+                    <ion-icon name="car-outline"></ion-icon>
+                    <div>
+                        <strong>Delivery in 3-5 working days</strong>
+                        <span>We'll contact you before delivery</span>
+                    </div>
+                </div>
+
+                <div class="ship-deal-pill">
+                    <ion-icon name="flash-outline"></ion-icon> Great deal — you're saving ₹<?php echo number_format($discount); ?> (<?php echo $discount_pct; ?>% off)
+                </div>
+
+                <div class="ship-item-row">
+                    <img src="<?php echo htmlspecialchars($image_url); ?>" class="ship-item-thumb" alt="Product">
+                    <div class="ship-item-info">
+                        <div class="ship-item-name"><?php echo htmlspecialchars($title); ?></div>
+                        <div class="ship-item-brand"><?php echo htmlspecialchars($brand); ?></div>
+                        <div class="ship-item-price">₹<?php echo number_format($price); ?></div>
+                    </div>
+                </div>
+
+                <div class="ship-coupon-section">
+                    <label>Discount Code</label>
+                    <div class="ship-coupon-row">
+                        <input type="text" id="coupon-code" placeholder="Enter code">
+                        <button type="button" onclick="applyCoupon()">Apply</button>
+                    </div>
+                </div>
+
+                <div class="ship-divider"></div>
+
+                <div class="ship-summary-row">
+                    <span class="ship-summary-label">Product Price</span>
+                    <span class="ship-summary-val">
+                        <span class="ship-original-price">₹<?php echo number_format($original_price); ?></span>
+                        ₹<?php echo number_format($price); ?>
+                    </span>
+                </div>
+                <div class="ship-summary-row">
+                    <span class="ship-summary-label">Shipping <ion-icon name="information-circle-outline" style="font-size:0.85rem;vertical-align:middle;color:#aaa;"></ion-icon></span>
+                    <span class="ship-summary-val <?php echo $shipping_cost === 0 ? 'ship-free' : ''; ?>">
+                        <?php echo $shipping_cost === 0 ? 'FREE' : '₹' . number_format($shipping_cost); ?>
+                    </span>
+                </div>
+
+                <div class="ship-total-row">
+                    <span>Total</span>
+                    <span>₹<?php echo number_format($total); ?></span>
+                </div>
+
+                <div class="ship-guarantee">
+                    <div class="ship-guarantee-header">
+                        <ion-icon name="shield-checkmark" style="color:#22c55e;font-size:1.3rem;"></ion-icon>
+                        <strong>Listaria Guarantee</strong>
+                    </div>
+                    <p>100% refund within 3 days of delivery under covered scenarios. <a href="refund.php" target="_blank">More Details</a></p>
+                </div>
+
+                <?php if ($total > 10000): ?>
+                <div class="ship-hv-box">
+                    <div class="ship-hv-title">
+                        <ion-icon name="document-text-outline"></ion-icon> High-Value Item Consent
+                    </div>
+                    <p>Listaria provides logistic support but ultimate responsibility lies with the seller. Refunds for high-value goods (&gt;₹10k) are subject to manual review.</p>
+                    <div class="ship-hv-check">
+                        <input type="checkbox" id="high_value_consent">
+                        <label for="high_value_consent">I've reviewed the listing and photos thoroughly</label>
+                    </div>
+                </div>
+                <?php endif; ?>
+
+                <button type="submit" form="shipping-form" class="ship-btn-pay" onclick="validateShipping(event)">
+                    <ion-icon name="lock-closed-outline"></ion-icon> Proceed to Payment — ₹<?php echo number_format($total); ?>
+                </button>
+
+                <div class="ship-payment-icons">
+                    <span>We accept:</span>
+                    <ion-icon name="card-outline" title="Cards"></ion-icon>
+                    <ion-icon name="phone-portrait-outline" title="UPI"></ion-icon>
+                    <ion-icon name="cash-outline" title="COD"></ion-icon>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
 const searchInput = document.getElementById('addr_search');

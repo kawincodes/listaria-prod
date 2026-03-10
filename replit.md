@@ -78,6 +78,15 @@ A luxury e-commerce marketplace platform built in PHP with SQLite.
 - Protected by super_admin role check + CSRF token validation (only super_admin can access)
 - Sidebar link added under Settings section
 
+## CSS/Font Loading (FOUC Prevention)
+
+- Google Fonts (Inter) loaded non-render-blocking: `media="print" onload="this.media='all'"` with `<noscript>` fallback
+- `preconnect` hints added for `fonts.googleapis.com` and `fonts.gstatic.com`
+- Ionicons scripts use `defer` attribute to avoid parser blocking
+- Local CSS files (`style.css`, `responsive.css`) load first (render-blocking, fast)
+- Page-specific `<style>` blocks must be placed BEFORE HTML content, not after
+- CSS version query string (`?v=1.0.3`) used for cache busting
+
 ## Running
 
 The app runs via PHP's built-in server on port 5000:

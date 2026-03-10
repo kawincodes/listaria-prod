@@ -70,198 +70,6 @@ include 'includes/header.php';
 </style>
 <?php endif; ?>
 
-<div class="pay-container">
-    <div class="pay-progress">
-        <div class="pay-step completed">
-            <div class="pay-step-circle"><ion-icon name="checkmark"></ion-icon></div>
-            <span>Cart</span>
-        </div>
-        <div class="pay-step-line completed"></div>
-        <div class="pay-step completed">
-            <a href="shipping_info.php?id=<?php echo $product_id; ?><?php echo $sourceParam; ?>" class="pay-step-link">
-                <div class="pay-step-circle"><ion-icon name="checkmark"></ion-icon></div>
-                <span>Shipping</span>
-            </a>
-        </div>
-        <div class="pay-step-line completed"></div>
-        <div class="pay-step active current">
-            <div class="pay-step-circle"><ion-icon name="card-outline"></ion-icon></div>
-            <span>Payment</span>
-        </div>
-        <div class="pay-step-line"></div>
-        <div class="pay-step">
-            <div class="pay-step-circle"><ion-icon name="checkmark-done-outline"></ion-icon></div>
-            <span>Done</span>
-        </div>
-    </div>
-
-    <div class="pay-grid">
-        <div class="pay-left">
-            <div class="pay-card">
-                <div class="pay-card-header">
-                    <div class="pay-card-icon"><ion-icon name="card-outline"></ion-icon></div>
-                    <div>
-                        <h3 class="pay-title">Choose Payment</h3>
-                        <p class="pay-subtitle">How would you like to pay?</p>
-                    </div>
-                </div>
-
-                <form action="order_summary.php" method="GET" id="paymentForm">
-                    <input type="hidden" name="id" value="<?php echo htmlspecialchars($product_id); ?>">
-                    <?php if (isset($_GET['source'])): ?>
-                    <input type="hidden" name="source" value="<?php echo htmlspecialchars($_GET['source']); ?>">
-                    <?php endif; ?>
-
-                    <fieldset class="pay-options" role="radiogroup" aria-label="Payment method">
-                        <?php if(!empty($payConfig['phonepe'])): ?>
-                        <label class="pay-opt" for="pay_phonepe">
-                            <div class="pay-opt-left">
-                                <div class="pay-opt-icon pay-icon-purple">
-                                    <ion-icon name="phone-portrait-outline"></ion-icon>
-                                </div>
-                                <div class="pay-opt-info">
-                                    <span class="pay-opt-name">PhonePe</span>
-                                    <span class="pay-opt-desc">UPI, Wallet</span>
-                                </div>
-                            </div>
-                            <div class="pay-opt-right">
-                                <div class="pay-radio">
-                                    <div class="pay-radio-dot"></div>
-                                </div>
-                            </div>
-                            <input type="radio" name="pay_method" id="pay_phonepe" value="phonepe" class="pay-sr-only">
-                        </label>
-                        <?php endif; ?>
-
-                        <?php if(!empty($payConfig['cod'])): ?>
-                        <label class="pay-opt" for="pay_cod">
-                            <div class="pay-opt-left">
-                                <div class="pay-opt-icon pay-icon-green">
-                                    <ion-icon name="cash-outline"></ion-icon>
-                                </div>
-                                <div class="pay-opt-info">
-                                    <span class="pay-opt-name">Cash on Delivery</span>
-                                    <span class="pay-opt-desc">Pay when you receive</span>
-                                </div>
-                            </div>
-                            <div class="pay-opt-right">
-                                <div class="pay-radio">
-                                    <div class="pay-radio-dot"></div>
-                                </div>
-                            </div>
-                            <input type="radio" name="pay_method" id="pay_cod" value="cod" class="pay-sr-only">
-                        </label>
-                        <?php endif; ?>
-
-                        <?php if(!empty($payConfig['online'])): ?>
-                        <label class="pay-opt" for="pay_online">
-                            <div class="pay-opt-left">
-                                <div class="pay-opt-icon pay-icon-blue">
-                                    <ion-icon name="card-outline"></ion-icon>
-                                </div>
-                                <div class="pay-opt-info">
-                                    <span class="pay-opt-name">Online Payment</span>
-                                    <span class="pay-opt-desc">Debit Card, Credit Card, Net Banking, UPI</span>
-                                </div>
-                            </div>
-                            <div class="pay-opt-right">
-                                <div class="pay-radio">
-                                    <div class="pay-radio-dot"></div>
-                                </div>
-                            </div>
-                            <input type="radio" name="pay_method" id="pay_online" value="online" class="pay-sr-only">
-                        </label>
-                        <?php endif; ?>
-
-                        <?php if(!empty($payConfig['paytm'])): ?>
-                        <label class="pay-opt" for="pay_paytm">
-                            <div class="pay-opt-left">
-                                <div class="pay-opt-icon pay-icon-cyan">
-                                    <ion-icon name="wallet-outline"></ion-icon>
-                                </div>
-                                <div class="pay-opt-info">
-                                    <span class="pay-opt-name">Paytm</span>
-                                    <span class="pay-opt-desc">Wallet, Cards, Net Banking, UPI</span>
-                                </div>
-                            </div>
-                            <div class="pay-opt-right">
-                                <div class="pay-radio">
-                                    <div class="pay-radio-dot"></div>
-                                </div>
-                            </div>
-                            <input type="radio" name="pay_method" id="pay_paytm" value="paytm" class="pay-sr-only">
-                        </label>
-                        <?php endif; ?>
-                    </fieldset>
-
-                    <button type="submit" class="pay-btn-continue">
-                        <ion-icon name="arrow-forward-outline"></ion-icon> Continue to Review Order
-                    </button>
-                </form>
-            </div>
-
-            <div class="pay-security-strip">
-                <div class="pay-sec-item">
-                    <ion-icon name="shield-checkmark-outline"></ion-icon>
-                    <span>Secure Payment</span>
-                </div>
-                <div class="pay-sec-item">
-                    <ion-icon name="lock-closed-outline"></ion-icon>
-                    <span>256-bit SSL</span>
-                </div>
-                <div class="pay-sec-item">
-                    <ion-icon name="refresh-outline"></ion-icon>
-                    <span>Easy Refunds</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="pay-right">
-            <div class="pay-mini-summary">
-                <h4 class="pay-summary-title">Order Summary</h4>
-
-                <div class="pay-item-row">
-                    <img src="<?php echo htmlspecialchars($image_url); ?>" class="pay-item-thumb" alt="Product">
-                    <div class="pay-item-info">
-                        <div class="pay-item-name"><?php echo htmlspecialchars($title); ?></div>
-                        <div class="pay-item-brand"><?php echo htmlspecialchars($brand); ?></div>
-                    </div>
-                </div>
-
-                <div class="pay-divider"></div>
-
-                <div class="pay-row">
-                    <span>Product</span>
-                    <span>
-                        <span class="pay-strike">₹<?php echo number_format($original_price); ?></span>
-                        ₹<?php echo number_format($price); ?>
-                    </span>
-                </div>
-                <div class="pay-row">
-                    <span>Shipping</span>
-                    <span class="<?php echo $shipping_cost === 0 ? 'pay-free-tag' : ''; ?>">
-                        <?php echo $shipping_cost === 0 ? 'FREE' : '₹' . number_format($shipping_cost); ?>
-                    </span>
-                </div>
-                <div class="pay-row pay-savings">
-                    <span>You Save</span>
-                    <span>₹<?php echo number_format($discount); ?> (<?php echo $discount_pct; ?>%)</span>
-                </div>
-
-                <div class="pay-total-row">
-                    <span>Total</span>
-                    <span>₹<?php echo number_format($total); ?></span>
-                </div>
-
-                <div class="pay-guarantee">
-                    <ion-icon name="shield-checkmark" style="color:#22c55e;"></ion-icon>
-                    <span>Protected by Listaria Guarantee</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <style>
     .pay-container { max-width: 1000px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
 
@@ -561,6 +369,198 @@ include 'includes/header.php';
         .pay-step-circle { width: 36px; height: 36px; font-size: 1rem; }
     }
 </style>
+
+<div class="pay-container">
+    <div class="pay-progress">
+        <div class="pay-step completed">
+            <div class="pay-step-circle"><ion-icon name="checkmark"></ion-icon></div>
+            <span>Cart</span>
+        </div>
+        <div class="pay-step-line completed"></div>
+        <div class="pay-step completed">
+            <a href="shipping_info.php?id=<?php echo $product_id; ?><?php echo $sourceParam; ?>" class="pay-step-link">
+                <div class="pay-step-circle"><ion-icon name="checkmark"></ion-icon></div>
+                <span>Shipping</span>
+            </a>
+        </div>
+        <div class="pay-step-line completed"></div>
+        <div class="pay-step active current">
+            <div class="pay-step-circle"><ion-icon name="card-outline"></ion-icon></div>
+            <span>Payment</span>
+        </div>
+        <div class="pay-step-line"></div>
+        <div class="pay-step">
+            <div class="pay-step-circle"><ion-icon name="checkmark-done-outline"></ion-icon></div>
+            <span>Done</span>
+        </div>
+    </div>
+
+    <div class="pay-grid">
+        <div class="pay-left">
+            <div class="pay-card">
+                <div class="pay-card-header">
+                    <div class="pay-card-icon"><ion-icon name="card-outline"></ion-icon></div>
+                    <div>
+                        <h3 class="pay-title">Choose Payment</h3>
+                        <p class="pay-subtitle">How would you like to pay?</p>
+                    </div>
+                </div>
+
+                <form action="order_summary.php" method="GET" id="paymentForm">
+                    <input type="hidden" name="id" value="<?php echo htmlspecialchars($product_id); ?>">
+                    <?php if (isset($_GET['source'])): ?>
+                    <input type="hidden" name="source" value="<?php echo htmlspecialchars($_GET['source']); ?>">
+                    <?php endif; ?>
+
+                    <fieldset class="pay-options" role="radiogroup" aria-label="Payment method">
+                        <?php if(!empty($payConfig['phonepe'])): ?>
+                        <label class="pay-opt" for="pay_phonepe">
+                            <div class="pay-opt-left">
+                                <div class="pay-opt-icon pay-icon-purple">
+                                    <ion-icon name="phone-portrait-outline"></ion-icon>
+                                </div>
+                                <div class="pay-opt-info">
+                                    <span class="pay-opt-name">PhonePe</span>
+                                    <span class="pay-opt-desc">UPI, Wallet</span>
+                                </div>
+                            </div>
+                            <div class="pay-opt-right">
+                                <div class="pay-radio">
+                                    <div class="pay-radio-dot"></div>
+                                </div>
+                            </div>
+                            <input type="radio" name="pay_method" id="pay_phonepe" value="phonepe" class="pay-sr-only">
+                        </label>
+                        <?php endif; ?>
+
+                        <?php if(!empty($payConfig['cod'])): ?>
+                        <label class="pay-opt" for="pay_cod">
+                            <div class="pay-opt-left">
+                                <div class="pay-opt-icon pay-icon-green">
+                                    <ion-icon name="cash-outline"></ion-icon>
+                                </div>
+                                <div class="pay-opt-info">
+                                    <span class="pay-opt-name">Cash on Delivery</span>
+                                    <span class="pay-opt-desc">Pay when you receive</span>
+                                </div>
+                            </div>
+                            <div class="pay-opt-right">
+                                <div class="pay-radio">
+                                    <div class="pay-radio-dot"></div>
+                                </div>
+                            </div>
+                            <input type="radio" name="pay_method" id="pay_cod" value="cod" class="pay-sr-only">
+                        </label>
+                        <?php endif; ?>
+
+                        <?php if(!empty($payConfig['online'])): ?>
+                        <label class="pay-opt" for="pay_online">
+                            <div class="pay-opt-left">
+                                <div class="pay-opt-icon pay-icon-blue">
+                                    <ion-icon name="card-outline"></ion-icon>
+                                </div>
+                                <div class="pay-opt-info">
+                                    <span class="pay-opt-name">Online Payment</span>
+                                    <span class="pay-opt-desc">Debit Card, Credit Card, Net Banking, UPI</span>
+                                </div>
+                            </div>
+                            <div class="pay-opt-right">
+                                <div class="pay-radio">
+                                    <div class="pay-radio-dot"></div>
+                                </div>
+                            </div>
+                            <input type="radio" name="pay_method" id="pay_online" value="online" class="pay-sr-only">
+                        </label>
+                        <?php endif; ?>
+
+                        <?php if(!empty($payConfig['paytm'])): ?>
+                        <label class="pay-opt" for="pay_paytm">
+                            <div class="pay-opt-left">
+                                <div class="pay-opt-icon pay-icon-cyan">
+                                    <ion-icon name="wallet-outline"></ion-icon>
+                                </div>
+                                <div class="pay-opt-info">
+                                    <span class="pay-opt-name">Paytm</span>
+                                    <span class="pay-opt-desc">Wallet, Cards, Net Banking, UPI</span>
+                                </div>
+                            </div>
+                            <div class="pay-opt-right">
+                                <div class="pay-radio">
+                                    <div class="pay-radio-dot"></div>
+                                </div>
+                            </div>
+                            <input type="radio" name="pay_method" id="pay_paytm" value="paytm" class="pay-sr-only">
+                        </label>
+                        <?php endif; ?>
+                    </fieldset>
+
+                    <button type="submit" class="pay-btn-continue">
+                        <ion-icon name="arrow-forward-outline"></ion-icon> Continue to Review Order
+                    </button>
+                </form>
+            </div>
+
+            <div class="pay-security-strip">
+                <div class="pay-sec-item">
+                    <ion-icon name="shield-checkmark-outline"></ion-icon>
+                    <span>Secure Payment</span>
+                </div>
+                <div class="pay-sec-item">
+                    <ion-icon name="lock-closed-outline"></ion-icon>
+                    <span>256-bit SSL</span>
+                </div>
+                <div class="pay-sec-item">
+                    <ion-icon name="refresh-outline"></ion-icon>
+                    <span>Easy Refunds</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="pay-right">
+            <div class="pay-mini-summary">
+                <h4 class="pay-summary-title">Order Summary</h4>
+
+                <div class="pay-item-row">
+                    <img src="<?php echo htmlspecialchars($image_url); ?>" class="pay-item-thumb" alt="Product">
+                    <div class="pay-item-info">
+                        <div class="pay-item-name"><?php echo htmlspecialchars($title); ?></div>
+                        <div class="pay-item-brand"><?php echo htmlspecialchars($brand); ?></div>
+                    </div>
+                </div>
+
+                <div class="pay-divider"></div>
+
+                <div class="pay-row">
+                    <span>Product</span>
+                    <span>
+                        <span class="pay-strike">₹<?php echo number_format($original_price); ?></span>
+                        ₹<?php echo number_format($price); ?>
+                    </span>
+                </div>
+                <div class="pay-row">
+                    <span>Shipping</span>
+                    <span class="<?php echo $shipping_cost === 0 ? 'pay-free-tag' : ''; ?>">
+                        <?php echo $shipping_cost === 0 ? 'FREE' : '₹' . number_format($shipping_cost); ?>
+                    </span>
+                </div>
+                <div class="pay-row pay-savings">
+                    <span>You Save</span>
+                    <span>₹<?php echo number_format($discount); ?> (<?php echo $discount_pct; ?>%)</span>
+                </div>
+
+                <div class="pay-total-row">
+                    <span>Total</span>
+                    <span>₹<?php echo number_format($total); ?></span>
+                </div>
+
+                <div class="pay-guarantee">
+                    <ion-icon name="shield-checkmark" style="color:#22c55e;"></ion-icon>
+                    <span>Protected by Listaria Guarantee</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
