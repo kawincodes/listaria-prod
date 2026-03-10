@@ -2,7 +2,6 @@
 require 'includes/db.php';
 require_once __DIR__ . '/includes/session.php';
 
-// Redirect if not logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php?redirect=shipping_info.php?id=" . ($_GET['id'] ?? ''));
     exit;
@@ -11,19 +10,14 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $product_id = $_GET['id'] ?? null;
 
-// Handle Form Submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $phone = $_POST['phone'] ?? '';
-    // Clean phone number: remove non-digits
     $phoneRaw = preg_replace('/[^0-9]/', '', $phone);
-    
     $address = $_POST['address'] ?? '';
-    
-    // Server-side validation
+
     if ($phoneRaw && strlen($phoneRaw) === 10 && $address) {
         $stmt = $pdo->prepare("UPDATE users SET phone = ?, address = ? WHERE id = ?");
         if ($stmt->execute([$phoneRaw, $address, $user_id])) {
-            // Redirect to Payment Method
             header("Location: payment_method.php?id=" . urlencode($product_id) . (isset($_GET['source']) ? "&source=" . urlencode($_GET['source']) : ""));
             exit;
         } else {
@@ -34,16 +28,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Fetch User Details
 $stmt = $pdo->prepare("SELECT full_name, email, phone, address FROM users WHERE id = ?");
 $stmt->execute([$user_id]);
 $user = $stmt->fetch();
 
-// Fetch Product Details
 $product = null;
 $price = 0;
-// Default
-$image_url = 'https://via.placeholder.com/150'; 
+$image_url = 'https://via.placeholder.com/150';
 $title = 'Product Name';
 $brand = 'Brand';
 
@@ -51,33 +42,30 @@ if ($product_id) {
     $stmtP = $pdo->prepare("SELECT * FROM products WHERE id = ?");
     $stmtP->execute([$product_id]);
     $product_data = $stmtP->fetch();
-    
+
     if ($product_data) {
         $title = $product_data['title'];
         $brand = $product_data['brand'];
-        $price = $product_data['price_min']; 
-        
+        $price = $product_data['price_min'];
+
         $images = json_decode($product_data['image_paths'], true);
         if (!empty($images)) {
             $image_url = $images[0];
         }
 
-        // Check for negotiation price
         $stmtNeg = $pdo->prepare("SELECT final_price FROM negotiations WHERE product_id = ? AND buyer_id = ? AND final_price IS NOT NULL");
         $stmtNeg->execute([$product_id, $user_id]);
         $offer = $stmtNeg->fetch();
         if ($offer) {
             $price = $offer['final_price'];
         }
-
     } else {
         $price = 13000.00;
     }
 } else {
-    $price = 13000.00; 
+    $price = 13000.00;
 }
 
-// Calculations
 $original_price = $price * 1.5;
 $shipping_cost = 85.00;
 
@@ -86,533 +74,766 @@ if (isset($_SESSION['apply_free_shipping']) && $_SESSION['apply_free_shipping'] 
 }
 
 $total = $price + $shipping_cost;
+$discount = $original_price - $price;
+$discount_pct = round(($discount / $original_price) * 100);
 
 include 'includes/header.php';
 ?>
 
 <?php if (isset($_GET['source']) && $_GET['source'] === 'thrift'): ?>
 <style>
-    /* Thrift+ Theme Overrides - Shipping Page */
-    body, .container { 
-        background-color: #eae4cc !important; 
-        font-family: 'Courier New', monospace !important;
-    }
-    
-    .checkout-section-title, .item-title, label, .summary-row span, .deal-text, h2 {
-        font-family: 'Courier New', monospace !important;
-        color: #1a1a1a !important;
-    }
-    
-    .checkout-section-title {
-        font-family: 'Times New Roman', serif !important;
-        font-weight: 800 !important;
-        font-size: 2rem !important;
-        text-transform: uppercase;
-    }
-
-    /* Containers */
-    .summary-box, .form-input, .input-group, .btn-primary, .info-box, .deal-text, .high-value-disclaimer {
-        border: 2px solid #1a1a1a !important;
-        box-shadow: 4px 4px 0 rgba(26,26,26,0.9) !important;
-        border-radius: 0 !important;
-        background: #fdfcf8 !important;
-    }
-
-    .form-input {
-        box-shadow: none !important; /* Inputs don't need drop shadow usually, but let's see */
-        border: 2px solid #1a1a1a !important;
-    }
-
-    .form-input:focus {
-        background: #fff !important;
-    }
-
-    .btn-primary {
-        background: #1a1a1a !important;
-        color: #fff !important;
-        text-transform: uppercase;
-        font-weight: 800 !important;
-        padding: 18px !important;
-    }
-
-    .btn-primary:hover {
-        transform: translate(-2px, -2px);
-        box-shadow: 6px 6px 0 rgba(26,26,26,0.9) !important;
-    }
-
-    .summary-box {
-        background: #fdfcf8 !important;
-    }
-    
-    .deal-text {
-        background: #fdfcf8 !important;
-        color: #1a1a1a !important;
-    }
-
-    /* Remove default roundedness */
-    .item-thumb {
-        border-radius: 0 !important;
-        border: 2px solid #1a1a1a !important;
-    }
-    
-    .guarantee-box {
-        border-radius: 0 !important;
-        border: 2px solid #1a1a1a !important;
-        background: #dcfce7 !important; /* Keep green but boxy */
-    }
+    body, .ship-container { background-color: #eae4cc !important; font-family: 'Courier New', monospace !important; }
+    .ship-container .ship-title, .ship-container .ship-item-name, .ship-container label, .ship-container .ship-summary-label, .ship-container h3 { font-family: 'Courier New', monospace !important; color: #1a1a1a !important; }
+    .ship-container .ship-title { font-family: 'Times New Roman', serif !important; font-weight: 800 !important; text-transform: uppercase; }
+    .ship-summary-card, .ship-field input, .ship-field textarea, .ship-btn-pay, .ship-info-banner, .ship-deal-pill, .ship-hv-box { border: 2px solid #1a1a1a !important; box-shadow: 4px 4px 0 rgba(26,26,26,0.9) !important; border-radius: 0 !important; background: #fdfcf8 !important; }
+    .ship-field input, .ship-field textarea { box-shadow: none !important; border: 2px solid #1a1a1a !important; }
+    .ship-btn-pay { background: #1a1a1a !important; color: #fff !important; text-transform: uppercase; font-weight: 800 !important; }
+    .ship-btn-pay:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 rgba(26,26,26,0.9) !important; }
+    .ship-item-thumb { border-radius: 0 !important; border: 2px solid #1a1a1a !important; }
+    .ship-guarantee { border-radius: 0 !important; border: 2px solid #1a1a1a !important; background: #dcfce7 !important; }
 </style>
 <?php endif; ?>
 
-<div class="container" style="padding-top: 2rem;">
-    
-    <div class="checkout-grid">
-        
-        <!-- Left: Shipping Information -->
-        <div class="checkout-left">
-            <h2 class="checkout-section-title">Shipping Information</h2>
+<div class="ship-container">
+    <div class="ship-progress">
+        <div class="ship-step active">
+            <div class="ship-step-circle">
+                <ion-icon name="bag-handle-outline"></ion-icon>
+            </div>
+            <span>Cart</span>
+        </div>
+        <div class="ship-step-line active"></div>
+        <div class="ship-step active current">
+            <div class="ship-step-circle">
+                <ion-icon name="location-outline"></ion-icon>
+            </div>
+            <span>Shipping</span>
+        </div>
+        <div class="ship-step-line"></div>
+        <div class="ship-step">
+            <div class="ship-step-circle">
+                <ion-icon name="card-outline"></ion-icon>
+            </div>
+            <span>Payment</span>
+        </div>
+        <div class="ship-step-line"></div>
+        <div class="ship-step">
+            <div class="ship-step-circle">
+                <ion-icon name="checkmark-done-outline"></ion-icon>
+            </div>
+            <span>Done</span>
+        </div>
+    </div>
 
-            <?php if(isset($error)): ?>
-                <div style="background:#ffebee; color:#c62828; padding:10px; border-radius:8px; margin-bottom:1rem; font-size:0.9rem;">
-                    <ion-icon name="alert-circle-outline" style="vertical-align:middle;"></ion-icon> <?php echo $error; ?>
-                </div>
-            <?php endif; ?>
-
-            <form action="" method="POST" id="shipping-form">
-                <div class="form-group">
-                    <input type="text" class="form-input" placeholder="Full Name*" style="background:#f9f9f9; height: 50px;" readonly value="<?php echo htmlspecialchars($user['full_name']); ?>">
-                </div>
-                
-                <div class="form-group">
-                    <input type="email" class="form-input" placeholder="Email ID*" style="background:#f9f9f9; height: 50px;" readonly value="<?php echo htmlspecialchars($user['email']); ?>">
-                </div>
-
-                <div class="form-group">
-                    <div class="input-group">
-                        <span class="input-group-prefix">+91</span>
-                        <input type="tel" name="phone" class="form-input" placeholder="Enter Contact Number" required 
-                               style="height: 50px;" 
-                               value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>"
-                               maxlength="10" pattern="\d{10}" title="Please enter exactly 10 digits" 
-                               oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);">
+    <div class="ship-grid">
+        <div class="ship-left">
+            <div class="ship-card">
+                <div class="ship-card-header">
+                    <div class="ship-card-icon"><ion-icon name="person-outline"></ion-icon></div>
+                    <div>
+                        <h3 class="ship-title">Contact & Shipping</h3>
+                        <p class="ship-subtitle">Where should we deliver your order?</p>
                     </div>
                 </div>
 
-                <div style="margin-top:2rem;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-                        <label style="font-weight:600;">Address</label>
+                <?php if(isset($error)): ?>
+                <div class="ship-error">
+                    <ion-icon name="alert-circle-outline"></ion-icon> <?php echo $error; ?>
+                </div>
+                <?php endif; ?>
+
+                <form action="" method="POST" id="shipping-form">
+                    <div class="ship-fields-grid">
+                        <div class="ship-field">
+                            <label for="ship_fullname"><ion-icon name="person-outline"></ion-icon> Full Name</label>
+                            <input type="text" id="ship_fullname" readonly value="<?php echo htmlspecialchars($user['full_name']); ?>" class="ship-readonly">
+                        </div>
+                        <div class="ship-field">
+                            <label for="ship_email"><ion-icon name="mail-outline"></ion-icon> Email</label>
+                            <input type="email" id="ship_email" readonly value="<?php echo htmlspecialchars($user['email']); ?>" class="ship-readonly">
+                        </div>
                     </div>
-                    
-                    <div class="form-group" style="position:relative;">
-                        <input type="text" id="addr_search" class="form-input" placeholder="Search Address (e.g. Bangalore)" style="padding-left:12px; margin-bottom:0.5rem;" autocomplete="off">
-                        <div id="addr_suggestions" class="suggestions-dropdown" style="display:none;"></div>
-                        
-                        <textarea name="address" id="final_address" class="form-input" rows="4" placeholder="Selected address will appear here... (You can edit this)" style="background:#fff; padding-top:10px; color:#333;" required><?php echo htmlspecialchars($user['address'] ?? ''); ?></textarea>
+
+                    <div class="ship-field">
+                        <label for="ship_phone"><ion-icon name="call-outline"></ion-icon> Phone Number</label>
+                        <div class="ship-phone-wrap">
+                            <span class="ship-phone-prefix">
+                                <img src="https://flagcdn.com/w20/in.png" alt="IN" style="width:20px;height:14px;border-radius:2px;"> +91
+                            </span>
+                            <input type="tel" name="phone" id="ship_phone" placeholder="Enter 10-digit number" required
+                                   value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>"
+                                   maxlength="10" pattern="\d{10}" title="Please enter exactly 10 digits"
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);">
+                        </div>
                     </div>
 
-                    <style>
-                        .suggestions-dropdown {
-                            position: absolute;
-                            top: 55px; /* Adjust based on input height */
-                            left: 0;
-                            width: 100%;
-                            background: white;
-                            border: 1px solid #ddd;
-                            border-radius: 8px;
-                            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-                            z-index: 1000;
-                            max-height: 250px;
-                            overflow-y: auto;
-                        }
-                        .suggestion-item {
-                            padding: 12px 16px;
-                            cursor: pointer;
-                            border-bottom: 1px solid #f9f9f9;
-                            display: flex;
-                            align-items: center;
-                            gap: 10px;
-                            font-size: 0.9rem;
-                            color: #333;
-                            transition: background 0.2s;
-                        }
-                        .suggestion-item:last-child { border-bottom: none; }
-                        .suggestion-item:hover { background: #f1f5f9; }
-                        .s-icon { color: #888; font-size: 1.1rem; }
-                        .s-text { display: flex; flex-direction: column; }
-                        .s-main { font-weight: 500; }
-                        .s-sub { font-size: 0.75rem; color: #777; }
-                    </style>
+                    <div class="ship-field" style="margin-top:0.5rem; position:relative;">
+                        <label for="addr_search"><ion-icon name="location-outline"></ion-icon> Delivery Address</label>
+                        <div class="ship-addr-search-wrap">
+                            <ion-icon name="search-outline" class="ship-addr-search-icon"></ion-icon>
+                            <input type="text" id="addr_search" placeholder="Search your area, landmark, or city..." autocomplete="off">
+                        </div>
+                        <div id="addr_suggestions" class="ship-suggestions"></div>
+                        <textarea name="address" id="final_address" rows="3" placeholder="Full delivery address with pincode..." required><?php echo htmlspecialchars($user['address'] ?? ''); ?></textarea>
+                    </div>
 
-                    <script>
-                        const searchInput = document.getElementById('addr_search');
-                        const resultsBox = document.getElementById('addr_suggestions');
-                        const finalBox = document.getElementById('final_address');
-                        let debounceTimer;
-
-                        searchInput.addEventListener('input', function() {
-                            clearTimeout(debounceTimer);
-                            const query = this.value.trim();
-                            
-                            if (query.length < 3) {
-                                resultsBox.style.display = 'none';
-                                return;
-                            }
-
-                            debounceTimer = setTimeout(() => fetchAddress(query), 300); // Reduced to 300ms for speed
-                        });
-
-                        function fetchAddress(query) {
-                            // Using standard OpenStreetMap Nominatim API - Optimized for India
-                            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&limit=5&countrycodes=in`)
-                                .then(response => response.json())
-                                .then(data => {
-                                    resultsBox.innerHTML = '';
-                                    if (data.length > 0) {
-                                        data.forEach(place => {
-                                            const div = document.createElement('div');
-                                            div.className = 'suggestion-item';
-                                            // Format: Display Name
-                                            // We can split it for better layout if needed, but display_name is usually good
-                                            const parts = place.display_name.split(',');
-                                            const mainText = parts[0];
-                                            const subText = parts.slice(1).join(',').trim();
-
-                                            div.innerHTML = `
-                                                <ion-icon name="location-outline" class="s-icon"></ion-icon>
-                                                <div class="s-text">
-                                                    <span class="s-main">${mainText}</span>
-                                                    <span class="s-sub">${subText}</span>
-                                                </div>
-                                            `;
-                                            div.onclick = () => {
-                                                finalBox.value = place.display_name;
-                                                searchInput.value = ''; // Clear search or keep it? User might want to search again. Let's clear to show it's "selected".
-                                                // Or maybe keep mainText in search input?
-                                                // Let's populate textarea and maybe clear search to avoid confusion.
-                                                // Actually, standard behavior:
-                                                // searchInput.value = mainText; // Optional
-                                                resultsBox.style.display = 'none';
-                                            };
-                                            resultsBox.appendChild(div);
-                                        });
-                                        resultsBox.style.display = 'block';
-                                    } else {
-                                        resultsBox.style.display = 'none';
-                                    }
-                                })
-                                .catch(err => console.error('Address Fetch Error:', err));
-                        }
-
-                        // Close dropdown when clicking outside
-                        document.addEventListener('click', function(e) {
-                            if (!searchInput.contains(e.target) && !resultsBox.contains(e.target)) {
-                                resultsBox.style.display = 'none';
-                            }
-                        });
-                    </script>
-
-                    <div style="margin-top:1.5rem; display:flex; align-items:center; gap:10px;">
+                    <div class="ship-save-check">
                         <input type="checkbox" id="save_addr" checked>
-                        <label for="save_addr" style="font-size:0.9rem; color:#333;">Save this address for future orders</label>
+                        <label for="save_addr">Save address for future orders</label>
                     </div>
-                </div>
+                </form>
+            </div>
 
-            </form>
+            <div class="ship-security-strip">
+                <div class="ship-sec-item">
+                    <ion-icon name="shield-checkmark-outline"></ion-icon>
+                    <span>Secure Checkout</span>
+                </div>
+                <div class="ship-sec-item">
+                    <ion-icon name="lock-closed-outline"></ion-icon>
+                    <span>SSL Encrypted</span>
+                </div>
+                <div class="ship-sec-item">
+                    <ion-icon name="refresh-outline"></ion-icon>
+                    <span>Easy Returns</span>
+                </div>
+            </div>
         </div>
 
-        <!-- Right: Order Summary -->
-        <div class="checkout-right">
-            <div class="summary-box">
-                
-                <div class="info-box">
-                    <ion-icon name="car-outline" style="color:#2ecc71; font-size:1.5rem;"></ion-icon>
+        <div class="ship-right">
+            <div class="ship-summary-card">
+                <h3 class="ship-summary-title">Order Summary</h3>
+
+                <div class="ship-info-banner">
+                    <ion-icon name="car-outline"></ion-icon>
                     <div>
-                        <div style="font-weight:700; font-size:0.95rem;">Delivery in 3-5 working days</div>
-                        <div style="font-size:0.85rem; color:#666;">We will contact you before delivery</div>
+                        <strong>Delivery in 3-5 working days</strong>
+                        <span>We'll contact you before delivery</span>
                     </div>
                 </div>
 
-                <div class="deal-text">
-                    🔥 Awesome, that's a great deal!
+                <div class="ship-deal-pill">
+                    <ion-icon name="flash-outline"></ion-icon> Great deal — you're saving ₹<?php echo number_format($discount); ?> (<?php echo $discount_pct; ?>% off)
                 </div>
 
-                <div class="item-preview" style="align-items:center; margin-bottom:2rem;">
-                    <img src="<?php echo htmlspecialchars($image_url); ?>" class="item-thumb" style="border-radius:12px; width:60px; height:60px;" alt="Product">
-                    <div class="item-details" style="display:flex; align-items:center; margin-left:1rem;">
-                        <div class="item-title" style="font-size:1rem;"><?php echo htmlspecialchars($title); ?></div>
+                <div class="ship-item-row">
+                    <img src="<?php echo htmlspecialchars($image_url); ?>" class="ship-item-thumb" alt="Product">
+                    <div class="ship-item-info">
+                        <div class="ship-item-name"><?php echo htmlspecialchars($title); ?></div>
+                        <div class="ship-item-brand"><?php echo htmlspecialchars($brand); ?></div>
+                        <div class="ship-item-price">₹<?php echo number_format($price); ?></div>
                     </div>
                 </div>
 
-                <div style="border-top:1px solid #eee; padding-top:1.5rem;">
-                    <label style="font-size:0.9rem; color:#333;">Have a discount code?</label>
-                    <div class="discount-group">
-                        <input type="text" id="coupon-code" class="form-input" placeholder="Enter code" style="background:#f9f9f9; border:none;">
-                        <button type="button" class="apply-btn" onclick="applyCoupon()">Apply</button>
+                <div class="ship-coupon-section">
+                    <label>Discount Code</label>
+                    <div class="ship-coupon-row">
+                        <input type="text" id="coupon-code" placeholder="Enter code">
+                        <button type="button" onclick="applyCoupon()">Apply</button>
                     </div>
                 </div>
 
-                <div class="summary-divider"></div>
+                <div class="ship-divider"></div>
 
-                <div class="summary-row">
-                    <span style="color:#666;">Product Price</span>
-                    <span>
-                        <span style="text-decoration:line-through; color:#999; margin-right:5px;">₹<?php echo number_format($original_price); ?></span>
-                        <span style="font-weight:600;">₹<?php echo number_format($price); ?></span>
+                <div class="ship-summary-row">
+                    <span class="ship-summary-label">Product Price</span>
+                    <span class="ship-summary-val">
+                        <span class="ship-original-price">₹<?php echo number_format($original_price); ?></span>
+                        ₹<?php echo number_format($price); ?>
                     </span>
                 </div>
-                <div class="summary-row">
-                    <span style="color:#666;">Listaria Assured Shipping <ion-icon name="information-circle-outline"></ion-icon></span>
-                    <span style="font-weight:600;">₹<?php echo number_format($shipping_cost); ?></span>
+                <div class="ship-summary-row">
+                    <span class="ship-summary-label">Shipping <ion-icon name="information-circle-outline" style="font-size:0.85rem;vertical-align:middle;color:#aaa;"></ion-icon></span>
+                    <span class="ship-summary-val <?php echo $shipping_cost === 0 ? 'ship-free' : ''; ?>">
+                        <?php echo $shipping_cost === 0 ? 'FREE' : '₹' . number_format($shipping_cost); ?>
+                    </span>
                 </div>
-                
-                <div class="summary-total" style="margin-top:1rem;">
+
+                <div class="ship-total-row">
                     <span>Total</span>
                     <span>₹<?php echo number_format($total); ?></span>
                 </div>
 
-                <div class="guarantee-box">
-                    <div class="guarantee-title">
-                        <ion-icon name="checkmark-circle" style="color:#2ecc71;"></ion-icon>
-                        Listaria Guarantee: Shop with Confidence
+                <div class="ship-guarantee">
+                    <div class="ship-guarantee-header">
+                        <ion-icon name="shield-checkmark" style="color:#22c55e;font-size:1.3rem;"></ion-icon>
+                        <strong>Listaria Guarantee</strong>
                     </div>
-                    Avail 100% refund within 3 days of delivery under covered scenarios. <a href="refund.php" style="color:#0984e3; text-decoration:none;" target="_blank">More Details</a>
+                    <p>100% refund within 3 days of delivery under covered scenarios. <a href="refund.php" target="_blank">More Details</a></p>
                 </div>
 
                 <?php if ($total > 10000): ?>
-                <div class="high-value-disclaimer" style="background:#fff3cd; padding:15px; border:1px solid #ffeeba; border-radius:8px; margin-bottom:1.5rem;">
-                    <div style="font-weight:700; color:#856404; margin-bottom:8px; display:flex; align-items:center; gap:5px;">
-                        <ion-icon name="document-text-outline"></ion-icon> Consent for High-Value Item
+                <div class="ship-hv-box">
+                    <div class="ship-hv-title">
+                        <ion-icon name="document-text-outline"></ion-icon> High-Value Item Consent
                     </div>
-                    <p style="font-size:0.85rem; color:#856404; margin:0 0 10px 0; line-height:1.4;">
-                        Listaria provides logistic support but ultimate responsibility lies with the seller. Refunds for high-value goods (>₹10k) are subject to manual review.
-                    </p>
-                    <div style="display:flex; align-items:start; gap:10px;">
-                        <input type="checkbox" id="high_value_consent" style="margin-top:4px; transform:scale(1.2);">
-                        <label for="high_value_consent" style="font-size:0.85rem; color:#333; cursor:pointer; font-weight:600;">
-                            I agree that I've reviewed the product listing and photos thoroughly.
-                        </label>
+                    <p>Listaria provides logistic support but ultimate responsibility lies with the seller. Refunds for high-value goods (&gt;₹10k) are subject to manual review.</p>
+                    <div class="ship-hv-check">
+                        <input type="checkbox" id="high_value_consent">
+                        <label for="high_value_consent">I've reviewed the listing and photos thoroughly</label>
                     </div>
                 </div>
                 <?php endif; ?>
 
-                <button type="submit" form="shipping-form" class="btn-primary" onclick="validateShipping(event)" style="display:block; text-align:center; text-decoration:none; width:100%;">Proceed to Payment</button>
+                <button type="submit" form="shipping-form" class="ship-btn-pay" onclick="validateShipping(event)">
+                    <ion-icon name="lock-closed-outline"></ion-icon> Proceed to Payment — ₹<?php echo number_format($total); ?>
+                </button>
 
+                <div class="ship-payment-icons">
+                    <span>We accept:</span>
+                    <ion-icon name="card-outline" title="Cards"></ion-icon>
+                    <ion-icon name="phone-portrait-outline" title="UPI"></ion-icon>
+                    <ion-icon name="cash-outline" title="COD"></ion-icon>
+                </div>
             </div>
         </div>
-
     </div>
 </div>
 
 <style>
-    .checkout-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 2rem; margin-bottom: 3rem; }
-    .checkout-left { }
-    .checkout-right { }
+    .ship-container { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
 
-    .checkout-section-title { font-size: 1.5rem; margin-bottom: 2rem; }
-    
-    /* Form Styles */
-    .form-group { margin-bottom: 1.5rem; }
-    .form-input { 
-        width: 100%; 
-        padding: 12px; 
-        border: 1px solid #eee; 
-        border-radius: 8px; 
-        font-size: 0.95rem; 
-        font-family: inherit;
-        transition: border-color 0.2s;
-    }
-    .form-input:focus { border-color: #333; outline: none; }
-    
-    .input-group {
-        display: flex;
-        align-items: center;
-        border: 1px solid #eee;
-        border-radius: 8px;
-        overflow: hidden;
-        background: #fff;
-    }
-    .input-group-prefix {
-        background: #f9f9f9;
-        color: #555;
-        padding: 0 16px;
-        font-weight: 600;
-        font-size: 0.95rem;
-        border-right: 1px solid #eee;
-        height: 50px;
+    .ship-progress {
         display: flex;
         align-items: center;
         justify-content: center;
+        gap: 0;
+        margin-bottom: 2.5rem;
+        padding: 0 2rem;
     }
-    .input-group .form-input {
-        border: none;
-        border-radius: 0;
-        height: 50px;
-        padding-left: 16px;
+    .ship-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        position: relative;
     }
-    .input-group:focus-within {
-        border-color: #333;
-        box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
+    .ship-step span {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #ccc;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .ship-step.active span { color: #6B21A8; }
+    .ship-step.current span { color: #6B21A8; font-weight: 700; }
+    .ship-step-circle {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.15rem;
+        color: #bbb;
+        transition: all 0.3s;
+    }
+    .ship-step.active .ship-step-circle {
+        background: linear-gradient(135deg, #6B21A8, #9333EA);
+        color: white;
+        box-shadow: 0 4px 15px rgba(107,33,168,0.3);
+    }
+    .ship-step.current .ship-step-circle {
+        box-shadow: 0 0 0 4px rgba(107,33,168,0.15), 0 4px 15px rgba(107,33,168,0.3);
+    }
+    .ship-step-line {
+        width: 60px;
+        height: 3px;
+        background: #e5e7eb;
+        border-radius: 2px;
+        margin: 0 0.5rem;
+        margin-bottom: 20px;
+    }
+    .ship-step-line.active { background: linear-gradient(90deg, #6B21A8, #9333EA); }
+
+    .ship-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 2rem; align-items: start; }
+
+    .ship-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+        border: 1px solid #f0f0f0;
+    }
+    .ship-card-header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #f5f5f5;
+    }
+    .ship-card-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #f3e8ff, #ede9fe);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        color: #6B21A8;
+        flex-shrink: 0;
+    }
+    .ship-title { font-size: 1.2rem; font-weight: 700; color: #1a1a1a; margin: 0; }
+    .ship-subtitle { font-size: 0.85rem; color: #999; margin: 2px 0 0; }
+
+    .ship-error {
+        background: #fef2f2;
+        color: #dc2626;
+        padding: 12px 16px;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        font-size: 0.88rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid #fecaca;
     }
 
-    /* Summary Box Styles */
-    .summary-box {
+    .ship-fields-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+
+    .ship-field { margin-bottom: 1rem; }
+    .ship-field label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #555;
+        margin-bottom: 0.5rem;
+    }
+    .ship-field label ion-icon { font-size: 1rem; color: #6B21A8; }
+    .ship-field input, .ship-field textarea {
+        width: 100%;
+        padding: 14px 16px;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 12px;
+        font-size: 0.92rem;
+        font-family: inherit;
+        transition: all 0.2s;
+        background: #fff;
+        color: #333;
+    }
+    .ship-field input:focus, .ship-field textarea:focus {
+        outline: none;
+        border-color: #6B21A8;
+        box-shadow: 0 0 0 4px rgba(107,33,168,0.08);
+    }
+    .ship-field textarea { resize: vertical; min-height: 90px; }
+    .ship-readonly { background: #fafafa !important; color: #888 !important; cursor: not-allowed; }
+
+    .ship-phone-wrap {
+        display: flex;
+        align-items: center;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #fff;
+        transition: all 0.2s;
+    }
+    .ship-phone-wrap:focus-within {
+        border-color: #6B21A8;
+        box-shadow: 0 0 0 4px rgba(107,33,168,0.08);
+    }
+    .ship-phone-prefix {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 0 16px;
+        background: #fafafa;
+        color: #555;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border-right: 1.5px solid #e5e7eb;
+        height: 50px;
+        white-space: nowrap;
+    }
+    .ship-phone-wrap input {
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        height: 50px;
+        padding: 0 16px;
+    }
+
+    .ship-addr-search-wrap {
+        position: relative;
+        margin-bottom: 0.75rem;
+    }
+    .ship-addr-search-icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #aaa;
+        font-size: 1.1rem;
+    }
+    .ship-addr-search-wrap input {
+        padding-left: 40px !important;
+    }
+    .ship-suggestions {
+        display: none;
+        position: absolute;
+        z-index: 1000;
+        width: 100%;
         background: white;
-        padding: 1.5rem;
-        border-radius: 16px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        max-height: 240px;
+        overflow-y: auto;
+        margin-top: -4px;
+    }
+    .ship-sug-item {
+        padding: 12px 16px;
+        cursor: pointer;
+        border-bottom: 1px solid #f9f9f9;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.88rem;
+        color: #333;
+        transition: background 0.15s;
+    }
+    .ship-sug-item:last-child { border-bottom: none; }
+    .ship-sug-item:hover { background: #f3e8ff; }
+    .ship-sug-icon { color: #6B21A8; font-size: 1.1rem; flex-shrink: 0; }
+    .ship-sug-text { display: flex; flex-direction: column; min-width: 0; }
+    .ship-sug-main { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ship-sug-sub { font-size: 0.75rem; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .ship-save-check {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #f5f5f5;
+    }
+    .ship-save-check input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: #6B21A8;
+        cursor: pointer;
+    }
+    .ship-save-check label { font-size: 0.88rem; color: #666; cursor: pointer; }
+
+    .ship-security-strip {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-top: 1.5rem;
+    }
+    .ship-sec-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.78rem;
+        color: #999;
+        font-weight: 500;
+    }
+    .ship-sec-item ion-icon { font-size: 1rem; color: #22c55e; }
+
+    .ship-summary-card {
+        background: white;
+        border-radius: 20px;
+        padding: 1.75rem;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+        border: 1px solid #f0f0f0;
         position: sticky;
         top: 100px;
     }
+    .ship-summary-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin: 0 0 1.25rem;
+        color: #1a1a1a;
+    }
 
-    .info-box {
+    .ship-info-banner {
         display: flex;
         gap: 12px;
-        margin-bottom: 1.5rem;
-        align-items: flex-start;
+        align-items: center;
+        padding: 14px 16px;
+        background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+        border: 1px solid #dcfce7;
+        border-radius: 14px;
+        margin-bottom: 1rem;
     }
+    .ship-info-banner ion-icon { font-size: 1.6rem; color: #22c55e; flex-shrink: 0; }
+    .ship-info-banner strong { display: block; font-size: 0.88rem; color: #166534; }
+    .ship-info-banner span { font-size: 0.78rem; color: #4ade80; }
 
-    .deal-text {
-        font-weight: 700;
-        color: #e67e22;
-        margin-bottom: 1.5rem;
-        background: #fff8e1;
-        padding: 8px 12px;
-        border-radius: 8px;
-        display: inline-block;
-        font-size: 0.9rem;
-    }
-
-    .item-preview { display: flex; align-items: center; margin-bottom: 2rem; }
-    .item-thumb { object-fit: cover; }
-    .item-details { flex: 1; }
-    .item-title { font-weight: 600; line-height: 1.4; color: #333; }
-
-    .discount-group {
+    .ship-deal-pill {
         display: flex;
-        gap: 10px;
-        margin-top: 10px;
+        align-items: center;
+        gap: 6px;
+        background: linear-gradient(135deg, #fef3c7, #fffbeb);
+        border: 1px solid #fde68a;
+        color: #92400e;
+        padding: 10px 14px;
+        border-radius: 12px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        margin-bottom: 1.25rem;
     }
-    .apply-btn {
-        background: #212121;
+    .ship-deal-pill ion-icon { color: #f59e0b; font-size: 1rem; }
+
+    .ship-item-row {
+        display: flex;
+        gap: 14px;
+        align-items: center;
+        padding: 14px;
+        background: #fafafa;
+        border-radius: 14px;
+        margin-bottom: 1.25rem;
+    }
+    .ship-item-thumb {
+        width: 70px;
+        height: 70px;
+        border-radius: 12px;
+        object-fit: cover;
+        flex-shrink: 0;
+        border: 1px solid #eee;
+    }
+    .ship-item-info { flex: 1; min-width: 0; }
+    .ship-item-name {
+        font-weight: 700;
+        font-size: 0.92rem;
+        color: #1a1a1a;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .ship-item-brand { font-size: 0.78rem; color: #999; margin: 2px 0; }
+    .ship-item-price { font-size: 0.95rem; font-weight: 700; color: #6B21A8; }
+
+    .ship-coupon-section { margin-bottom: 1rem; }
+    .ship-coupon-section label { font-size: 0.82rem; color: #888; font-weight: 500; margin-bottom: 8px; display: block; }
+    .ship-coupon-row { display: flex; gap: 8px; }
+    .ship-coupon-row input {
+        flex: 1;
+        padding: 10px 14px;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 10px;
+        font-size: 0.88rem;
+        font-family: inherit;
+    }
+    .ship-coupon-row input:focus { outline: none; border-color: #6B21A8; }
+    .ship-coupon-row button {
+        background: #1a1a1a;
         color: white;
         border: none;
-        padding: 0.8rem 1.5rem;
-        border-radius: 8px;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 0.85rem;
         cursor: pointer;
-        font-weight: 600;
-        font-size: 0.9rem;
         white-space: nowrap;
+        transition: all 0.2s;
     }
+    .ship-coupon-row button:hover { background: #333; }
 
-    .summary-divider { height: 1px; background: #eee; margin: 1.5rem 0; }
-    
-    .summary-row {
+    .ship-divider { height: 1px; background: #f0f0f0; margin: 1.25rem 0; }
+
+    .ship-summary-row {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 0.8rem;
-        font-size: 0.95rem;
+        align-items: center;
+        margin-bottom: 0.7rem;
+        font-size: 0.9rem;
     }
-    
-    .summary-total {
+    .ship-summary-label { color: #888; }
+    .ship-summary-val { font-weight: 600; color: #333; }
+    .ship-original-price { text-decoration: line-through; color: #ccc; margin-right: 6px; font-weight: 400; }
+    .ship-free { color: #22c55e; font-weight: 700; }
+
+    .ship-total-row {
         display: flex;
         justify-content: space-between;
         font-weight: 800;
         font-size: 1.2rem;
         padding-top: 1rem;
-        border-top: 2px dashed #eee;
+        margin-top: 0.5rem;
+        border-top: 2px dashed #e5e7eb;
+        color: #1a1a1a;
     }
 
-    .guarantee-box {
-        margin: 1.5rem 0;
-        padding: 1rem;
+    .ship-guarantee {
+        margin: 1.25rem 0;
+        padding: 14px 16px;
         background: #f0fdf4;
         border: 1px solid #dcfce7;
-        border-radius: 8px;
-        font-size: 0.85rem;
-        color: #166534;
+        border-radius: 14px;
     }
-    .guarantee-title {
-        font-weight: 700;
-        margin-bottom: 5px;
+    .ship-guarantee-header {
         display: flex;
         align-items: center;
-        gap: 5px;
+        gap: 6px;
+        margin-bottom: 4px;
     }
+    .ship-guarantee-header strong { font-size: 0.88rem; color: #166534; }
+    .ship-guarantee p { font-size: 0.8rem; color: #4ade80; margin: 0; line-height: 1.5; }
+    .ship-guarantee a { color: #2563eb; text-decoration: none; font-weight: 600; }
+    .ship-guarantee a:hover { text-decoration: underline; }
 
-    .btn-primary {
+    .ship-hv-box {
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        padding: 14px 16px;
+        border-radius: 14px;
+        margin-bottom: 1rem;
+    }
+    .ship-hv-title {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 700;
+        color: #92400e;
+        font-size: 0.88rem;
+        margin-bottom: 6px;
+    }
+    .ship-hv-box p { font-size: 0.8rem; color: #b45309; margin: 0 0 10px; line-height: 1.5; }
+    .ship-hv-check {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .ship-hv-check input { margin-top: 3px; accent-color: #d97706; transform: scale(1.2); }
+    .ship-hv-check label { font-size: 0.82rem; color: #92400e; font-weight: 600; cursor: pointer; }
+
+    .ship-btn-pay {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
         padding: 16px;
-        background: #333;
+        background: linear-gradient(135deg, #6B21A8, #7c3aed);
         color: white;
         border: none;
-        border-radius: 12px;
+        border-radius: 14px;
         font-weight: 700;
+        font-size: 1.05rem;
         cursor: pointer;
-        font-size: 1.1rem;
-        transition: background 0.2s;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transition: all 0.25s;
+        box-shadow: 0 6px 20px rgba(107,33,168,0.25);
+        font-family: inherit;
     }
-    .btn-primary:hover { background: #000; transform: translateY(-2px); }
+    .ship-btn-pay:hover {
+        background: linear-gradient(135deg, #581c87, #6d28d9);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(107,33,168,0.35);
+    }
+    .ship-btn-pay:active { transform: translateY(0); }
+    .ship-btn-pay ion-icon { font-size: 1.15rem; }
+
+    .ship-payment-icons {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 1rem;
+        font-size: 0.75rem;
+        color: #bbb;
+    }
+    .ship-payment-icons ion-icon { font-size: 1.2rem; color: #ccc; }
 
     @media (max-width: 900px) {
-        .checkout-grid { grid-template-columns: 1fr; }
-        .summary-box { position: static; }
-        .checkout-left { margin-bottom: 2rem; }
+        .ship-grid { grid-template-columns: 1fr; }
+        .ship-summary-card { position: static; }
+        .ship-fields-grid { grid-template-columns: 1fr; }
+        .ship-progress { gap: 0; padding: 0; }
+        .ship-step-line { width: 30px; }
     }
 
     @media (max-width: 768px) {
-        .navbar {
-            border-radius: 0 !important;
-            width: 100% !important;
-            margin: 0 !important;
-            max-width: 100vw !important;
-        }
-
-        /* Hide Thrift+ button on mobile to prevent crowding */
-        .btn-thrift {
-            display: none !important;
-        }
-
-        .container {
-            padding: 85px 1rem 2rem !important; /* Adjust for sticky header */
-        }
-        
-        .checkout-section-title {
-            font-size: 1.25rem;
-            margin-bottom: 1.5rem;
-        }
-
-        /* Fix suggestions dropdown width on mobile */
-        .suggestions-dropdown {
-            width: 100% !important;
-            left: 0 !important;
-        }
+        .navbar { border-radius: 0 !important; width: 100% !important; margin: 0 !important; max-width: 100vw !important; }
+        .btn-thrift { display: none !important; }
+        .ship-container { padding: 85px 0.75rem 2rem !important; }
+        .ship-card { padding: 1.5rem; border-radius: 16px; }
+        .ship-summary-card { padding: 1.25rem; border-radius: 16px; }
+        .ship-security-strip { gap: 1rem; flex-wrap: wrap; }
+        .ship-step span { font-size: 0.65rem; }
+        .ship-step-circle { width: 36px; height: 36px; font-size: 1rem; }
     }
 </style>
 
 <script>
-function validateShipping(event) {
-    const form = document.getElementById('shipping-form');
-    // Check form validity
-    if (!form.checkValidity()) {
-        event.preventDefault();
-        form.reportValidity(); // Shows native browser tips
+const searchInput = document.getElementById('addr_search');
+const resultsBox = document.getElementById('addr_suggestions');
+const finalBox = document.getElementById('final_address');
+let debounceTimer;
+
+searchInput.addEventListener('input', function() {
+    clearTimeout(debounceTimer);
+    const query = this.value.trim();
+    if (query.length < 3) {
+        resultsBox.style.display = 'none';
         return;
     }
+    debounceTimer = setTimeout(() => fetchAddress(query), 300);
+});
 
-    // Check High Value Consent if present
+function fetchAddress(query) {
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&limit=5&countrycodes=in`)
+        .then(r => r.json())
+        .then(data => {
+            resultsBox.innerHTML = '';
+            if (data.length > 0) {
+                data.forEach(place => {
+                    const div = document.createElement('div');
+                    div.className = 'ship-sug-item';
+                    const parts = place.display_name.split(',');
+                    div.innerHTML = `
+                        <ion-icon name="location-outline" class="ship-sug-icon"></ion-icon>
+                        <div class="ship-sug-text">
+                            <span class="ship-sug-main">${parts[0]}</span>
+                            <span class="ship-sug-sub">${parts.slice(1).join(',').trim()}</span>
+                        </div>
+                    `;
+                    div.onclick = () => {
+                        finalBox.value = place.display_name;
+                        searchInput.value = '';
+                        resultsBox.style.display = 'none';
+                    };
+                    resultsBox.appendChild(div);
+                });
+                resultsBox.style.display = 'block';
+            } else {
+                resultsBox.style.display = 'none';
+            }
+        })
+        .catch(err => console.error('Address Fetch Error:', err));
+}
+
+document.addEventListener('click', function(e) {
+    if (!searchInput.contains(e.target) && !resultsBox.contains(e.target)) {
+        resultsBox.style.display = 'none';
+    }
+});
+
+function validateShipping(event) {
+    const form = document.getElementById('shipping-form');
+    if (!form.checkValidity()) {
+        event.preventDefault();
+        form.reportValidity();
+        return;
+    }
     const consent = document.getElementById('high_value_consent');
     if (consent && !consent.checked) {
         event.preventDefault();
         alert('Please agree to the High-Value Item Consent to proceed.');
         consent.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        consent.parentElement.style.animation = 'shake 0.5s'; 
     }
 }
 
 function applyCoupon() {
     const code = document.getElementById('coupon-code').value;
     if(!code) return;
-    
-    // Mock coupon logic
     if(code.toLowerCase() === 'listaria_new') {
         alert("Coupon Applied! (Mock)");
     } else {
