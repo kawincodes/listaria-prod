@@ -56,6 +56,48 @@ $builtinPages = [
         'url' => 'founders.php',
         'type' => 'text'
     ],
+    'founder_1_linkedin' => [
+        'title' => 'Founder 1 - LinkedIn URL',
+        'icon' => 'logo-linkedin',
+        'desc' => 'LinkedIn profile URL for Harsh Vardhan Jaiswal',
+        'url' => 'founders.php',
+        'type' => 'text'
+    ],
+    'founder_1_instagram' => [
+        'title' => 'Founder 1 - Instagram URL',
+        'icon' => 'logo-instagram',
+        'desc' => 'Instagram profile URL for Harsh Vardhan Jaiswal',
+        'url' => 'founders.php',
+        'type' => 'text'
+    ],
+    'founder_1_twitter' => [
+        'title' => 'Founder 1 - X (Twitter) URL',
+        'icon' => 'logo-twitter',
+        'desc' => 'X / Twitter profile URL for Harsh Vardhan Jaiswal',
+        'url' => 'founders.php',
+        'type' => 'text'
+    ],
+    'founder_2_linkedin' => [
+        'title' => 'Founder 2 - LinkedIn URL',
+        'icon' => 'logo-linkedin',
+        'desc' => 'LinkedIn profile URL for Aryan Biswa',
+        'url' => 'founders.php',
+        'type' => 'text'
+    ],
+    'founder_2_instagram' => [
+        'title' => 'Founder 2 - Instagram URL',
+        'icon' => 'logo-instagram',
+        'desc' => 'Instagram profile URL for Aryan Biswa',
+        'url' => 'founders.php',
+        'type' => 'text'
+    ],
+    'founder_2_twitter' => [
+        'title' => 'Founder 2 - X (Twitter) URL',
+        'icon' => 'logo-twitter',
+        'desc' => 'X / Twitter profile URL for Aryan Biswa',
+        'url' => 'founders.php',
+        'type' => 'text'
+    ],
 ];
 
 if (!isset($_SESSION['csrf_token'])) {
