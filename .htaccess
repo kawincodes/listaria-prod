@@ -5,31 +5,8 @@
 </IfModule>
 # php -- END cPanel-generated handler, do not edit
 
-# Output buffering: prevents "headers already sent" on cPanel
-<IfModule mod_php8.c>
-    php_value output_buffering 4096
-    php_flag  session.cookie_httponly  On
-    php_value session.cookie_samesite  Lax
-    php_flag  session.use_strict_mode  On
-    php_flag  session.use_only_cookies On
-</IfModule>
-<IfModule mod_php81.c>
-    php_value output_buffering 4096
-    php_flag  session.cookie_httponly  On
-    php_value session.cookie_samesite  Lax
-    php_flag  session.use_strict_mode  On
-    php_flag  session.use_only_cookies On
-</IfModule>
-<IfModule mod_php82.c>
-    php_value output_buffering 4096
-    php_flag  session.cookie_httponly  On
-    php_value session.cookie_samesite  Lax
-    php_flag  session.use_strict_mode  On
-    php_flag  session.use_only_cookies On
-</IfModule>
-
 # Block direct access to sensitive files
-<FilesMatch "\.(sqlite|db|env|log|sh)$">
+<FilesMatch "\.(sqlite|db|env|log|sh|ini)$">
     <IfModule mod_authz_core.c>
         Require all denied
     </IfModule>
@@ -38,13 +15,6 @@
         Deny from all
     </IfModule>
 </FilesMatch>
-
-# Protect sessions and includes directories from direct web access
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteRule ^sessions/ - [F,L]
-    RewriteRule ^includes/ - [F,L]
-</IfModule>
 
 # Security headers
 <IfModule mod_headers.c>

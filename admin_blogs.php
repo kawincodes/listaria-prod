@@ -1,6 +1,6 @@
 <?php
 require 'includes/db.php';
-session_start();
+require_once __DIR__ . '/includes/session.php';
 $activePage = 'blogs';
 
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['is_admin']) || $_SESSION['is_admin'] != 1) {
