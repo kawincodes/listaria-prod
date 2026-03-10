@@ -18,6 +18,8 @@ try {
         scrollbar-color: rgba(107,33,168,0.3) transparent;
         padding-bottom: 1rem !important;
         background: linear-gradient(180deg, #0f0a1a 0%, #1a1025 50%, #0f0a1a 100%) !important;
+        transition: transform 0.3s ease;
+        z-index: 200 !important;
     }
     .sidebar::-webkit-scrollbar { width: 4px; }
     .sidebar::-webkit-scrollbar-track { background: transparent; }
@@ -158,8 +160,158 @@ try {
         background: rgba(107,33,168,0.25);
         color: #c084fc;
     }
+
+    .sidebar-close-btn {
+        display: none;
+        position: absolute;
+        top: 1.2rem;
+        right: 1rem;
+        background: none;
+        border: none;
+        color: rgba(255,255,255,0.5);
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 4px;
+        z-index: 10;
+        line-height: 1;
+    }
+    .sidebar-close-btn:hover {
+        color: white;
+    }
+
+    .mobile-topbar {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 56px;
+        background: linear-gradient(135deg, #0f0a1a, #1a1025);
+        z-index: 150;
+        align-items: center;
+        padding: 0 1rem;
+        gap: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .mobile-topbar .hamburger-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        transition: background 0.2s;
+    }
+    .mobile-topbar .hamburger-btn:hover {
+        background: rgba(107,33,168,0.2);
+    }
+    .mobile-topbar .topbar-brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: white;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 1rem;
+    }
+    .mobile-topbar .topbar-brand-icon {
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #6B21A8, #9333EA);
+        border-radius: 8px;
+        font-size: 0.9rem;
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 190;
+        backdrop-filter: blur(2px);
+    }
+    .sidebar-overlay.active {
+        display: block;
+    }
+
+    @media (max-width: 768px) {
+        .mobile-topbar {
+            display: flex;
+        }
+        .sidebar {
+            position: fixed !important;
+            transform: translateX(-100%);
+            width: 280px !important;
+        }
+        .sidebar.mobile-open {
+            transform: translateX(0);
+        }
+        .sidebar-close-btn {
+            display: block;
+        }
+        .main-content {
+            margin-left: 0 !important;
+            width: 100% !important;
+            padding-top: 72px !important;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .sidebar {
+            width: 100% !important;
+        }
+        .main-content {
+            padding-left: 0.75rem !important;
+            padding-right: 0.75rem !important;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .table-container {
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch;
+        }
+        .header {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 0.75rem !important;
+        }
+        .header h1 {
+            font-size: 1.3rem !important;
+        }
+    }
 </style>
-<nav class="sidebar">
+
+<div class="mobile-topbar">
+    <button class="hamburger-btn" onclick="toggleAdminSidebar()" aria-label="Open menu">
+        <ion-icon name="menu-outline"></ion-icon>
+    </button>
+    <a href="admin_dashboard.php" class="topbar-brand">
+        <div class="topbar-brand-icon">
+            <ion-icon name="shield-checkmark"></ion-icon>
+        </div>
+        Listaria Admin
+    </a>
+</div>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeAdminSidebar()"></div>
+
+<nav class="sidebar" id="adminSidebar">
+    <button class="sidebar-close-btn" onclick="closeAdminSidebar()" aria-label="Close menu">
+        <ion-icon name="close-outline"></ion-icon>
+    </button>
     <a href="index.php" class="brand">
         <div class="brand-icon-wrap">
             <ion-icon name="shield-checkmark"></ion-icon>
@@ -327,3 +479,20 @@ try {
         </a>
     </div>
 </nav>
+
+<script>
+function toggleAdminSidebar() {
+    var sidebar = document.getElementById('adminSidebar');
+    var overlay = document.getElementById('sidebarOverlay');
+    sidebar.classList.toggle('mobile-open');
+    overlay.classList.toggle('active');
+    document.body.style.overflow = sidebar.classList.contains('mobile-open') ? 'hidden' : '';
+}
+function closeAdminSidebar() {
+    var sidebar = document.getElementById('adminSidebar');
+    var overlay = document.getElementById('sidebarOverlay');
+    sidebar.classList.remove('mobile-open');
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+}
+</script>
