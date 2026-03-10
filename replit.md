@@ -78,6 +78,35 @@ A luxury e-commerce marketplace platform built in PHP with SQLite.
 - Protected by super_admin role check + CSRF token validation (only super_admin can access)
 - Sidebar link added under Settings section
 
+## Admin Product Management
+
+- `admin_product_edit.php` — Full product edit page for admins (`?id=X`)
+  - Edit: title, brand, description, category, price_min, price_max, condition_tag, quantity, status, approval_status, is_featured
+  - Shows product images, seller info, meta info (views, location, boost status)
+  - Breadcrumb navigation, "View Live" link to product_details.php
+  - Logs edits to admin_activity_logs
+- `admin_listings.php` — Product listings with View Live and Edit Product links in dropdown
+  - Supports `?filter=vendor` to show only verified vendor products
+  - Sets `$activePage = 'vendor_products'` when vendor filter active
+
+## Admin Payment Verification
+
+- `admin_payment_verify.php` — Dedicated page for verifying pending payment slips
+  - Shows non-COD orders with `order_status IN ('Pending', 'Verification Pending')`
+  - Verify Payment: sets status to Success, sends confirmation emails
+  - Reject Payment: sets status to Payment Failed, restores product stock
+
+## Admin Vendor Sidebar Section
+
+The Vendor section in `includes/admin_sidebar.php` contains 7 items:
+1. Vendor Applications (`admin_users.php?filter=vendor_apps`) — with pending count badge
+2. KYC Verification (`admin_users.php?kyc=pending`) — with pending count badge
+3. Verified Vendors (`admin_users.php?filter=verified_vendors`)
+4. Vendor Products (`admin_listings.php?filter=vendor`)
+5. Payment Verification (`admin_payment_verify.php`) — with pending count badge
+6. Vendor Sales (`admin_transactions.php?filter=vendor_sales`)
+7. Vendor Returns (`admin_returns.php?filter=vendor`)
+
 ## CSS/Font Loading (FOUC Prevention)
 
 - Google Fonts (Inter) loaded non-render-blocking: `media="print" onload="this.media='all'"` with `<noscript>` fallback

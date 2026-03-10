@@ -2,7 +2,8 @@
 require_once __DIR__ . '/includes/session.php';
 require 'includes/db.php';
 require_once 'includes/email_templates.php';
-$activePage = 'returns';
+$isVendorReturns = isset($_GET['filter']) && $_GET['filter'] === 'vendor';
+$activePage = $isVendorReturns ? 'vendor_returns' : 'returns';
 
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['is_admin']) || $_SESSION['is_admin'] != 1) {
     header("Location: login.php");
@@ -88,14 +89,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$stmt = $pdo->query("
-    SELECT r.*, u.full_name as buyer_name, u.email as buyer_email, u.phone as buyer_phone, p.title as product_title, o.amount
+$returnsSql = "
+    SELECT r.*, u.full_name as buyer_name, u.email as buyer_email, u.phone as buyer_phone, p.title as product_title, o.amount, sel.full_name as seller_name
     FROM returns r
     JOIN users u ON r.user_id = u.id
     JOIN products p ON r.product_id = p.id
     JOIN orders o ON r.order_id = o.id
-    ORDER BY r.created_at DESC
-");
+    JOIN users sel ON p.user_id = sel.id
+";
+if ($isVendorReturns) {
+    $returnsSql .= " WHERE sel.is_verified_vendor = 1";
+}
+$returnsSql .= " ORDER BY r.created_at DESC";
+$stmt = $pdo->query($returnsSql);
 $returns = $stmt->fetchAll();
 ?>
 <!DOCTYPE html>

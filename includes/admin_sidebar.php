@@ -2,9 +2,11 @@
 $isSuperAdmin = ($_SESSION['role'] ?? '') === 'super_admin';
 $_sidebarPendingVendors = 0;
 $_sidebarPendingKYC = 0;
+$_sidebarPendingPayments = 0;
 try {
     $_sidebarPendingVendors = $pdo->query("SELECT COUNT(*) FROM users WHERE vendor_status = 'pending'")->fetchColumn();
     $_sidebarPendingKYC = $pdo->query("SELECT COUNT(*) FROM users WHERE kyc_status = 'pending'")->fetchColumn();
+    $_sidebarPendingPayments = $pdo->query("SELECT COUNT(*) FROM orders WHERE order_status IN ('Pending', 'Verification Pending') AND LOWER(payment_method) != 'cod'")->fetchColumn();
 } catch (Exception $e) {}
 ?>
 <style>
@@ -228,6 +230,25 @@ try {
     
     <a href="admin_users.php?filter=verified_vendors" class="menu-item <?php echo ($activePage == 'verified_vendors') ? 'active' : ''; ?>">
         <ion-icon name="checkmark-done-circle-outline"></ion-icon> Verified Vendors
+    </a>
+    
+    <a href="admin_listings.php?filter=vendor" class="menu-item <?php echo ($activePage == 'vendor_products') ? 'active' : ''; ?>">
+        <ion-icon name="cube-outline"></ion-icon> Vendor Products
+    </a>
+    
+    <a href="admin_payment_verify.php" class="menu-item <?php echo ($activePage == 'payment_verify') ? 'active' : ''; ?>">
+        <ion-icon name="receipt-outline"></ion-icon> Payment Verification
+        <?php if($_sidebarPendingPayments > 0): ?>
+        <span class="menu-badge" style="background:rgba(239,68,68,0.2);color:#ef4444;"><?php echo $_sidebarPendingPayments; ?></span>
+        <?php endif; ?>
+    </a>
+    
+    <a href="admin_transactions.php?filter=vendor_sales" class="menu-item <?php echo ($activePage == 'vendor_sales') ? 'active' : ''; ?>">
+        <ion-icon name="cash-outline"></ion-icon> Vendor Sales
+    </a>
+    
+    <a href="admin_returns.php?filter=vendor" class="menu-item <?php echo ($activePage == 'vendor_returns') ? 'active' : ''; ?>">
+        <ion-icon name="arrow-undo-outline"></ion-icon> Vendor Returns
     </a>
 
     <div class="nav-divider"></div>

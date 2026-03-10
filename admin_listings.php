@@ -28,7 +28,8 @@ function sendRejectionEmail($pdo, $productId, $reason = '') {
     ], $data['full_name']);
 }
 
-$activePage = 'listings';
+$vendorFilter = isset($_GET['vendor']) || (isset($_GET['filter']) && $_GET['filter'] === 'vendor');
+$activePage = $vendorFilter ? 'vendor_products' : 'listings';
 
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['is_admin']) || $_SESSION['is_admin'] != 1) {
     header("Location: login.php");
@@ -132,18 +133,28 @@ if ($filter === 'pending') {
     $sql .= " AND p.is_featured = 1";
 } elseif ($filter === 'boosted') {
     $sql .= " AND p.boosted_until > datetime('now')";
+} elseif ($filter === 'vendor') {
+    $sql .= " AND u.is_verified_vendor = 1";
 }
 
+$params = [];
 if ($category) {
-    $sql .= " AND p.category = '$category'";
+    $sql .= " AND p.category = ?";
+    $params[] = $category;
 }
 
 if ($search) {
-    $sql .= " AND (p.title LIKE '%$search%' OR p.description LIKE '%$search%' OR u.full_name LIKE '%$search%')";
+    $sql .= " AND (p.title LIKE ? OR p.description LIKE ? OR u.full_name LIKE ?)";
+    $searchTerm = '%' . $search . '%';
+    $params[] = $searchTerm;
+    $params[] = $searchTerm;
+    $params[] = $searchTerm;
 }
 
 $sql .= " ORDER BY p.created_at DESC";
-$products = $pdo->query($sql)->fetchAll();
+$stmt = $pdo->prepare($sql);
+$stmt->execute($params);
+$products = $stmt->fetchAll();
 
 // Stats
 $totalListings = $pdo->query("SELECT COUNT(*) FROM products")->fetchColumn();
@@ -422,6 +433,13 @@ $categories = $pdo->query("SELECT DISTINCT category FROM products WHERE category
                                     <ion-icon name="ellipsis-vertical-outline"></ion-icon>
                                 </button>
                                 <div class="dropdown-content">
+                                    <a href="product_details.php?id=<?php echo $p['id']; ?>" target="_blank" class="dropdown-item">
+                                        <ion-icon name="eye-outline"></ion-icon> View Live
+                                    </a>
+                                    <a href="admin_product_edit.php?id=<?php echo $p['id']; ?>" class="dropdown-item">
+                                        <ion-icon name="create-outline"></ion-icon> Edit Product
+                                    </a>
+                                    <div style="border-top:1px solid #f0f0f0; margin:0.25rem 0;"></div>
                                     <form method="POST">
                                         <input type="hidden" name="product_id" value="<?php echo $p['id']; ?>">
                                         

@@ -3,7 +3,8 @@ require_once __DIR__ . '/includes/session.php';
 require 'includes/db.php';
 require_once 'includes/email_templates.php';
 
-$activePage = 'transactions';
+$isVendorSales = isset($_GET['filter']) && $_GET['filter'] === 'vendor_sales';
+$activePage = $isVendorSales ? 'vendor_sales' : 'transactions';
 
 // Check Admin Access
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['is_admin']) || $_SESSION['is_admin'] != 1) {
@@ -129,14 +130,19 @@ if (isset($_POST['verify_payment_id'])) {
     }
 }
 
-// Fetch All Orders
-$ordersStmt = $pdo->query("
-    SELECT o.*, u.full_name as buyer_name, u.address as buyer_address, u.phone as buyer_phone, p.title as product_title, p.price_min, p.image_paths 
+// Fetch Orders
+$ordersSql = "
+    SELECT o.*, u.full_name as buyer_name, u.address as buyer_address, u.phone as buyer_phone, p.title as product_title, p.price_min, p.image_paths, sel.full_name as seller_name
     FROM orders o 
     JOIN users u ON o.user_id = u.id 
     JOIN products p ON o.product_id = p.id 
-    ORDER BY o.created_at DESC
-");
+    JOIN users sel ON p.user_id = sel.id
+";
+if ($isVendorSales) {
+    $ordersSql .= " WHERE sel.is_verified_vendor = 1";
+}
+$ordersSql .= " ORDER BY o.created_at DESC";
+$ordersStmt = $pdo->query($ordersSql);
 $orders = $ordersStmt->fetchAll();
 
 ?>
