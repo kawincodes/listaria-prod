@@ -93,7 +93,7 @@ $csrf = $_SESSION['csrf_token'];
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); display: flex; color: var(--text); }
 
-        .sidebar { width: 260px; height: 100vh; position: fixed; z-index: 100; }
+        .sidebar { width: 260px; background: #1a1a1a; height: 100vh; position: fixed; padding: 0.5rem 0; color: white; z-index: 100; }
         .main-content { margin-left: 260px; padding: 1.5rem 2rem; width: calc(100% - 260px); min-height: 100vh; }
 
         .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
