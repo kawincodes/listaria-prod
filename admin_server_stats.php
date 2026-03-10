@@ -12,10 +12,10 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['is_admin']) || $_SESSION['
 
 function getServerUptime() {
     if (PHP_OS_FAMILY === 'Linux' && file_exists('/proc/uptime')) {
-        $uptime = (float) file_get_contents('/proc/uptime');
-        $days = floor($uptime / 86400);
-        $hours = floor(($uptime % 86400) / 3600);
-        $mins = floor(($uptime % 3600) / 60);
+        $uptimeSec = (int) file_get_contents('/proc/uptime');
+        $days  = intdiv($uptimeSec, 86400);
+        $hours = intdiv($uptimeSec % 86400, 3600);
+        $mins  = intdiv($uptimeSec % 3600, 60);
         return "{$days}d {$hours}h {$mins}m";
     }
     return 'N/A';

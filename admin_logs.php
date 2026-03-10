@@ -18,9 +18,9 @@ if (!in_array($activeTab, ['error', 'activity', 'login', 'user_ips'])) {
 $errorLogLines = [];
 if ($activeTab === 'error') {
     $logPaths = [
+        __DIR__ . '/php_errors.log',
         ini_get('error_log'),
         __DIR__ . '/error.log',
-        __DIR__ . '/php_errors.log',
         '/var/log/php_errors.log',
         '/var/log/apache2/error.log',
         '/var/log/nginx/error.log',
@@ -465,8 +465,8 @@ if ($activeTab === 'activity') {
                 <?php if (empty($errorLogLines)): ?>
                     <div class="empty-state">
                         <ion-icon name="checkmark-circle-outline"></ion-icon>
-                        <h3>No Error Logs Found</h3>
-                        <p>No PHP error log file was found or it is empty. This is a good sign!</p>
+                        <h3><?php echo ($logFilePath !== 'Not found') ? 'Error Log is Empty' : 'No Error Log File Found'; ?></h3>
+                        <p><?php echo ($logFilePath !== 'Not found') ? 'No PHP errors have been logged yet — this is a good sign!' : 'Configure <code>error_log</code> in php.ini to enable error logging.'; ?></p>
                     </div>
                 <?php else: ?>
                     <div class="log-container">
