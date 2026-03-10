@@ -125,6 +125,8 @@ if ($editKey && isset($templates[$editKey])) {
     <title>Email Templates - Listaria Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
     <style>
         :root { 
             --primary: #6B21A8; 
@@ -283,6 +285,19 @@ if ($editKey && isset($templates[$editKey])) {
         
         .tab-content { display: none; }
         .tab-content.active { display: block; }
+        
+        .var-insert-btn {
+            background: #f3e8ff; color: #6B21A8; padding: 5px 12px; border-radius: 6px;
+            font-size: 0.78rem; font-weight: 600; font-family: monospace; cursor: pointer;
+            border: 1px solid #e2d0f5; transition: all 0.2s;
+        }
+        .var-insert-btn:hover { background: #6B21A8; color: white; border-color: #6B21A8; }
+        
+        .ql-toolbar.ql-snow { border-radius: 8px 8px 0 0; border-color: #ddd; background: #fafafa; }
+        .ql-container.ql-snow { border-radius: 0 0 8px 8px; border-color: #ddd; font-size: 14px; min-height: 400px; }
+        .ql-editor { min-height: 400px; line-height: 1.6; }
+        .ql-snow .ql-picker.ql-header { width: 110px; }
+        #quillEditor { background: white; }
 
         @media (max-width: 768px) {
             .templates-grid { grid-template-columns: 1fr; }
@@ -321,12 +336,13 @@ if ($editKey && isset($templates[$editKey])) {
             <p class="editor-subtitle"><?php echo htmlspecialchars($templates[$editKey]['description'] ?? ''); ?></p>
             
             <div class="tabs">
-                <div class="tab active" onclick="switchTab('editor')">Editor</div>
-                <div class="tab" onclick="switchTab('preview')">Preview</div>
+                <div class="tab active" onclick="switchTab('editor', this)">Visual Editor</div>
+                <div class="tab" onclick="switchTab('code', this)">HTML Code</div>
+                <div class="tab" onclick="switchTab('preview', this)">Preview</div>
             </div>
             
             <div id="tab-editor" class="tab-content active">
-                <form method="POST" id="templateForm">
+                <form method="POST" id="templateForm" onsubmit="syncBeforeSubmit()">
                     <input type="hidden" name="save_template" value="1">
                     <input type="hidden" name="template_key" value="<?php echo htmlspecialchars($editKey); ?>">
                     
@@ -350,10 +366,26 @@ if ($editKey && isset($templates[$editKey])) {
                         <span style="font-size: 0.78rem; color: #999;">When disabled, this email will not be sent.</span>
                     </div>
                     
+                    <?php
+                    $availableVars = array_filter(array_map('trim', explode(',', $editTemplate['variables'] ?? '')));
+                    if (!empty($availableVars)): ?>
                     <div class="form-group">
-                        <label>Email Body (HTML)</label>
-                        <textarea name="template_body" id="templateBody" required><?php echo htmlspecialchars($editTemplate['body']); ?></textarea>
-                        <div class="help-text">Write HTML for the email body. Use {{variable_name}} for dynamic content.</div>
+                        <label>Insert Variable</label>
+                        <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                            <?php foreach ($availableVars as $var): ?>
+                            <button type="button" class="var-insert-btn" onclick="insertVariable('<?php echo htmlspecialchars($var); ?>')" title="Insert {{<?php echo htmlspecialchars($var); ?>}}">
+                                {{<?php echo htmlspecialchars($var); ?>}}
+                            </button>
+                            <?php endforeach; ?>
+                        </div>
+                        <div class="help-text">Click a variable to insert it at the cursor position in the visual editor.</div>
+                    </div>
+                    <?php endif; ?>
+                    
+                    <div class="form-group">
+                        <label>Email Body</label>
+                        <div id="quillEditor"></div>
+                        <textarea name="template_body" id="templateBody" required style="display:none;"><?php echo htmlspecialchars($editTemplate['body']); ?></textarea>
                     </div>
                     
                     <div class="form-group">
@@ -390,10 +422,18 @@ if ($editKey && isset($templates[$editKey])) {
                 </form>
             </div>
             
+            <div id="tab-code" class="tab-content">
+                <div class="form-group">
+                    <label>HTML Source Code</label>
+                    <textarea id="codeEditor" style="min-height:450px; font-family:'Fira Code','Courier New',monospace; font-size:0.82rem; line-height:1.6; width:100%; padding:14px; border:1px solid #ddd; border-radius:8px; resize:vertical; tab-size:2;"></textarea>
+                    <div class="help-text">Edit the raw HTML directly. Changes sync automatically when switching tabs.</div>
+                </div>
+            </div>
+            
             <div id="tab-preview" class="tab-content">
                 <div class="preview-section">
                     <div class="preview-header">
-                        <ion-icon name="eye-outline"></ion-icon> Email Preview
+                        <ion-icon name="eye-outline"></ion-icon> Email Preview (with sample variable values)
                     </div>
                     <div class="preview-body">
                         <iframe id="previewFrame" srcdoc=""></iframe>
@@ -403,18 +443,106 @@ if ($editKey && isset($templates[$editKey])) {
         </div>
         
         <script>
-            function switchTab(tab) {
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            var currentTab = 'editor';
+            var quillEditor = null;
+            var originalHtml = document.getElementById('templateBody').value;
+            
+            try {
+                quillEditor = new Quill('#quillEditor', {
+                    theme: 'snow',
+                    modules: {
+                        toolbar: [
+                            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                            ['bold', 'italic', 'underline', 'strike'],
+                            [{ 'color': [] }, { 'background': [] }],
+                            [{ 'align': [] }],
+                            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                            [{ 'indent': '-1' }, { 'indent': '+1' }],
+                            ['link', 'image', 'blockquote', 'code-block'],
+                            ['clean']
+                        ]
+                    }
+                });
+                
+                quillEditor.clipboard.dangerouslyPasteHTML(originalHtml);
+            } catch(e) {
+                quillEditor = null;
+                var ta = document.getElementById('templateBody');
+                ta.style.display = '';
+                ta.style.minHeight = '400px';
+                ta.style.fontFamily = "'Fira Code','Courier New',monospace";
+                ta.style.fontSize = '0.82rem';
+                var quillDiv = document.getElementById('quillEditor');
+                if (quillDiv) quillDiv.style.display = 'none';
+            }
+            
+            function getEditorContent() {
+                if (quillEditor) {
+                    return quillEditor.root.innerHTML;
+                }
+                return document.getElementById('templateBody').value;
+            }
+            
+            function setEditorContent(html) {
+                if (quillEditor) {
+                    quillEditor.root.innerHTML = '';
+                    quillEditor.clipboard.dangerouslyPasteHTML(0, html);
+                }
+                document.getElementById('templateBody').value = html;
+            }
+            
+            function insertVariable(varName) {
+                var tag = '{{' + varName + '}}';
+                if (quillEditor) {
+                    var range = quillEditor.getSelection(true);
+                    quillEditor.insertText(range.index, tag);
+                    quillEditor.setSelection(range.index + tag.length);
+                } else {
+                    var ta = document.getElementById('templateBody');
+                    var start = ta.selectionStart;
+                    var val = ta.value;
+                    ta.value = val.substring(0, start) + tag + val.substring(ta.selectionEnd);
+                    ta.selectionStart = ta.selectionEnd = start + tag.length;
+                    ta.focus();
+                }
+            }
+            
+            function syncBeforeSubmit() {
+                if (quillEditor) {
+                    var content = quillEditor.root.innerHTML;
+                    if (content === '<p><br></p>') content = '';
+                    document.getElementById('templateBody').value = content;
+                }
+            }
+            
+            function switchTab(tab, clickedEl) {
+                if (tab === currentTab) return;
+                
+                if (currentTab === 'editor') {
+                    syncBeforeSubmit();
+                } else if (currentTab === 'code') {
+                    var codeVal = document.getElementById('codeEditor').value;
+                    setEditorContent(codeVal);
+                }
+                
+                document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+                document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
                 document.getElementById('tab-' + tab).classList.add('active');
-                event.target.classList.add('active');
+                if (clickedEl) clickedEl.classList.add('active');
+                
+                if (tab === 'code') {
+                    document.getElementById('codeEditor').value = getEditorContent();
+                }
                 
                 if (tab === 'preview') {
                     updatePreview();
                 }
+                
+                currentTab = tab;
             }
             
             function updatePreview() {
+                syncBeforeSubmit();
                 var body = document.getElementById('templateBody').value;
                 var frame = document.getElementById('previewFrame');
                 <?php
