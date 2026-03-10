@@ -8,10 +8,6 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['is_admin']) || $_SESSION['
     header("Location: login.php");
     exit;
 }
-if (($_SESSION['role'] ?? '') !== 'super_admin') {
-    header("Location: admin_dashboard.php");
-    exit;
-}
 
 $tables = $pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name")->fetchAll(PDO::FETCH_COLUMN);
 

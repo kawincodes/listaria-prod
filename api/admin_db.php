@@ -4,7 +4,7 @@ require __DIR__ . '/../includes/db.php';
 
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['user_id']) || !isset($_SESSION['is_admin']) || $_SESSION['is_admin'] != 1 || ($_SESSION['role'] ?? '') !== 'super_admin') {
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['is_admin']) || $_SESSION['is_admin'] != 1) {
     echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit;
 }
