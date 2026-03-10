@@ -682,6 +682,32 @@ $pendingVendors = $pdo->query("SELECT COUNT(*) FROM users WHERE vendor_status = 
         </form>
     </main>
 
+    <!-- Vendor Rejection Modal -->
+    <div id="rejectModal" class="modal" style="display:none;">
+        <div class="modal-content" style="max-width:480px;">
+            <span class="close-modal" onclick="closeRejectModal()">&times;</span>
+            <h2 style="margin-top:0; font-size:1.3rem; margin-bottom:6px; color:#1a1a1a;">Reject Vendor Application</h2>
+            <p style="font-size:0.85rem; color:#64748b; margin-bottom:1.25rem;">Please provide a reason for rejection. This will be emailed to the applicant and shown on their dashboard.</p>
+            <form id="rejectForm" method="POST">
+                <input type="hidden" name="action" value="reject_vendor">
+                <input type="hidden" name="user_id" id="rejectUserId">
+                <div style="margin-bottom:1rem;">
+                    <label style="display:block;font-weight:600;font-size:0.88rem;color:#333;margin-bottom:0.5rem;">Rejection Reason <span style="color:#ef4444;">*</span></label>
+                    <textarea name="rejection_reason" id="rejectReason" rows="4" required
+                        style="width:100%;padding:0.75rem;border:1px solid #e2e8f0;border-radius:8px;font-family:inherit;font-size:0.88rem;resize:vertical;outline:none;transition:border-color 0.2s;"
+                        onfocus="this.style.borderColor='#6B21A8'" onblur="this.style.borderColor='#e2e8f0'"
+                        placeholder="e.g. Incomplete business documentation, unable to verify identity..."></textarea>
+                </div>
+                <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:0.5rem;">
+                    <button type="button" onclick="closeRejectModal()" style="padding:0.6rem 1.2rem;border:1px solid #e2e8f0;border-radius:8px;background:white;color:#555;font-weight:600;cursor:pointer;font-size:0.88rem;">Cancel</button>
+                    <button type="submit" style="padding:0.6rem 1.4rem;border:none;border-radius:8px;background:#ef4444;color:white;font-weight:600;cursor:pointer;font-size:0.88rem;display:inline-flex;align-items:center;gap:6px;">
+                        <ion-icon name="close-circle-outline"></ion-icon> Reject Application
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Vendor Details Modal -->
     <div id="vendorModal" class="modal">
         <div class="modal-content">
@@ -721,19 +747,19 @@ $pendingVendors = $pdo->query("SELECT COUNT(*) FROM users WHERE vendor_status = 
         }
 
         function rejectVendorApp(userId) {
-            const reason = prompt("Enter reason for vendor application rejection:");
-            if (reason !== null) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.innerHTML = `
-                    <input type="hidden" name="action" value="reject_vendor">
-                    <input type="hidden" name="user_id" value="${userId}">
-                    <input type="hidden" name="rejection_reason" value="${reason.replace(/"/g, '&quot;')}">
-                `;
-                document.body.appendChild(form);
-                form.submit();
-            }
+            document.getElementById('rejectUserId').value = userId;
+            document.getElementById('rejectReason').value = '';
+            document.getElementById('rejectModal').style.display = 'flex';
+            setTimeout(function() { document.getElementById('rejectReason').focus(); }, 100);
         }
+
+        function closeRejectModal() {
+            document.getElementById('rejectModal').style.display = 'none';
+        }
+
+        document.getElementById('rejectModal').addEventListener('click', function(e) {
+            if (e.target === this) closeRejectModal();
+        });
     </script>
 </body>
 </html>

@@ -128,7 +128,19 @@ $allPermissions = [
     'view_logs' => 'View Logs',
     'manage_files' => 'Manage Files',
     'manage_returns' => 'Manage Returns',
-    'view_reports' => 'View Reports'
+    'view_reports' => 'View Reports',
+    'manage_kyc' => 'Manage KYC Verifications',
+    'manage_transactions' => 'Manage Transactions',
+    'manage_wallet' => 'Manage Wallets & Payouts',
+    'manage_negotiations' => 'Manage Negotiations / Offers',
+    'manage_marquee' => 'Manage Announcement Bar',
+    'manage_founders' => 'Manage Founders Page',
+    'view_server_stats' => 'View Server Statistics',
+    'manage_email_sender' => 'Custom Email Sender',
+    'view_user_ips' => 'View User IP Logs',
+    'export_data' => 'Export Data',
+    'manage_categories' => 'Manage Categories',
+    'manage_seo' => 'Manage SEO Settings'
 ];
 
 ?>

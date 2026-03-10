@@ -96,6 +96,18 @@ A luxury e-commerce marketplace platform built in PHP with SQLite.
   - Verify Payment: sets status to Success, sends confirmation emails
   - Reject Payment: sets status to Payment Failed, restores product stock
 
+## Admin Panel Improvements (March 2026)
+
+- **User IPs Tab** (`admin_logs.php?tab=user_ips`): Shows all users with last known IP from `login_logs` table, login count, failed attempts, and last login time. Searchable by name, email, or IP.
+- **Vendor Rejection Modal**: Replaced browser `prompt()` in `admin_users.php` with a proper styled modal containing a required textarea. Reason is stored in DB, emailed to applicant, and shown in user's profile dashboard.
+- **Expanded Role Permissions** (`admin_roles.php`): Added 12 new granular permissions: `manage_kyc`, `manage_transactions`, `manage_wallet`, `manage_negotiations`, `manage_marquee`, `manage_founders`, `view_server_stats`, `manage_email_sender`, `view_user_ips`, `export_data`, `manage_categories`, `manage_seo`.
+- **Marquee/Announcement Bar**: Fully implemented — settings in `admin_settings.php`, rendered in `includes/header.php`.
+- **Founder Social Toggle**: `founder_socials_visible` setting in `admin_settings.php`, consumed in `founders.php`.
+- **Vendor Demotion with Email**: Implemented in `admin_users.php` using `vendor_demoted` email template.
+- **Custom Email Sender**: `admin_email_sender.php` with Quill rich-text editor.
+- **Server Stats**: `admin_server_stats.php`.
+- All settings persisted to `site_settings` table in SQLite.
+
 ## Admin Vendor Sidebar Section
 
 The Vendor section in `includes/admin_sidebar.php` contains 7 items:

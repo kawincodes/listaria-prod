@@ -11,7 +11,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['is_admin']) || $_SESSION['
 }
 
 $activeTab = $_GET['tab'] ?? 'error';
-if (!in_array($activeTab, ['error', 'activity', 'login'])) {
+if (!in_array($activeTab, ['error', 'activity', 'login', 'user_ips'])) {
     $activeTab = 'error';
 }
 
@@ -44,6 +44,62 @@ if ($activeTab === 'error') {
         }
     }
     $logFilePath = $logFile ?: 'Not found';
+}
+
+$userIpRows = [];
+$userIpSearch = '';
+if ($activeTab === 'user_ips') {
+    $userIpSearch = trim($_GET['search'] ?? '');
+    try {
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS login_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                ip_address VARCHAR(45),
+                user_agent TEXT,
+                status VARCHAR(20) DEFAULT 'success',
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        ");
+    } catch (Exception $e) {}
+
+    try {
+        $whereIp = '';
+        $ipParams = [];
+        if ($userIpSearch !== '') {
+            $whereIp = "WHERE (u.full_name LIKE ? OR u.email LIKE ? OR ll.ip_address LIKE ?)";
+            $ipParams = ["%$userIpSearch%", "%$userIpSearch%", "%$userIpSearch%"];
+        }
+        $stmt = $pdo->prepare("
+            SELECT 
+                u.id,
+                u.full_name,
+                u.email,
+                u.role,
+                u.is_admin,
+                ll.ip_address AS last_ip,
+                ll.last_login,
+                ll.login_count,
+                ll.failed_count
+            FROM users u
+            LEFT JOIN (
+                SELECT 
+                    user_id,
+                    ip_address,
+                    MAX(created_at) AS last_login,
+                    SUM(CASE WHEN status = 'success' OR status IS NULL THEN 1 ELSE 0 END) AS login_count,
+                    SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) AS failed_count
+                FROM login_logs
+                GROUP BY user_id, ip_address
+            ) ll ON u.id = ll.user_id
+            $whereIp
+            ORDER BY ll.last_login DESC NULLS LAST, u.id ASC
+        ");
+        $stmt->execute($ipParams);
+        $userIpRows = $stmt->fetchAll();
+    } catch (Exception $e) {
+        $userIpRows = [];
+    }
 }
 
 $activityLogs = [];
@@ -381,6 +437,9 @@ if ($activeTab === 'activity') {
             <a href="admin_login_logs.php" class="tab-btn">
                 <ion-icon name="finger-print-outline"></ion-icon> Login Log
             </a>
+            <a href="admin_logs.php?tab=user_ips" class="tab-btn <?php echo $activeTab === 'user_ips' ? 'active' : ''; ?>">
+                <ion-icon name="location-outline"></ion-icon> User IPs
+            </a>
         </div>
 
         <?php if ($activeTab === 'error'): ?>
@@ -508,6 +567,93 @@ if ($activeTab === 'activity') {
                         <span style="border:none;color:#94a3b8;font-size:0.8rem;">Page <?php echo $activityPage; ?> of <?php echo $activityTotalPages; ?></span>
                     </div>
                     <?php endif; ?>
+                <?php endif; ?>
+            </div>
+
+        <?php elseif ($activeTab === 'user_ips'): ?>
+
+            <div style="margin-bottom:1rem;">
+                <form class="search-box" method="GET">
+                    <input type="hidden" name="tab" value="user_ips">
+                    <input type="text" name="search" placeholder="Search by name, email, or IP address..." value="<?php echo htmlspecialchars($userIpSearch); ?>">
+                    <button type="submit"><ion-icon name="search-outline" style="vertical-align:middle;"></ion-icon> Search</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3><ion-icon name="location-outline"></ion-icon> User IP Log</h3>
+                    <div style="display:flex;align-items:center;gap:0.75rem;">
+                        <span style="font-size:0.82rem;color:#94a3b8;"><?php echo count($userIpRows); ?> users</span>
+                        <a href="admin_logs.php?tab=user_ips" class="btn btn-outline">
+                            <ion-icon name="refresh-outline"></ion-icon> Refresh
+                        </a>
+                    </div>
+                </div>
+                <?php if (empty($userIpRows)): ?>
+                    <div class="empty-state">
+                        <ion-icon name="location-outline"></ion-icon>
+                        <h3>No IP Data Found</h3>
+                        <p>User IP addresses are captured when users log in. No login data is available yet.</p>
+                    </div>
+                <?php else: ?>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Role</th>
+                                    <th>Last Known IP</th>
+                                    <th>Successful Logins</th>
+                                    <th>Failed Attempts</th>
+                                    <th>Last Login</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($userIpRows as $row): ?>
+                                <tr>
+                                    <td>
+                                        <div style="font-weight:600;"><?php echo htmlspecialchars($row['full_name'] ?? 'Unknown'); ?></div>
+                                        <div style="font-size:0.75rem;color:#94a3b8;"><?php echo htmlspecialchars($row['email'] ?? ''); ?></div>
+                                    </td>
+                                    <td>
+                                        <?php if (!empty($row['is_admin'])): ?>
+                                            <span class="badge" style="background:#fef3c7;color:#92400e;"><?php echo htmlspecialchars(ucfirst($row['role'] ?? 'admin')); ?></span>
+                                        <?php else: ?>
+                                            <span class="badge" style="background:#f0f9ff;color:#0369a1;">User</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <?php if (!empty($row['last_ip'])): ?>
+                                            <span style="font-family:monospace;font-size:0.85rem;background:#f8fafc;padding:3px 8px;border-radius:6px;border:1px solid #e2e8f0;">
+                                                <?php echo htmlspecialchars($row['last_ip']); ?>
+                                            </span>
+                                        <?php else: ?>
+                                            <span style="color:#94a3b8;font-size:0.82rem;">No login recorded</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <?php if ($row['login_count'] > 0): ?>
+                                            <span class="badge" style="background:#f0fdf4;color:#166534;"><?php echo intval($row['login_count']); ?></span>
+                                        <?php else: ?>
+                                            <span style="color:#94a3b8;">—</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <?php if ($row['failed_count'] > 0): ?>
+                                            <span class="badge" style="background:#fef2f2;color:#991b1b;"><?php echo intval($row['failed_count']); ?></span>
+                                        <?php else: ?>
+                                            <span style="color:#94a3b8;">—</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td style="white-space:nowrap;font-size:0.82rem;">
+                                        <?php echo !empty($row['last_login']) ? date('M j, Y h:i A', strtotime($row['last_login'])) : '<span style="color:#94a3b8;">Never</span>'; ?>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
                 <?php endif; ?>
             </div>
 
