@@ -9,9 +9,9 @@ $f2_note = $settings['founder_2_note'] ?? '';
 $f2_img = $settings['founder_2_image'] ?? 'https://via.placeholder.com/300x300';
 function safeUrl($url) {
     $url = trim($url ?? '');
-    if ($url === '' || $url === '#') return '';
+    if ($url === '' || $url === '#') return '#';
     if (preg_match('/^https?:\/\//i', $url)) return $url;
-    return '';
+    return '#';
 }
 $f1_linkedin = safeUrl($settings['founder_1_linkedin'] ?? '');
 $f1_instagram = safeUrl($settings['founder_1_instagram'] ?? '');
@@ -79,9 +79,9 @@ include 'includes/header.php';
                 <h3 style="margin: 0; font-size: 1.2rem;">Harsh Vardhan Jaiswal</h3>
                 <p style="margin: 0.2rem 0 0; font-size: 0.95rem; color: var(--secondary-text);">CEO & Co-Founder, Listaria</p>
                 <div class="founder-socials">
-                    <?php if ($f1_linkedin): ?><a href="<?php echo htmlspecialchars($f1_linkedin); ?>" target="_blank" rel="noopener noreferrer" title="LinkedIn"><ion-icon name="logo-linkedin"></ion-icon></a><?php endif; ?>
-                    <?php if ($f1_instagram): ?><a href="<?php echo htmlspecialchars($f1_instagram); ?>" target="_blank" rel="noopener noreferrer" title="Instagram"><ion-icon name="logo-instagram"></ion-icon></a><?php endif; ?>
-                    <?php if ($f1_twitter): ?><a href="<?php echo htmlspecialchars($f1_twitter); ?>" target="_blank" rel="noopener noreferrer" title="X (Twitter)"><ion-icon name="logo-twitter"></ion-icon></a><?php endif; ?>
+                    <a href="<?php echo htmlspecialchars($f1_linkedin); ?>" target="_blank" rel="noopener noreferrer" title="LinkedIn"><ion-icon name="logo-linkedin"></ion-icon></a>
+                    <a href="<?php echo htmlspecialchars($f1_instagram); ?>" target="_blank" rel="noopener noreferrer" title="Instagram"><ion-icon name="logo-instagram"></ion-icon></a>
+                    <a href="<?php echo htmlspecialchars($f1_twitter); ?>" target="_blank" rel="noopener noreferrer" title="X (Twitter)"><ion-icon name="logo-twitter"></ion-icon></a>
                 </div>
             </div>
         </div>
@@ -103,9 +103,9 @@ include 'includes/header.php';
                 <h3 style="margin: 0; font-size: 1.2rem;">Aryan Biswa</h3>
                 <p style="margin: 0.2rem 0 0; font-size: 0.95rem; color: var(--secondary-text);">Co-Founder & CFMO, Listaria</p>
                 <div class="founder-socials">
-                    <?php if ($f2_linkedin): ?><a href="<?php echo htmlspecialchars($f2_linkedin); ?>" target="_blank" rel="noopener noreferrer" title="LinkedIn"><ion-icon name="logo-linkedin"></ion-icon></a><?php endif; ?>
-                    <?php if ($f2_instagram): ?><a href="<?php echo htmlspecialchars($f2_instagram); ?>" target="_blank" rel="noopener noreferrer" title="Instagram"><ion-icon name="logo-instagram"></ion-icon></a><?php endif; ?>
-                    <?php if ($f2_twitter): ?><a href="<?php echo htmlspecialchars($f2_twitter); ?>" target="_blank" rel="noopener noreferrer" title="X (Twitter)"><ion-icon name="logo-twitter"></ion-icon></a><?php endif; ?>
+                    <a href="<?php echo htmlspecialchars($f2_linkedin); ?>" target="_blank" rel="noopener noreferrer" title="LinkedIn"><ion-icon name="logo-linkedin"></ion-icon></a>
+                    <a href="<?php echo htmlspecialchars($f2_instagram); ?>" target="_blank" rel="noopener noreferrer" title="Instagram"><ion-icon name="logo-instagram"></ion-icon></a>
+                    <a href="<?php echo htmlspecialchars($f2_twitter); ?>" target="_blank" rel="noopener noreferrer" title="X (Twitter)"><ion-icon name="logo-twitter"></ion-icon></a>
                 </div>
             </div>
         </div>
