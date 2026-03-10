@@ -239,6 +239,7 @@ $orders = $ordersStmt->fetchAll();
                         <th>Payment</th>
                         <th>Txn ID</th>
                         <th>Date</th>
+                        <th>Label</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -317,10 +318,15 @@ $orders = $ordersStmt->fetchAll();
                                 </div>
                             </td>
                             <td><?php echo date('M j, Y h:i A', strtotime($order['created_at'])); ?></td>
+                            <td>
+                                <a href="admin_shipping_label.php?order_id=<?php echo $order['id']; ?>" target="_blank" title="Print Shipping Label" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:6px;background:#f3f0ff;color:#6B21A8;text-decoration:none;transition:all 0.2s;">
+                                    <ion-icon name="print-outline" style="font-size:1rem;"></ion-icon>
+                                </a>
+                            </td>
                         </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <tr><td colspan="9" style="text-align:center;">No orders yet.</td></tr>
+                        <tr><td colspan="10" style="text-align:center;">No orders yet.</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>

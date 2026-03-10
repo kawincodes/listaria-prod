@@ -135,6 +135,22 @@ The Vendor section in `includes/admin_sidebar.php` contains 7 items:
 - CSV format: Title, Brand, Category, Condition, Location, Description, Price, Image Names, Quantity
 - Admin sidebar has Bulk Upload link in Vendor section
 
+## Shipping Labels (Admin)
+
+- `admin_shipping_label.php` — Printable shipping label page (`?order_id=X`)
+- Shows FROM (seller) and TO (buyer) addresses, product details, order metadata
+- Clean print-optimized layout with `@media print` CSS rules
+- Accessible via "Print Label" icon button in each row of `admin_transactions.php`
+- Admin access required
+
+## Founders Page
+
+- `founders.php` — Displays founder profiles with photos, bios, and social links
+- Social icons (LinkedIn, Instagram, X/Twitter) below each founder's name
+- Founder 1: Harsh Vardhan Jaiswal (CEO) — placeholder social URLs
+- Founder 2: Aryan Biswa (CFMO) — placeholder social URLs
+- Bios and images managed via `site_settings` DB table (admin settings)
+
 ## Running
 
 The app runs via PHP's built-in server on port 5000:

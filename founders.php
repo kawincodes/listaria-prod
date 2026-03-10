@@ -11,23 +11,53 @@ $f2_img = $settings['founder_2_image'] ?? 'https://via.placeholder.com/300x300';
 include 'includes/header.php';
 ?>
 
+<style>
+    .founder-img-col img {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+        border-radius: 12px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+    .founder-img-col img:hover {
+        transform: translateY(-5px);
+    }
+    .founder-socials {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        margin-top: 0.75rem;
+    }
+    .founder-socials a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #f3f0ff;
+        color: #6B21A8;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        font-size: 1.1rem;
+    }
+    .founder-socials a:hover {
+        background: #6B21A8;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(107, 33, 168, 0.3);
+    }
+    @media (max-width: 768px) {
+        .founder-section { flex-direction: column; gap: 2rem !important; }
+        .founder-section.reverse { flex-direction: column-reverse; }
+        .founder-img-col { width: 100%; max-width: 300px; margin: 0 auto; }
+    }
+</style>
+
 <div class="container" style="padding-top: 3rem; padding-bottom: 5rem;">
     
     <h1 style="text-align: center; margin-bottom: 4rem; font-size: 2.5rem; color: var(--primary-text);">The Leadership</h1>
-
-    <style>
-        .founder-img-col img {
-            width: 100%;
-            height: 400px; /* Fixed height for consistency */
-            object-fit: cover; /* Crop nicely */
-            border-radius: 12px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-        }
-        .founder-img-col img:hover {
-            transform: translateY(-5px);
-        }
-    </style>
 
     <!-- Founder 1 -->
     <div class="founder-section" style="display: flex; gap: 4rem; align-items: flex-start; margin-bottom: 5rem;">
@@ -36,6 +66,11 @@ include 'includes/header.php';
             <div style="margin-top: 1rem; font-family: 'Inter', sans-serif; color: var(--primary-text);">
                 <h3 style="margin: 0; font-size: 1.2rem;">Harsh Vardhan Jaiswal</h3>
                 <p style="margin: 0.2rem 0 0; font-size: 0.95rem; color: var(--secondary-text);">CEO & Co-Founder, Listaria</p>
+                <div class="founder-socials">
+                    <a href="https://www.linkedin.com/in/harshvardhanjaiswal" target="_blank" rel="noopener" title="LinkedIn"><ion-icon name="logo-linkedin"></ion-icon></a>
+                    <a href="https://www.instagram.com/harshvardhanjaiswal" target="_blank" rel="noopener" title="Instagram"><ion-icon name="logo-instagram"></ion-icon></a>
+                    <a href="https://x.com/harshvjaiswal" target="_blank" rel="noopener" title="X (Twitter)"><ion-icon name="logo-twitter"></ion-icon></a>
+                </div>
             </div>
         </div>
         <div class="founder-content" style="flex: 1; font-family: 'Inter', sans-serif; line-height: 1.8; color: var(--primary-text);">
@@ -55,18 +90,15 @@ include 'includes/header.php';
             <div style="margin-top: 1rem; font-family: 'Inter', sans-serif; color: var(--primary-text);">
                 <h3 style="margin: 0; font-size: 1.2rem;">Aryan Biswa</h3>
                 <p style="margin: 0.2rem 0 0; font-size: 0.95rem; color: var(--secondary-text);">Co-Founder & CFMO, Listaria</p>
+                <div class="founder-socials">
+                    <a href="https://www.linkedin.com/in/aryanbiswa" target="_blank" rel="noopener" title="LinkedIn"><ion-icon name="logo-linkedin"></ion-icon></a>
+                    <a href="https://www.instagram.com/aryanbiswa" target="_blank" rel="noopener" title="Instagram"><ion-icon name="logo-instagram"></ion-icon></a>
+                    <a href="https://x.com/aryanbiswa" target="_blank" rel="noopener" title="X (Twitter)"><ion-icon name="logo-twitter"></ion-icon></a>
+                </div>
             </div>
         </div>
     </div>
 
 </div>
-
-<style>
-    @media (max-width: 768px) {
-        .founder-section { flex-direction: column; gap: 2rem !important; }
-        .founder-section.reverse { flex-direction: column-reverse; }
-        .founder-img-col { width: 100%; max-width: 300px; margin: 0 auto; }
-    }
-</style>
 
 <?php include 'includes/footer.php'; ?>
