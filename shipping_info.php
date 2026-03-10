@@ -374,7 +374,7 @@ include 'includes/header.php';
                         <ion-icon name="checkmark-circle" style="color:#2ecc71;"></ion-icon>
                         Listaria Guarantee: Shop with Confidence
                     </div>
-                    Avail 100% refund within 3 days of delivery under covered scenarios. <a href="#" style="color:#0984e3; text-decoration:none;">More Details</a>
+                    Avail 100% refund within 3 days of delivery under covered scenarios. <a href="refund.php" style="color:#0984e3; text-decoration:none;" target="_blank">More Details</a>
                 </div>
 
                 <?php if ($total > 10000): ?>
