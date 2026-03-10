@@ -518,7 +518,7 @@ usort($all_negotiations, function($a, $b) {
 
             <!-- My Sales (as Seller) -->
             <?php if (count($my_sales) > 0): ?>
-            <div style="margin-top:30px;">
+            <div id="my-sales" style="margin-top:30px;">
                 <div style="background:#f0fdf4; padding:10px 15px; border-radius:8px; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center; border-left:4px solid #22c55e;">
                     <h2 style="font-size:1.1rem; margin:0; color:#15803d;">My Sales</h2>
                     <span style="font-size:0.85rem; color:#16a34a; font-weight:600;"><?php echo count($my_sales); ?> order<?php echo count($my_sales) !== 1 ? 's' : ''; ?></span>

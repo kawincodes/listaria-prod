@@ -292,19 +292,24 @@ $current_page = basename($_SERVER['PHP_SELF']);
             // Fetch user name and account_type fresh from DB for accuracy
             $dName = 'User';
             $menuAccountType = $_SESSION['account_type'] ?? 'customer';
+            $menuIsAdmin = !empty($_SESSION['is_admin']);
+            $menuIsVendor = false;
             if(isset($user['full_name'])) {
                 $dName = $user['full_name'];
                 $menuAccountType = $user['account_type'] ?? $menuAccountType;
+                $menuIsAdmin = !empty($user['is_admin']) || $menuIsAdmin;
+                $menuIsVendor = ($menuAccountType === 'vendor') || !empty($user['is_verified_vendor']);
             } else {
                 try {
-                    $stmt = $pdo->prepare("SELECT full_name, account_type FROM users WHERE id = ?");
+                    $stmt = $pdo->prepare("SELECT full_name, account_type, is_admin, is_verified_vendor FROM users WHERE id = ?");
                     $stmt->execute([$_SESSION['user_id']]);
                     $u = $stmt->fetch();
                     if($u) {
                         $dName = $u['full_name'];
                         $menuAccountType = $u['account_type'] ?? $menuAccountType;
-                        // Sync session if out of date
-                        if($_SESSION['account_type'] !== $menuAccountType) {
+                        $menuIsAdmin = !empty($u['is_admin']);
+                        $menuIsVendor = ($menuAccountType === 'vendor') || !empty($u['is_verified_vendor']);
+                        if(($_SESSION['account_type'] ?? '') !== $menuAccountType) {
                             $_SESSION['account_type'] = $menuAccountType;
                         }
                     }
@@ -319,10 +324,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     </div>
                     <div>
                         <div style="font-weight:700; color:var(--primary-text); font-size:0.95rem;"><?php echo htmlspecialchars($dName); ?></div>
-                        <?php if($menuAccountType === 'vendor'): ?>
-                        <div style="font-size:0.75rem; color:#7c3aed; font-weight:600;">Vendor</div>
-                        <?php elseif($menuAccountType === 'admin'): ?>
+                        <?php if($menuIsAdmin): ?>
                         <div style="font-size:0.75rem; color:#dc2626; font-weight:600;">Admin</div>
+                        <?php elseif($menuIsVendor): ?>
+                        <div style="font-size:0.75rem; color:#7c3aed; font-weight:600;">Vendor</div>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -331,8 +336,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 </a>
             </div>
 
-            <?php if($menuAccountType === 'vendor'): ?>
-            <!-- Vendor Section -->
+            <?php if($menuIsVendor): ?>
             <div style="margin-bottom:15px; padding-bottom:15px; border-bottom:1px solid var(--border-color);">
                 <div style="font-size:0.7rem; font-weight:700; color:#7c3aed; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px; padding-left:4px;">Vendor</div>
                 <a href="vendor_settings.php" class="mobile-link" style="display:flex; align-items:center; gap:10px;">
@@ -344,17 +348,16 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <a href="sell.php?source=thrift" class="mobile-link" style="display:flex; align-items:center; gap:10px;">
                     <ion-icon name="leaf-outline" style="font-size:1.2rem; color:#27ae60;"></ion-icon> Sell on Thrift+
                 </a>
-                <a href="profile.php?tab=orders" class="mobile-link" style="display:flex; align-items:center; gap:10px;">
+                <a href="profile.php?tab=orders#my-sales" class="mobile-link" style="display:flex; align-items:center; gap:10px;">
                     <ion-icon name="receipt-outline" style="font-size:1.2rem; color:#7c3aed;"></ion-icon> My Sales
                 </a>
             </div>
             <?php endif; ?>
 
-            <?php if($menuAccountType === 'admin'): ?>
-            <!-- Admin Section -->
+            <?php if($menuIsAdmin): ?>
             <div style="margin-bottom:15px; padding-bottom:15px; border-bottom:1px solid var(--border-color);">
                 <div style="font-size:0.7rem; font-weight:700; color:#dc2626; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px; padding-left:4px;">Admin</div>
-                <a href="admin.php" class="mobile-link" style="display:flex; align-items:center; gap:10px;">
+                <a href="admin_dashboard.php" class="mobile-link" style="display:flex; align-items:center; gap:10px;">
                     <ion-icon name="shield-outline" style="font-size:1.2rem; color:#dc2626;"></ion-icon> Admin Panel
                 </a>
             </div>
