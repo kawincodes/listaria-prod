@@ -75,14 +75,14 @@ body { background: #f3ebdc !important; color: #111 !important; }
     background: linear-gradient(180deg, #8B6B4A 0%, #7A5A3A 30%, #6B4930 60%, #5C3D2E 100%) !important;
     border-bottom: none !important;
     box-shadow: none !important;
-    position: relative;
-    padding: 0.8rem 2rem !important;
+    position: sticky !important; top: 0 !important; z-index: 1000 !important;
     margin: 0 !important;
     width: 100% !important;
     max-width: 100% !important;
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
+    padding: 0.7rem max(2rem, calc((100% - 1344px) / 2 + 2rem)) !important;
 }
 .navbar::before {
     content: '';
@@ -121,7 +121,7 @@ body { background: #f3ebdc !important; color: #111 !important; }
 }
 .navbar .search-filter-icon { color: #d4c2a8 !important; }
 
-.navbar .nav-link { color: #e6d8c4 !important; transition: color 0.2s; }
+.navbar .nav-link { color: #e6d8c4 !important; transition: color 0.2s; font-size: 0.88rem; }
 .navbar .nav-link:hover { color: #fff !important; }
 .navbar .nav-link.profile-link { color: #f0e6d6 !important; }
 
@@ -417,35 +417,6 @@ body { background: #f3ebdc !important; color: #111 !important; }
 
 .section-gap { margin-top: 3rem; }
 
-/* ── Mobile Bottom Nav ──────────────────────────── */
-.mobile-bottom-nav {
-    display: none;
-    position: fixed; bottom: 0; left: 0; right: 0;
-    background: linear-gradient(180deg, #7A5438 0%, #6B4930 40%, #5C3D2E 100%);
-    z-index: 999;
-    padding: 0 0 env(safe-area-inset-bottom, 0);
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.25);
-}
-.mobile-bottom-nav::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: repeating-linear-gradient(90deg, transparent 0px, rgba(0,0,0,0.03) 1px, transparent 2px, transparent 8px);
-    pointer-events: none;
-}
-.mobile-bottom-nav-inner {
-    display: flex; justify-content: space-around; align-items: center;
-    padding: 8px 4px 10px; position: relative; z-index: 1;
-}
-.mob-nav-item {
-    display: flex; flex-direction: column; align-items: center; gap: 3px;
-    text-decoration: none; color: #e6d8c4; font-size: 0.65rem;
-    font-family: 'Inter', sans-serif; font-weight: 500;
-    padding: 4px 12px; border-radius: 12px;
-    transition: all 0.2s;
-}
-.mob-nav-item ion-icon { font-size: 1.35rem; }
-.mob-nav-item.active { color: #fff; background: rgba(255,255,255,0.12); }
-.mob-nav-item:hover { color: #fff; }
 
 @media(max-width: 768px) {
     .mobile-bottom-nav { display: block; }
