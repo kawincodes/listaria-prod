@@ -21,26 +21,25 @@ $msg = '';
 try {
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS admin_sessions (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            admin_id INT NOT NULL,
-            session_id VARCHAR(255) NOT NULL,
-            ip_address VARCHAR(45),
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            admin_id INTEGER NOT NULL,
+            session_id TEXT NOT NULL,
+            ip_address TEXT,
             user_agent TEXT,
             last_activity DATETIME DEFAULT CURRENT_TIMESTAMP,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            INDEX idx_admin_id (admin_id)
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     ");
     
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS blacklist (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            type ENUM('email', 'ip') NOT NULL,
-            value VARCHAR(255) NOT NULL,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            type TEXT NOT NULL,
+            value TEXT NOT NULL,
             reason TEXT,
-            created_by INT,
+            created_by INTEGER,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE KEY unique_entry (type, value)
+            UNIQUE(type, value)
         )
     ");
 } catch(Exception $e) {}
@@ -58,7 +57,7 @@ if (isset($_POST['add_blacklist'])) {
     $value = trim($_POST['bl_value']);
     $reason = trim($_POST['bl_reason']);
     
-    $stmt = $pdo->prepare("INSERT IGNORE INTO blacklist (type, value, reason, created_by) VALUES (?, ?, ?, ?)");
+    $stmt = $pdo->prepare("INSERT OR IGNORE INTO blacklist (type, value, reason, created_by) VALUES (?, ?, ?, ?)");
     $stmt->execute([$type, $value, $reason, $_SESSION['user_id']]);
     $msg = ucfirst($type) . " added to blacklist.";
 }

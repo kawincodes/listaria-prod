@@ -79,15 +79,15 @@ try {
     // Create roles table if doesn't exist
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS roles (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(50) NOT NULL UNIQUE,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
             permissions TEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     ");
     
     // Insert default roles
-    $pdo->exec("INSERT IGNORE INTO roles (name, permissions) VALUES 
+    $pdo->exec("INSERT OR IGNORE INTO roles (name, permissions) VALUES 
         ('super_admin', '[\"all\"]'),
         ('admin', '[\"manage_listings\",\"manage_users\",\"manage_orders\",\"view_analytics\"]'),
         ('moderator', '[\"manage_listings\",\"view_analytics\"]'),

@@ -19,15 +19,13 @@ if (!$isSuperAdmin) {
 try {
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS admin_activity_logs (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            admin_id INT NOT NULL,
-            action VARCHAR(100) NOT NULL,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            admin_id INTEGER NOT NULL,
+            action TEXT NOT NULL,
             details TEXT,
-            ip_address VARCHAR(45),
+            ip_address TEXT,
             user_agent TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            INDEX idx_admin_id (admin_id),
-            INDEX idx_created_at (created_at)
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     ");
 } catch(Exception $e) {}
