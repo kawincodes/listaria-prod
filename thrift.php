@@ -8,6 +8,10 @@ if (!ob_get_level()) {
 }
 require 'includes/db.php';
 
+$thriftThemeStmt = $pdo->prepare("SELECT setting_value FROM site_settings WHERE setting_key = 'thrift_theme'");
+$thriftThemeStmt->execute();
+$thriftTheme = $thriftThemeStmt->fetchColumn() ?: 'current';
+
 $category = $_GET['category'] ?? 'All';
 $search   = $_GET['search'] ?? '';
 
@@ -520,6 +524,177 @@ button.mob-nav-item {
     .search-wrap input { padding: 11px 14px 11px 38px; font-size: 0.85rem; }
 }
 </style>
+
+<?php if ($thriftTheme === 'og'): ?>
+<style>
+body { background-color: #eae4cc !important; color: #1a1a1a !important; }
+:root {
+    --bg: #eae4cc; --card: #fdfcf8; --green: #1a1a1a;
+    --red: #d65252; --text: #1a1a1a; --muted: #555;
+    --border: #1a1a1a; --cream: #eae4cc; --stone: #ccc5a8;
+    --warm: #b5ae96; --wood-dark: #1a1a1a; --wood-mid: #333;
+    --wood-light: #555;
+}
+.navbar {
+    background: #1a1a1a !important;
+    border-bottom: 2px solid #333 !important;
+}
+.navbar::before, .navbar::after { display: none !important; }
+.navbar .brand { color: #eae4cc !important; font-family: 'Times New Roman', Georgia, serif !important; text-shadow: none !important; }
+.navbar .brand-location { color: #999 !important; }
+.navbar .search-input {
+    background: rgba(255,255,255,0.08) !important;
+    border: 1px solid #444 !important;
+    color: #eae4cc !important;
+    font-family: 'Courier New', monospace !important;
+}
+.navbar .search-input::placeholder { color: rgba(234,228,204,0.4) !important; }
+.navbar .nav-link { color: #ccc5a8 !important; font-family: 'Courier New', monospace !important; letter-spacing: 0.5px; }
+.navbar .nav-link:hover { color: #fff !important; }
+.navbar .btn-signin { background: transparent !important; color: #eae4cc !important; border: 1.5px solid #eae4cc !important; font-family: 'Courier New', monospace !important; }
+.navbar .btn-sell { background: #eae4cc !important; color: #1a1a1a !important; border: none !important; font-family: 'Courier New', monospace !important; font-weight: 700 !important; }
+.announcement-bar { background: #1a1a1a !important; border-bottom: 1px solid #333 !important; }
+.cat-row {
+    background: #1a1a1a !important;
+    border-bottom: 2px dashed #555 !important;
+}
+.cat-row::before, .cat-row::after { display: none !important; }
+.cat-pill {
+    background: #fdfcf8 !important;
+    color: #1a1a1a !important;
+    border: 2px solid #1a1a1a !important;
+    border-radius: 50px !important;
+    font-family: 'Courier New', monospace !important;
+    font-weight: 700 !important;
+    box-shadow: 3px 3px 0px #555 !important;
+    transition: transform 0.2s !important;
+}
+.cat-pill:hover { transform: translateY(-2px) !important; }
+.cat-pill.active {
+    background: #1a1a1a !important;
+    color: #fff !important;
+    border-color: #1a1a1a !important;
+    box-shadow: 3px 3px 0px #555 !important;
+}
+.cat-arrow { color: #eae4cc !important; border: 1.5px solid #555 !important; background: rgba(255,255,255,0.05) !important; }
+.search-wrap {
+    background: #fdfcf8 !important;
+    border: 2px solid #1a1a1a !important;
+    border-radius: 8px !important;
+    box-shadow: 4px 4px 0px #1a1a1a !important;
+}
+.search-wrap input {
+    font-family: 'Courier New', monospace !important;
+    color: #1a1a1a !important;
+}
+.search-wrap input::placeholder { color: #888 !important; }
+.search-ico { color: #1a1a1a !important; }
+.thrift-hero-text h1 {
+    font-family: 'Times New Roman', Georgia, serif !important;
+    font-weight: 900 !important;
+    color: #1a1a1a !important;
+    letter-spacing: -1px;
+}
+.hero-sub {
+    font-family: 'Courier New', monospace !important;
+    color: #555 !important;
+    font-weight: 600 !important;
+    letter-spacing: 1px;
+    text-transform: uppercase !important;
+}
+.section-heading {
+    font-family: 'Times New Roman', Georgia, serif !important;
+    font-weight: 800 !important;
+    color: #1a1a1a !important;
+    padding-bottom: 12px !important;
+    border-bottom: 2px dashed #1a1a1a !important;
+    margin-bottom: 1.5rem !important;
+}
+.p-card {
+    background: #fdfcf8 !important;
+    border: 2.5px solid #1a1a1a !important;
+    border-radius: 12px !important;
+    box-shadow: 6px 6px 0px #1a1a1a !important;
+    transition: transform 0.2s, box-shadow 0.2s !important;
+}
+.p-card:hover {
+    transform: translate(-3px, -3px) !important;
+    box-shadow: 9px 9px 0px #1a1a1a !important;
+}
+.p-card-img { border-radius: 8px !important; }
+.p-card-img img { filter: sepia(0.05) contrast(1.05) !important; border-radius: 8px !important; }
+.price-badge {
+    background: #1a1a1a !important;
+    color: #fff !important;
+    font-family: 'Courier New', monospace !important;
+    font-weight: 700 !important;
+    border-radius: 6px !important;
+    clip-path: none !important;
+    padding: 5px 12px !important;
+    top: 10px !important;
+    right: 10px !important;
+}
+.sold-badge {
+    background: #1a1a1a !important;
+    color: #fff !important;
+    font-family: serif !important;
+    font-weight: 700 !important;
+    border-radius: 6px !important;
+}
+.featured-badge {
+    background: #555 !important;
+    color: #eae4cc !important;
+    font-family: 'Courier New', monospace !important;
+}
+.p-card-title {
+    font-family: 'Times New Roman', Georgia, serif !important;
+    font-weight: 800 !important;
+    font-size: 1.15rem !important;
+    color: #1a1a1a !important;
+    text-transform: capitalize !important;
+}
+.p-card-cond {
+    font-family: 'Courier New', monospace !important;
+    color: #333 !important;
+    font-weight: 600 !important;
+}
+.btn-claim {
+    background: #1a1a1a !important;
+    color: #fff !important;
+    font-family: 'Courier New', monospace !important;
+    font-weight: 700 !important;
+    letter-spacing: 1px !important;
+    text-transform: uppercase !important;
+    border-radius: 6px !important;
+}
+.btn-claim:hover { background: #333 !important; }
+.collective-card {
+    border: 2px solid #1a1a1a !important;
+    background: #fdfcf8 !important;
+    box-shadow: 4px 4px 0px #1a1a1a !important;
+}
+.collective-ring {
+    border-color: #1a1a1a !important;
+}
+.collective-ring.first-ring { border-color: #1a1a1a !important; }
+.collective-name { font-family: 'Times New Roman', Georgia, serif !important; font-weight: 700 !important; color: #1a1a1a !important; }
+.collective-count { font-family: 'Courier New', monospace !important; color: #555 !important; }
+.empty-state {
+    border: 2px dashed #1a1a1a !important;
+    background: #fdfcf8 !important;
+}
+.empty-state h3 { font-family: 'Times New Roman', Georgia, serif !important; color: #1a1a1a !important; }
+.empty-state p { font-family: 'Courier New', monospace !important; color: #555 !important; }
+.btn-green {
+    background: #1a1a1a !important;
+    color: #fff !important;
+    font-family: 'Courier New', monospace !important;
+    border-radius: 6px !important;
+}
+.thrift-page { padding-top: 0 !important; }
+.mobile-bottom-nav { display: none !important; }
+</style>
+<?php endif; ?>
 
 <div class="thrift-page">
 

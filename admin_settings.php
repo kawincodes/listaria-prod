@@ -65,6 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'marquee_link' => trim($_POST['marquee_link'] ?? ''),
         'marquee_icon' => trim($_POST['marquee_icon'] ?? ''),
         'founder_socials_visible' => isset($_POST['founder_socials_visible']) ? '1' : '0',
+        'thrift_theme' => in_array($_POST['thrift_theme'] ?? '', ['current', 'og']) ? $_POST['thrift_theme'] : 'current',
         'captcha_provider' => in_array($_POST['captcha_provider'] ?? '', ['turnstile', 'recaptcha']) ? $_POST['captcha_provider'] : 'turnstile',
         'turnstile_site_key' => trim($_POST['turnstile_site_key'] ?? ''),
         'turnstile_secret_key' => trim($_POST['turnstile_secret_key'] ?? ''),
@@ -120,6 +121,7 @@ $marqueeSpeed = getSetting($pdo, 'marquee_speed', 'medium');
 $marqueeLink = getSetting($pdo, 'marquee_link', '');
 $marqueeIcon = getSetting($pdo, 'marquee_icon', '');
 $founderSocialsVisible = getSetting($pdo, 'founder_socials_visible', '1');
+$thriftTheme = getSetting($pdo, 'thrift_theme', 'current');
 
 $captchaCfg = getCaptchaConfig($pdo);
 $captchaEnabledSetting = $captchaCfg['enabled'] ? '1' : '0';
@@ -727,6 +729,50 @@ $recaptchaSecretKey = $captchaCfg['recaptcha_secret_key'];
                     </div>
                 </div>
 
+                <div class="settings-card full-width">
+                    <div class="card-title">
+                        <ion-icon name="leaf-outline"></ion-icon>
+                        Thrift+ Page Theme
+                    </div>
+                    <div class="toggle-desc" style="margin-bottom: 1rem;">Choose the visual theme for the Thrift+ marketplace page</div>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <label style="flex:1; min-width:200px; cursor:pointer; border:2px solid <?php echo $thriftTheme === 'current' ? '#6B21A8' : '#e2e8f0'; ?>; border-radius:12px; padding:1.2rem; background:<?php echo $thriftTheme === 'current' ? '#f3f0ff' : '#fff'; ?>; transition:all 0.2s;" onclick="selectThrift('current')">
+                            <input type="radio" name="thrift_theme" value="current" <?php echo $thriftTheme === 'current' ? 'checked' : ''; ?> style="display:none;">
+                            <div style="display:flex; align-items:center; gap:10px; margin-bottom:0.8rem;">
+                                <div style="width:36px; height:36px; border-radius:8px; background:linear-gradient(135deg, #8B6242, #5C3D2E); display:flex; align-items:center; justify-content:center;">
+                                    <ion-icon name="checkmark-outline" style="color:#f5ede0; font-size:1.2rem;"></ion-icon>
+                                </div>
+                                <strong style="font-size:1rem;">Current Theme</strong>
+                            </div>
+                            <div style="font-size:0.82rem; color:#666; line-height:1.4;">Warm wood aesthetic with organic gradients, cream background, green accents, and modern card layout.</div>
+                            <div style="display:flex; gap:4px; margin-top:0.8rem;">
+                                <span style="width:24px; height:24px; border-radius:50%; background:#f3ebdc; border:1px solid #ccc;"></span>
+                                <span style="width:24px; height:24px; border-radius:50%; background:#5C3D2E;"></span>
+                                <span style="width:24px; height:24px; border-radius:50%; background:#8B6242;"></span>
+                                <span style="width:24px; height:24px; border-radius:50%; background:#294631;"></span>
+                                <span style="width:24px; height:24px; border-radius:50%; background:#C9A87C;"></span>
+                            </div>
+                        </label>
+                        <label style="flex:1; min-width:200px; cursor:pointer; border:2px solid <?php echo $thriftTheme === 'og' ? '#6B21A8' : '#e2e8f0'; ?>; border-radius:12px; padding:1.2rem; background:<?php echo $thriftTheme === 'og' ? '#f3f0ff' : '#fff'; ?>; transition:all 0.2s;" onclick="selectThrift('og')">
+                            <input type="radio" name="thrift_theme" value="og" <?php echo $thriftTheme === 'og' ? 'checked' : ''; ?> style="display:none;">
+                            <div style="display:flex; align-items:center; gap:10px; margin-bottom:0.8rem;">
+                                <div style="width:36px; height:36px; border-radius:8px; background:#1a1a1a; display:flex; align-items:center; justify-content:center;">
+                                    <ion-icon name="newspaper-outline" style="color:#eae4cc; font-size:1.2rem;"></ion-icon>
+                                </div>
+                                <strong style="font-size:1rem;">OG Theme</strong>
+                            </div>
+                            <div style="font-size:0.82rem; color:#666; line-height:1.4;">Classic retro newspaper look with parchment background, bold black borders, serif fonts, and vintage card style.</div>
+                            <div style="display:flex; gap:4px; margin-top:0.8rem;">
+                                <span style="width:24px; height:24px; border-radius:50%; background:#eae4cc; border:1px solid #ccc;"></span>
+                                <span style="width:24px; height:24px; border-radius:50%; background:#1a1a1a;"></span>
+                                <span style="width:24px; height:24px; border-radius:50%; background:#fdfcf8; border:1px solid #ccc;"></span>
+                                <span style="width:24px; height:24px; border-radius:50%; background:#555555;"></span>
+                                <span style="width:24px; height:24px; border-radius:50%; background:#333333;"></span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
                 <!-- Admin Preferences -->
                 <div class="settings-card full-width">
                     <div class="card-title">
@@ -767,6 +813,21 @@ document.getElementById('marquee_toggle').addEventListener('change', function() 
 document.getElementById('captcha_enabled_toggle').addEventListener('change', function() {
     document.getElementById('captcha_settings_panel').style.display = this.checked ? '' : 'none';
 });
+
+function selectThrift(val) {
+    document.querySelectorAll('input[name="thrift_theme"]').forEach(function(r) {
+        var lbl = r.closest('label');
+        if (r.value === val) {
+            r.checked = true;
+            lbl.style.borderColor = '#6B21A8';
+            lbl.style.background = '#f3f0ff';
+        } else {
+            r.checked = false;
+            lbl.style.borderColor = '#e2e8f0';
+            lbl.style.background = '#fff';
+        }
+    });
+}
 
 function toggleCaptchaProvider() {
     var provider = document.querySelector('input[name="captcha_provider"]:checked').value;
