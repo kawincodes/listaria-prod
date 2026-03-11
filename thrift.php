@@ -71,9 +71,82 @@ body { background: #f3ebdc !important; color: #111 !important; }
 }
 *, *::before, *::after { box-sizing: border-box; }
 
-.navbar { display: none !important; }
-.mobile-menu-drawer { display: none !important; }
-.announcement-bar { display: none !important; }
+.navbar {
+    background: linear-gradient(180deg, #8B6B4A 0%, #7A5A3A 30%, #6B4930 60%, #5C3D2E 100%) !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+    position: sticky !important; top: 0 !important; z-index: 1000 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 0.7rem max(2rem, calc((100% - 1344px) / 2 + 2rem)) !important;
+}
+.navbar::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+        repeating-linear-gradient(90deg, transparent 0px, rgba(0,0,0,0.025) 1px, transparent 2px, transparent 7px),
+        repeating-linear-gradient(90deg, transparent 0px, rgba(255,255,255,0.03) 3px, transparent 4px, transparent 12px);
+    pointer-events: none; z-index: 0;
+}
+.navbar::after {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+        radial-gradient(ellipse 150px 5px at 25% 25%, rgba(255,255,255,0.06), transparent),
+        radial-gradient(ellipse 100px 3px at 65% 65%, rgba(0,0,0,0.05), transparent),
+        radial-gradient(ellipse 250px 2px at 50% 45%, rgba(255,255,255,0.04), transparent);
+    pointer-events: none; z-index: 0;
+}
+.navbar > * { position: relative; z-index: 1; }
+.navbar .brand { color: #f5ede0 !important; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+.navbar .brand-location { color: #d4c2a8 !important; }
+.navbar .search-container { position: relative; z-index: 1; }
+.navbar .search-input {
+    background: rgba(255,255,255,0.12) !important;
+    border: 1px solid rgba(255,255,255,0.15) !important;
+    color: #f5ede0 !important;
+    backdrop-filter: blur(4px);
+}
+.navbar .search-input::placeholder { color: rgba(240,230,214,0.55) !important; }
+.navbar .search-input:focus {
+    background: rgba(255,255,255,0.18) !important;
+    border-color: rgba(255,255,255,0.3) !important;
+    box-shadow: 0 0 12px rgba(255,255,255,0.08) !important;
+}
+.navbar .search-filter-icon { color: #d4c2a8 !important; }
+.navbar .nav-link { color: #e6d8c4 !important; transition: color 0.2s; font-size: 0.88rem; }
+.navbar .nav-link:hover { color: #fff !important; }
+.navbar .nav-link.profile-link { color: #f0e6d6 !important; }
+.navbar .btn-signin {
+    background: rgba(255,255,255,0.12) !important;
+    color: #f5ede0 !important;
+    border: 1px solid rgba(255,255,255,0.2) !important;
+}
+.navbar .btn-signin:hover { background: rgba(255,255,255,0.2) !important; }
+.navbar .btn-thrift {
+    background: linear-gradient(135deg, #294631, #3a6148) !important;
+    border: 1px solid rgba(255,255,255,0.15) !important;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2) !important;
+    color: #fff !important;
+}
+.navbar .btn-thrift:hover { background: linear-gradient(135deg, #345c40, #4a7a5e) !important; }
+.navbar .btn-sell {
+    background: linear-gradient(135deg, #f0e6d6, #e6d8c4) !important;
+    color: #3d2b1f !important;
+    border: none !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
+}
+.navbar .btn-sell:hover { background: linear-gradient(135deg, #f5ede0, #ecdcc8) !important; }
+.navbar .hamburger ion-icon { color: #f0e6d6 !important; }
+.navbar .hamburger:hover { background: rgba(255,255,255,0.1) !important; border-radius: 8px; }
+.announcement-bar {
+    background: linear-gradient(90deg, #5C3D2E, #7A5A3A, #5C3D2E) !important;
+}
+.mobile-bottom-nav { display: none !important; }
 
 .thrift-page { position: relative; overflow: hidden; margin-top: 0; padding-top: 0; }
 
@@ -391,8 +464,7 @@ button.mob-nav-item {
 }
 
 @media(max-width: 768px) {
-    .mobile-bottom-nav { display: block !important; }
-    .thrift-wrap { padding: 20px 16px 100px; }
+    .thrift-wrap { padding: 20px 16px 40px; }
     .cat-row { padding: 6px 8px; }
     .cat-arrow { width: 32px; height: 32px; }
     .thrift-hero-text { margin: 0 0 20px; }
