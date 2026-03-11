@@ -225,9 +225,14 @@ function renderThriftProduct($product) {
     $cond = htmlspecialchars($product['condition_tag']);
     $url = "product_details.php?id={$product['id']}&source=thrift";
     
+    $isBoostedCard = !empty($product['is_featured']) && !empty($product['boosted_until']) && strtotime($product['boosted_until']) > time();
+    $cardBorder    = $isBoostedCard ? '2.5px solid #6B21A8' : '2.5px solid #1a1a1a';
+    $cardShadow    = $isBoostedCard ? '6px 6px 0px #6B21A8' : '6px 6px 0px #1a1a1a';
+    $cardBg        = $isBoostedCard ? '#fdf9ff' : '#fff';
+
     echo <<<HTML
     <div class="card-wrapper">
-        <a href="{$url}" class="product-card" style="display:block; text-decoration:none; border: 2.5px solid #1a1a1a; background: #fff; padding: 15px; box-shadow: 6px 6px 0px #1a1a1a; border-radius: 12px; transition: transform 0.2s; position:relative;">
+        <a href="{$url}" class="product-card" style="display:block; text-decoration:none; border: {$cardBorder}; background: {$cardBg}; padding: 15px; box-shadow: {$cardShadow}; border-radius: 12px; transition: transform 0.2s; position:relative;">
             <div class="product-image-container" style="position:relative; margin-bottom:15px; border-bottom: 1.5px solid #1a1a1a; padding-bottom: 12px;">
                 <div class="price-tag" style="position:absolute; top: -10px; right: -10px; background: #ef4444; color: white; padding: 5px 12px; font-weight: 800; font-family: 'Courier New', monospace; font-size: 1.1rem; transform: rotate(5deg); z-index: 5; border: 2px solid #1a1a1a; border-radius: 4px;">
                     ₹{$price}
@@ -235,6 +240,8 @@ function renderThriftProduct($product) {
 HTML;
     if(isset($product['status']) && $product['status'] === 'sold'){
         echo '<span class="condition-badge sold-badge" style="position:absolute; top:10px; left:10px; background:#1a1a1a; color:white; padding:5px 10px; z-index:4; font-weight:bold; font-family:serif; border-radius:6px;">SOLD</span>';
+    } elseif($isBoostedCard){
+        echo '<span style="position:absolute; top:10px; left:10px; background:linear-gradient(135deg,#6B21A8,#9333ea); color:white; padding:4px 10px; z-index:4; font-weight:700; font-size:0.7rem; border-radius:50px; display:flex; align-items:center; gap:3px; letter-spacing:0.3px;">⚡ FEATURED</span>';
     }
     echo <<<HTML
                 <img src="{$main_image}" alt="{$title}" class="product-image" style="width:100%; aspect-ratio:1/1; object-fit:cover; display:block; filter: sepia(0.05) contrast(1.05); border-radius: 8px;" loading="lazy">
