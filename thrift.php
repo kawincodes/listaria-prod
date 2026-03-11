@@ -76,10 +76,13 @@ body { background: #f3ebdc !important; color: #111 !important; }
     border-bottom: none !important;
     box-shadow: none !important;
     position: relative;
-    padding: 0.8rem 48px !important;
+    padding: 0.8rem 2rem !important;
     margin: 0 !important;
     width: 100% !important;
     max-width: 100% !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
 }
 .navbar::before {
     content: '';
@@ -171,14 +174,13 @@ body { background: #f3ebdc !important; color: #111 !important; }
     pointer-events: none; z-index: 0;
 }
 
-.thrift-wrap { max-width: 1344px; margin: 0 auto; padding: 0 48px 100px; position: relative; z-index: 1; }
-.cat-row + .search-wrap { margin-top: 32px; }
+.thrift-wrap { max-width: 1344px; margin: 0 auto; padding: 32px 2rem 100px; position: relative; z-index: 1; }
 
 .cat-row {
     display: flex; align-items: center; gap: 0;
-    margin: 0 -48px 2.5rem; width: calc(100% + 96px);
+    margin: 0; width: 100%;
     background: linear-gradient(180deg, #A07850 0%, #8B6242 15%, #7A5438 40%, #6B4930 60%, #8B6242 80%, #A07850 100%);
-    border-radius: 0; padding: 8px 16px;
+    border-radius: 0; padding: 8px 2rem;
     box-shadow: 0 4px 16px rgba(92,61,46,0.25), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.2);
     position: relative; overflow: hidden;
 }
@@ -312,9 +314,10 @@ body { background: #f3ebdc !important; color: #111 !important; }
 }
 .collective-count { font-size: 0.88rem; color: var(--muted); font-family: 'Inter', sans-serif; }
 
-.products-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px; }
-@media(min-width: 560px) { .products-grid { grid-template-columns: repeat(3, 1fr); gap: 32px; } }
-@media(min-width: 900px) { .products-grid { grid-template-columns: repeat(4, 1fr); gap: 32px; } }
+.products-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+@media(min-width: 480px) { .products-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; } }
+@media(min-width: 768px) { .products-grid { grid-template-columns: repeat(3, 1fr); gap: 28px; } }
+@media(min-width: 1024px) { .products-grid { grid-template-columns: repeat(4, 1fr); gap: 32px; } }
 
 .p-card {
     background: #FFFFFF; border-radius: 16px; overflow: visible;
@@ -475,13 +478,13 @@ body { background: #f3ebdc !important; color: #111 !important; }
 
 @media(max-width: 768px) {
     .mobile-bottom-nav { display: block; }
-    .thrift-wrap { padding: 0 20px 100px; }
-    .navbar { padding: 0.7rem 20px !important; }
+    .thrift-wrap { padding: 24px 16px 100px; }
+    .navbar { padding: 0.7rem 16px !important; }
+    .cat-row { padding: 6px 12px; }
     .thrift-hero-text h1 { font-size: 2.5rem; }
     .thrift-hero-text .hero-sub { font-size: 2.5rem; }
     .section-heading { font-size: 1.75rem; }
     .cat-pill { padding: 9px 20px; font-size: 0.85rem; }
-    .cat-row { padding: 5px 6px; margin: 0 -20px 2rem; width: calc(100% + 40px); }
     .cat-arrow { width: 36px; height: 36px; }
     .collective-card { width: 260px; padding: 24px 12px 20px; }
     .collective-ring { width: 100px; height: 100px; }
@@ -495,7 +498,7 @@ body { background: #f3ebdc !important; color: #111 !important; }
     .thrift-hero-text .hero-sub { font-size: 2rem; }
     .section-heading { font-size: 1.4rem; }
     .cat-pill { padding: 8px 16px; font-size: 0.8rem; gap: 6px; }
-    .cat-row { padding: 4px 5px; gap: 0; }
+    .cat-row { padding: 4px 8px; gap: 0; }
     .cat-arrow { width: 32px; height: 32px; }
     .cat-scroll { gap: 6px; padding: 2px 4px; }
     .collective-card { width: 220px; }
@@ -511,9 +514,8 @@ body { background: #f3ebdc !important; color: #111 !important; }
 </style>
 
 <div class="thrift-page">
-<div class="thrift-wrap">
 
-    <!-- Category Pills (Wood Bar) -->
+    <!-- Category Pills (Wood Bar) — full width, outside thrift-wrap -->
     <div class="cat-row">
         <div class="cat-arrow" id="catLeft"><ion-icon name="chevron-back-outline"></ion-icon></div>
         <div class="cat-scroll" id="catScroll">
@@ -538,6 +540,8 @@ body { background: #f3ebdc !important; color: #111 !important; }
         </div>
         <div class="cat-arrow" id="catRight"><ion-icon name="chevron-forward-outline"></ion-icon></div>
     </div>
+
+<div class="thrift-wrap">
 
     <form method="GET" action="thrift.php" class="search-wrap" style="margin-bottom:1.5rem;">
         <?php if ($category !== 'All'): ?>
