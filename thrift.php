@@ -66,44 +66,94 @@ body { background: #f3ebdc !important; color: #111 !important; }
     --bg: #f3ebdc; --card: #FFFFFF; --green: #294631;
     --red: #d65252; --text: #111; --muted: #555;
     --border: #e0d6c6; --cream: #e6d8c4; --stone: #d4c2a8;
-    --warm: #B8A992;
+    --warm: #B8A992; --wood-dark: #5C3D2E; --wood-mid: #8B6242;
+    --wood-light: #C9A87C;
 }
 *, *::before, *::after { box-sizing: border-box; }
 
 .thrift-page { position: relative; overflow: hidden; }
 
-.thrift-wrap { max-width: 1344px; margin: 0 auto; padding: 32px 48px 80px; position: relative; z-index: 1; }
-
-.cat-row { display: flex; align-items: center; gap: 16px; margin: 0 0 2.5rem; padding-bottom: 8px; }
-.cat-arrow {
-    width: 44px; height: 44px; border-radius: 22px;
-    background: linear-gradient(145deg, #e6d8c4, #d4c2a8);
-    border: none; display: flex; align-items: center; justify-content: center;
-    cursor: pointer; flex-shrink: 0; color: var(--text);
-    box-shadow: 4px 4px 8px rgba(0,0,0,0.05);
-    transition: all 0.2s;
+.thrift-page::before {
+    content: '';
+    position: fixed; top: -40px; right: -20px; width: 320px; height: 400px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 260 360' fill='none' stroke='%23C5B9A5' stroke-width='0.7' opacity='0.3'%3E%3Cpath d='M200 30 C190 60, 175 100, 160 150 C145 200, 135 240, 125 300'/%3E%3Cpath d='M200 30 C210 55, 215 85, 205 115 C195 145, 175 130, 160 150'/%3E%3Cpath d='M200 30 C185 50, 170 80, 160 150'/%3E%3Cpath d='M160 150 C148 140, 130 145, 125 160' stroke-width='0.6'/%3E%3Cpath d='M160 150 C170 142, 180 148, 182 162' stroke-width='0.6'/%3E%3Cellipse cx='180' cy='220' rx='22' ry='30' transform='rotate(-12 180 220)' stroke-width='0.5'/%3E%3Cellipse cx='175' cy='220' rx='16' ry='22' transform='rotate(-12 175 220)' stroke-width='0.5'/%3E%3Cpath d='M178 250 L175 290' stroke-width='0.5'/%3E%3Cpath d='M100 50 C112 44, 126 40, 136 46 C146 52, 138 62, 126 60 C114 58, 104 56, 100 50Z' stroke-width='0.5'/%3E%3Cpath d='M75 90 C88 82, 102 78, 112 85 C122 92, 114 100, 102 98 C90 96, 78 96, 75 90Z' stroke-width='0.5'/%3E%3Cpath d='M60 130 C68 122, 78 120, 85 126 C92 132, 86 140, 78 138 C70 136, 62 135, 60 130Z' stroke-width='0.4'/%3E%3Ccircle cx='220' cy='300' r='6' stroke-width='0.4'/%3E%3Ccircle cx='220' cy='300' r='3' stroke-width='0.4'/%3E%3Cpath d='M220 294 L220 270' stroke-width='0.4'/%3E%3Cpath d='M220 270 C215 260, 225 255, 220 270' stroke-width='0.4'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-size: contain; background-position: top right;
+    pointer-events: none; z-index: 0;
 }
-.cat-arrow:hover { transform: translateY(-1px); box-shadow: 4px 4px 12px rgba(0,0,0,0.08); }
-.cat-scroll { display: flex; gap: 16px; overflow-x: auto; scroll-behavior: smooth; scrollbar-width: none; padding: 4px 2px; }
+.thrift-page::after {
+    content: '';
+    position: fixed; bottom: -30px; left: -20px; width: 260px; height: 340px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 300' fill='none' stroke='%23C5B9A5' stroke-width='0.7' opacity='0.25'%3E%3Cpath d='M40 270 C45 240, 55 200, 65 160 C75 120, 80 90, 90 50'/%3E%3Cpath d='M90 50 C78 70, 62 85, 65 160'/%3E%3Cpath d='M90 50 C100 75, 105 100, 65 160'/%3E%3Cpath d='M65 160 C52 154, 35 158, 30 170' stroke-width='0.5'/%3E%3Cpath d='M65 160 C72 152, 82 150, 88 158' stroke-width='0.5'/%3E%3Ccircle cx='130' cy='230' r='18' stroke-width='0.5'/%3E%3Ccircle cx='130' cy='230' r='12' stroke-width='0.5'/%3E%3Ccircle cx='130' cy='230' r='5' stroke-width='0.5'/%3E%3Cpath d='M130 212 L130 175' stroke-width='0.5'/%3E%3Cpath d='M130 175 C125 165, 135 160, 130 175' stroke-width='0.5'/%3E%3Cpath d='M155 250 C168 245, 178 252, 182 264' stroke-width='0.4'/%3E%3Cpath d='M105 255 C92 260, 82 254, 78 242' stroke-width='0.4'/%3E%3Cpath d='M40 270 C35 264, 28 254, 30 244' stroke-width='0.4'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-size: contain; background-position: bottom left;
+    pointer-events: none; z-index: 0;
+}
+
+.thrift-wrap { max-width: 1344px; margin: 0 auto; padding: 32px 48px 100px; position: relative; z-index: 1; }
+
+.cat-row {
+    display: flex; align-items: center; gap: 0; margin: 0 0 2.5rem;
+    background: linear-gradient(180deg, #A07850 0%, #8B6242 15%, #7A5438 40%, #6B4930 60%, #8B6242 80%, #A07850 100%);
+    border-radius: 28px; padding: 6px 8px;
+    box-shadow: 0 4px 16px rgba(92,61,46,0.25), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.2);
+    position: relative; overflow: hidden;
+}
+.cat-row::before {
+    content: '';
+    position: absolute; inset: 0; border-radius: 28px;
+    background: repeating-linear-gradient(
+        90deg,
+        transparent 0px,
+        rgba(0,0,0,0.03) 1px,
+        transparent 2px,
+        transparent 8px
+    ),
+    repeating-linear-gradient(
+        90deg,
+        transparent 0px,
+        rgba(255,255,255,0.04) 3px,
+        transparent 4px,
+        transparent 14px
+    );
+    pointer-events: none; z-index: 1;
+}
+.cat-row::after {
+    content: '';
+    position: absolute; inset: 0; border-radius: 28px;
+    background:
+        radial-gradient(ellipse 120px 6px at 30% 20%, rgba(255,255,255,0.08), transparent),
+        radial-gradient(ellipse 80px 4px at 70% 70%, rgba(0,0,0,0.06), transparent),
+        radial-gradient(ellipse 200px 3px at 50% 40%, rgba(255,255,255,0.05), transparent);
+    pointer-events: none; z-index: 1;
+}
+.cat-arrow {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.1);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0; color: #f0e6d6;
+    transition: all 0.2s; position: relative; z-index: 2;
+}
+.cat-arrow:hover { background: rgba(255,255,255,0.2); }
+.cat-scroll { display: flex; gap: 8px; overflow-x: auto; scroll-behavior: smooth; scrollbar-width: none; padding: 2px 8px; position: relative; z-index: 2; flex: 1; }
 .cat-scroll::-webkit-scrollbar { display: none; }
 
 .cat-pill {
-    flex-shrink: 0; padding: 12px 32px; font-size: 1rem; font-weight: 700;
+    flex-shrink: 0; padding: 10px 26px; font-size: 0.92rem; font-weight: 600;
     text-decoration: none; white-space: nowrap; cursor: pointer;
     font-family: 'Inter', Arial, sans-serif;
     border-radius: 999px;
-    background: linear-gradient(145deg, #e6d8c4, #d4c2a8);
-    color: var(--text); border: none;
-    box-shadow: 4px 4px 8px rgba(0,0,0,0.05), -4px -4px 8px rgba(255,255,255,0.5);
+    background: linear-gradient(145deg, #f0e6d6, #e6d8c4);
+    color: #3d2b1f; border: none;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.15), -1px -1px 3px rgba(255,255,255,0.1);
     transition: all 0.25s ease;
-    display: inline-flex; align-items: center; gap: 12px;
+    display: inline-flex; align-items: center; gap: 10px;
 }
-.cat-pill:hover { transform: translateY(-1px); box-shadow: 4px 4px 12px rgba(0,0,0,0.08), -4px -4px 8px rgba(255,255,255,0.5); }
+.cat-pill:hover { transform: translateY(-1px); box-shadow: 2px 4px 10px rgba(0,0,0,0.2), -1px -1px 3px rgba(255,255,255,0.1); background: linear-gradient(145deg, #f5ede0, #ecdcc8); }
 .cat-pill.active {
     background: var(--green); color: #FFFFFF;
-    box-shadow: inset 2px 2px 6px rgba(0,0,0,0.2);
+    box-shadow: inset 2px 2px 6px rgba(0,0,0,0.25), 0 0 8px rgba(41,70,49,0.3);
 }
-.cat-icon { font-size: 1.1rem; display: inline-flex; align-items: center; }
+.cat-icon { font-size: 1rem; display: inline-flex; align-items: center; }
 
 .thrift-hero-text { margin: 0 0 24px; max-width: 800px; }
 .thrift-hero-text h1 {
@@ -183,6 +233,7 @@ body { background: #f3ebdc !important; color: #111 !important; }
     box-shadow: 0 8px 24px rgba(0,0,0,0.03);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     padding: 16px;
+    display: flex; flex-direction: column;
 }
 .p-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,0,0,0.08); }
 .p-card.featured { box-shadow: 0 8px 24px rgba(147,51,234,0.08); }
@@ -215,14 +266,27 @@ body { background: #f3ebdc !important; color: #111 !important; }
     font-family: 'Inter', sans-serif;
 }
 
-.p-card-body { padding: 16px 0 0; }
+.p-card-body { padding: 16px 0 0; flex: 1; display: flex; flex-direction: column; }
 .p-card-title {
     font-family: 'Inter', sans-serif; font-weight: 600;
-    font-size: 1.1rem; line-height: 1.3;
+    font-size: 1.05rem; line-height: 1.3;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     margin: 0 0 4px; color: var(--text);
 }
-.p-card-cond { font-size: 0.94rem; color: var(--muted); font-family: 'Inter', sans-serif; margin: 0; }
+.p-card-cond { font-size: 0.88rem; color: var(--muted); font-family: 'Inter', sans-serif; margin: 0 0 auto; }
+
+.btn-claim {
+    display: block; width: 100%; margin-top: 14px;
+    padding: 11px 16px; text-align: center;
+    background: linear-gradient(145deg, #2a4a34, #1e3627);
+    color: #FFFFFF;
+    font-family: 'Inter', sans-serif; font-weight: 600;
+    font-size: 0.82rem; letter-spacing: 1.8px; text-transform: uppercase;
+    border: none; border-radius: 10px; cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 8px rgba(41,70,49,0.2);
+}
+.p-card:hover .btn-claim { background: linear-gradient(145deg, #345c40, #264230); box-shadow: 0 4px 12px rgba(41,70,49,0.3); }
 
 .search-wrap { position: relative; margin-bottom: 0.5rem; }
 .search-wrap input {
@@ -249,33 +313,72 @@ body { background: #f3ebdc !important; color: #111 !important; }
 
 .section-gap { margin-top: 3rem; }
 
+/* ── Mobile Bottom Nav ──────────────────────────── */
+.mobile-bottom-nav {
+    display: none;
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(180deg, #7A5438 0%, #6B4930 40%, #5C3D2E 100%);
+    z-index: 999;
+    padding: 0 0 env(safe-area-inset-bottom, 0);
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.25);
+}
+.mobile-bottom-nav::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(90deg, transparent 0px, rgba(0,0,0,0.03) 1px, transparent 2px, transparent 8px);
+    pointer-events: none;
+}
+.mobile-bottom-nav-inner {
+    display: flex; justify-content: space-around; align-items: center;
+    padding: 8px 4px 10px; position: relative; z-index: 1;
+}
+.mob-nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    text-decoration: none; color: #e6d8c4; font-size: 0.65rem;
+    font-family: 'Inter', sans-serif; font-weight: 500;
+    padding: 4px 12px; border-radius: 12px;
+    transition: all 0.2s;
+}
+.mob-nav-item ion-icon { font-size: 1.35rem; }
+.mob-nav-item.active { color: #fff; background: rgba(255,255,255,0.12); }
+.mob-nav-item:hover { color: #fff; }
+
 @media(max-width: 768px) {
-    .thrift-wrap { padding: 24px 20px 60px; }
+    .mobile-bottom-nav { display: block; }
+    .thrift-wrap { padding: 24px 20px 100px; }
     .thrift-hero-text h1 { font-size: 2.5rem; }
     .thrift-hero-text .hero-sub { font-size: 2.5rem; }
     .section-heading { font-size: 1.75rem; }
-    .cat-pill { padding: 10px 24px; font-size: 0.9rem; }
-    .cat-arrow { width: 38px; height: 38px; }
+    .cat-pill { padding: 9px 20px; font-size: 0.85rem; }
+    .cat-row { padding: 5px 6px; border-radius: 24px; }
+    .cat-arrow { width: 36px; height: 36px; }
     .collective-card { width: 260px; padding: 24px 12px 20px; }
     .collective-ring { width: 100px; height: 100px; }
-    .products-grid { gap: 20px; }
+    .products-grid { gap: 16px; }
+    .p-card { padding: 12px; }
 }
 @media(max-width: 480px) {
     .thrift-hero-text h1 { font-size: 2rem; }
     .thrift-hero-text .hero-sub { font-size: 2rem; }
     .section-heading { font-size: 1.4rem; }
-    .cat-pill { padding: 9px 20px; font-size: 0.85rem; }
+    .cat-pill { padding: 8px 16px; font-size: 0.8rem; gap: 6px; }
+    .cat-row { padding: 4px 5px; border-radius: 20px; gap: 0; }
+    .cat-arrow { width: 32px; height: 32px; }
+    .cat-scroll { gap: 6px; padding: 2px 4px; }
     .collective-card { width: 220px; }
     .collective-ring { width: 80px; height: 80px; }
-    .products-grid { gap: 16px; }
-    .p-card { padding: 12px; }
+    .products-grid { gap: 12px; }
+    .p-card { padding: 10px; border-radius: 14px; }
+    .btn-claim { padding: 9px 12px; font-size: 0.75rem; letter-spacing: 1.2px; }
+    .sub-tags { gap: 10px; }
+    .sub-tag { padding: 8px 14px; font-size: 0.82rem; }
 }
 </style>
 
 <div class="thrift-page">
 <div class="thrift-wrap">
 
-    <!-- Category Pills -->
+    <!-- Category Pills (Wood Bar) -->
     <div class="cat-row">
         <div class="cat-arrow" id="catLeft"><ion-icon name="chevron-back-outline"></ion-icon></div>
         <div class="cat-scroll" id="catScroll">
@@ -283,12 +386,12 @@ body { background: #f3ebdc !important; color: #111 !important; }
             $cats = ['All', 'Tops', 'Bottoms', 'Jackets', 'Shoes', 'Bags', 'Accessories'];
             $catSvg = [
                 'All'         => '',
-                'Tops'        => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L2 8l4 2v12h12V10l4-2-4-6"/><path d="M12 2c-2 0-3 2-3 2h6s-1-2-3-2z"/></svg>',
-                'Bottoms'     => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h12v8l-3 12h-2l-1-8-1 8H9L6 10z"/></svg>',
-                'Jackets'     => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L1 8v6l3 1v7h16v-7l3-1V8l-5-6"/><path d="M12 2c-2 0-3 2-3 2h6s-1-2-3-2z"/></svg>',
-                'Shoes'       => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 18h20v2H2zM4 18v-4l3-4 5 2 8-4 2 2v8"/></svg>',
-                'Bags'        => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="8" width="16" height="14" rx="2"/><path d="M8 8V6a4 4 0 018 0v2"/></svg>',
-                'Accessories' => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 4v1M12 19v1"/></svg>'
+                'Tops'        => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L2 8l4 2v12h12V10l4-2-4-6"/><path d="M12 2c-2 0-3 2-3 2h6s-1-2-3-2z"/></svg>',
+                'Bottoms'     => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h12v8l-3 12h-2l-1-8-1 8H9L6 10z"/></svg>',
+                'Jackets'     => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L1 8v6l3 1v7h16v-7l3-1V8l-5-6"/><path d="M12 2c-2 0-3 2-3 2h6s-1-2-3-2z"/></svg>',
+                'Shoes'       => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 18h20v2H2zM4 18v-4l3-4 5 2 8-4 2 2v8"/></svg>',
+                'Bags'        => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="8" width="16" height="14" rx="2"/><path d="M8 8V6a4 4 0 018 0v2"/></svg>',
+                'Accessories' => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/><path d="M12 4v1M12 19v1"/></svg>'
             ];
             foreach ($cats as $cat):
                 $active = ($category === $cat) ? 'active' : '';
@@ -402,6 +505,9 @@ body { background: #f3ebdc !important; color: #111 !important; }
                     <?php if ($cond): ?>
                     <div class="p-card-cond"><?php echo ucfirst($cond); ?></div>
                     <?php endif; ?>
+                    <?php if (!$isSold): ?>
+                    <div class="btn-claim">Claim Piece</div>
+                    <?php endif; ?>
                 </div>
             </a>
             <?php endforeach; ?>
@@ -411,6 +517,32 @@ body { background: #f3ebdc !important; color: #111 !important; }
     <?php endif; ?>
 </div>
 </div>
+
+<!-- Mobile Bottom Nav -->
+<nav class="mobile-bottom-nav">
+    <div class="mobile-bottom-nav-inner">
+        <a href="index.php" class="mob-nav-item">
+            <ion-icon name="home-outline"></ion-icon>
+            <span>Home</span>
+        </a>
+        <a href="thrift.php" class="mob-nav-item active">
+            <ion-icon name="leaf-outline"></ion-icon>
+            <span>Thrift+</span>
+        </a>
+        <a href="sell.php?source=thrift" class="mob-nav-item">
+            <ion-icon name="add-circle-outline"></ion-icon>
+            <span>Sell</span>
+        </a>
+        <a href="#search" class="mob-nav-item" id="mobSearchBtn">
+            <ion-icon name="search-outline"></ion-icon>
+            <span>Search</span>
+        </a>
+        <a href="<?php echo isset($_SESSION['user_id']) ? 'profile.php' : 'login.php'; ?>" class="mob-nav-item">
+            <ion-icon name="person-outline"></ion-icon>
+            <span>Profile</span>
+        </a>
+    </div>
+</nav>
 
 <!-- Category scroll JS -->
 <script>
@@ -424,6 +556,19 @@ body { background: #f3ebdc !important; color: #111 !important; }
     }
     var active = wrap && wrap.querySelector('.cat-pill.active');
     if (active) setTimeout(function(){ active.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' }); }, 100);
+
+    var mobSearch = document.getElementById('mobSearchBtn');
+    if (mobSearch) {
+        mobSearch.addEventListener('click', function(e) {
+            e.preventDefault();
+            var searchWrap = document.querySelector('.search-wrap');
+            var searchInput = searchWrap ? searchWrap.querySelector('input[name="search"]') : null;
+            if (searchInput) {
+                searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                setTimeout(function(){ searchInput.focus(); }, 400);
+            }
+        });
+    }
 })();
 </script>
 
