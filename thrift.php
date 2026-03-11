@@ -418,8 +418,62 @@ body { background: #f3ebdc !important; color: #111 !important; }
 .section-gap { margin-top: 3rem; }
 
 
+.mobile-bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    background: linear-gradient(135deg, var(--wood-dark), var(--wood-mid));
+    border-top: 2px solid var(--wood-light);
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+    padding: 6px 0 env(safe-area-inset-bottom, 8px);
+}
+.mobile-bottom-nav-inner {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    max-width: 480px;
+    margin: 0 auto;
+}
+.mob-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    text-decoration: none;
+    color: var(--cream);
+    font-size: 0.65rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    opacity: 0.75;
+}
+button.mob-nav-item {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+.mob-nav-item ion-icon {
+    font-size: 1.35rem;
+}
+.mob-nav-item.active,
+.mob-nav-item:hover {
+    opacity: 1;
+    color: #fff;
+    background: rgba(255,255,255,0.1);
+}
+.mob-nav-item.active ion-icon {
+    color: var(--wood-light);
+}
+
 @media(max-width: 768px) {
-    .thrift-wrap { padding: 24px 16px 60px; }
+    .mobile-bottom-nav { display: block; }
+    .thrift-wrap { padding: 24px 16px 100px; }
     .navbar { padding: 0.7rem 12px !important; }
     .cat-row { padding: 6px 8px; }
     .cat-arrow { width: 32px; height: 32px; }
@@ -599,6 +653,32 @@ body { background: #f3ebdc !important; color: #111 !important; }
 </div>
 
 
+<!-- Mobile Bottom Nav -->
+<nav class="mobile-bottom-nav" aria-label="Mobile navigation">
+    <div class="mobile-bottom-nav-inner">
+        <a href="index.php" class="mob-nav-item">
+            <ion-icon name="home-outline" aria-hidden="true"></ion-icon>
+            <span>Home</span>
+        </a>
+        <a href="thrift.php" class="mob-nav-item active" aria-current="page">
+            <ion-icon name="leaf-outline" aria-hidden="true"></ion-icon>
+            <span>Thrift+</span>
+        </a>
+        <a href="sell.php?source=thrift" class="mob-nav-item">
+            <ion-icon name="add-circle-outline" aria-hidden="true"></ion-icon>
+            <span>Sell</span>
+        </a>
+        <button type="button" class="mob-nav-item" id="mobSearchBtn">
+            <ion-icon name="search-outline" aria-hidden="true"></ion-icon>
+            <span>Search</span>
+        </button>
+        <a href="<?php echo isset($_SESSION['user_id']) ? 'profile.php' : 'login.php'; ?>" class="mob-nav-item">
+            <ion-icon name="person-outline" aria-hidden="true"></ion-icon>
+            <span>Profile</span>
+        </a>
+    </div>
+</nav>
+
 <!-- Category scroll JS -->
 <script>
 (function(){
@@ -612,6 +692,18 @@ body { background: #f3ebdc !important; color: #111 !important; }
     var active = wrap && wrap.querySelector('.cat-pill.active');
     if (active) setTimeout(function(){ active.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' }); }, 100);
 
+    var mobSearch = document.getElementById('mobSearchBtn');
+    if (mobSearch) {
+        mobSearch.addEventListener('click', function(e) {
+            e.preventDefault();
+            var searchWrap = document.querySelector('.search-wrap');
+            var searchInput = searchWrap ? searchWrap.querySelector('input[name="search"]') : null;
+            if (searchInput) {
+                searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                setTimeout(function(){ searchInput.focus(); }, 400);
+            }
+        });
+    }
 })();
 </script>
 
