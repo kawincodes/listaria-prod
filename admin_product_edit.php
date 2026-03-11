@@ -33,7 +33,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
     $category = trim($_POST['category'] ?? '');
     $price_min = floatval($_POST['price_min'] ?? 0);
     $price_max = floatval($_POST['price_max'] ?? 0);
+    $allowed_conditions = ['Brand New', 'Lightly Used', 'Regularly Used'];
     $condition_tag = trim($_POST['condition_tag'] ?? '');
+    if (!in_array($condition_tag, $allowed_conditions)) $condition_tag = 'Brand New';
     $quantity = (int)($_POST['quantity'] ?? 1);
     $status = trim($_POST['status'] ?? 'available');
     $approval_status = trim($_POST['approval_status'] ?? 'pending');
@@ -244,7 +246,7 @@ $categories = $pdo->query("SELECT DISTINCT category FROM products WHERE category
                                 <label>Condition</label>
                                 <select name="condition_tag">
                                     <?php
-                                    $conditions = ['New', 'Like New', 'Excellent', 'Good', 'Fair'];
+                                    $conditions = ['Brand New', 'Lightly Used', 'Regularly Used'];
                                     foreach($conditions as $c):
                                     ?>
                                     <option value="<?php echo $c; ?>" <?php echo ($product['condition_tag'] ?? '') === $c ? 'selected' : ''; ?>><?php echo $c; ?></option>
