@@ -74,8 +74,12 @@ body { background: #f3ebdc !important; color: #111 !important; }
 .navbar {
     background: linear-gradient(180deg, #8B6B4A 0%, #7A5A3A 30%, #6B4930 60%, #5C3D2E 100%) !important;
     border-bottom: none !important;
-    box-shadow: 0 4px 20px rgba(60,35,20,0.25);
+    box-shadow: none !important;
     position: relative;
+    padding: 0.8rem 48px !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
 }
 .navbar::before {
     content: '';
@@ -150,7 +154,7 @@ body { background: #f3ebdc !important; color: #111 !important; }
     background: linear-gradient(90deg, #5C3D2E, #7A5A3A, #5C3D2E) !important;
 }
 
-.thrift-page { position: relative; overflow: hidden; }
+.thrift-page { position: relative; overflow: hidden; margin-top: 0; padding-top: 0; }
 
 .thrift-page::before {
     content: '';
@@ -167,7 +171,8 @@ body { background: #f3ebdc !important; color: #111 !important; }
     pointer-events: none; z-index: 0;
 }
 
-.thrift-wrap { max-width: 1344px; margin: 0 auto; padding: 32px 48px 100px; position: relative; z-index: 1; }
+.thrift-wrap { max-width: 1344px; margin: 0 auto; padding: 0 48px 100px; position: relative; z-index: 1; }
+.cat-row + .search-wrap { margin-top: 32px; }
 
 .cat-row {
     display: flex; align-items: center; gap: 0;
@@ -470,7 +475,8 @@ body { background: #f3ebdc !important; color: #111 !important; }
 
 @media(max-width: 768px) {
     .mobile-bottom-nav { display: block; }
-    .thrift-wrap { padding: 24px 20px 100px; }
+    .thrift-wrap { padding: 0 20px 100px; }
+    .navbar { padding: 0.7rem 20px !important; }
     .thrift-hero-text h1 { font-size: 2.5rem; }
     .thrift-hero-text .hero-sub { font-size: 2.5rem; }
     .section-heading { font-size: 1.75rem; }
