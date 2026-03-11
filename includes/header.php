@@ -283,8 +283,8 @@ if ($__marqueeEnabled === '1' && !empty($__marqueeText) && empty($_SESSION['marq
             <?php endif; ?>
 
             <?php if(isset($_SESSION['user_id'])): ?>
-            <a href="thrift.php" class="btn-thrift" style="background: linear-gradient(135deg, #294631, #3a6148); color: #fff; height: 34px; padding: 0 1.2rem; border-radius: 40px; text-decoration: none; font-weight: 600; font-size: 0.85rem; margin-right: 5px; margin-left: 15px; transition: all 0.2s; display:inline-flex; align-items:center; justify-content:center; gap:5px; border: 1px solid rgba(58,97,72,0.6); box-shadow: 0 3px 10px rgba(41,70,49,0.3);">
-                <ion-icon name="leaf-outline" style="color:#a8d5ba; font-size:1rem;"></ion-icon> Thrift+
+            <a href="thrift.php" class="btn-thrift" style="background: #6B21A8; color: #fff; height: 34px; padding: 0 1.2rem; border-radius: 40px; text-decoration: none; font-weight: 600; font-size: 0.85rem; margin-right: 5px; margin-left: 15px; transition: all 0.2s; display:inline-flex; align-items:center; justify-content:center; gap:5px; border: 1px solid #7c3aed; box-shadow: 0 4px 14px rgba(107, 33, 168, 0.4);">
+                <ion-icon name="sparkles" style="color:#fff; font-size:1rem;"></ion-icon> Thrift+
             </a>
             <?php endif; ?>
 
