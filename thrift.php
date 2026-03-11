@@ -225,7 +225,7 @@ body { background: #f3ebdc !important; color: #111 !important; }
     display: flex; gap: 10px; overflow-x: auto; scroll-behavior: smooth;
     scrollbar-width: none; padding: 4px 12px;
     position: relative; z-index: 2; flex: 1;
-    align-items: center; justify-content: center;
+    align-items: center;
 }
 .cat-scroll::-webkit-scrollbar { display: none; }
 
@@ -314,13 +314,15 @@ body { background: #f3ebdc !important; color: #111 !important; }
 }
 .collective-count { font-size: 0.88rem; color: var(--muted); font-family: 'Inter', sans-serif; }
 
-.products-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
-@media(min-width: 480px) { .products-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; } }
+.products-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;
+}
 @media(min-width: 768px) { .products-grid { grid-template-columns: repeat(3, 1fr); gap: 28px; } }
 @media(min-width: 1024px) { .products-grid { grid-template-columns: repeat(4, 1fr); gap: 32px; } }
 
 .p-card {
-    background: #FFFFFF; border-radius: 16px; overflow: visible;
+    background: #FFFFFF; border-radius: 16px;
+    overflow: hidden;
     text-decoration: none; color: var(--text);
     border: none;
     box-shadow: 0 8px 24px rgba(0,0,0,0.03);
@@ -338,65 +340,34 @@ body { background: #f3ebdc !important; color: #111 !important; }
 .p-card:hover .p-card-img img { transform: scale(1.05); }
 
 .price-badge {
-    position: absolute; top: 0; right: 14px;
+    position: absolute; top: 0; right: 12px;
     background: linear-gradient(180deg, #c0392b 0%, #d65252 100%);
     color: #FFFFFF;
-    padding: 8px 14px 10px;
-    font-size: 0.95rem; font-weight: 800; z-index: 3;
+    padding: 6px 14px 8px;
+    font-size: 0.9rem; font-weight: 800; z-index: 3;
     font-family: 'Inter', sans-serif;
     border-radius: 0 0 8px 8px;
     box-shadow: 0 4px 12px rgba(214,82,82,0.35);
     letter-spacing: 0.3px;
-    animation: priceSwing 3s ease-in-out infinite;
-    transform-origin: top center;
-}
-.price-badge::before {
-    content: ''; position: absolute; top: 0; left: -6px;
-    border-top: 6px solid #922b2b; border-left: 6px solid transparent;
-}
-.price-badge::after {
-    content: ''; position: absolute; top: 0; right: -6px;
-    border-top: 6px solid #922b2b; border-right: 6px solid transparent;
-}
-@keyframes priceSwing {
-    0%, 100% { transform: rotate(0deg); }
-    25% { transform: rotate(1.5deg); }
-    75% { transform: rotate(-1.5deg); }
 }
 .sold-badge {
-    position: absolute; top: 0; left: 14px;
+    position: absolute; top: 0; left: 12px;
     background: linear-gradient(180deg, #111, #333);
     color: #FFFFFF;
-    padding: 8px 14px 10px; border-radius: 0 0 8px 8px;
-    font-size: 0.78rem; font-weight: 700; z-index: 3;
+    padding: 6px 14px 8px; border-radius: 0 0 8px 8px;
+    font-size: 0.75rem; font-weight: 700; z-index: 3;
     letter-spacing: 1px; font-family: 'Inter', sans-serif;
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
-.sold-badge::before {
-    content: ''; position: absolute; top: 0; left: -5px;
-    border-top: 5px solid #000; border-left: 5px solid transparent;
-}
-.sold-badge::after {
-    content: ''; position: absolute; top: 0; right: -5px;
-    border-top: 5px solid #000; border-right: 5px solid transparent;
-}
 .featured-badge {
-    position: absolute; top: 0; left: 14px;
+    position: absolute; top: 0; left: 12px;
     background: linear-gradient(180deg, #581c87, #9333ea);
     color: #FFFFFF;
-    padding: 8px 14px 10px; border-radius: 0 0 8px 8px;
-    font-size: 0.75rem; font-weight: 700; z-index: 3;
+    padding: 6px 14px 8px; border-radius: 0 0 8px 8px;
+    font-size: 0.72rem; font-weight: 700; z-index: 3;
     font-family: 'Inter', sans-serif;
     box-shadow: 0 4px 12px rgba(147,51,234,0.3);
     letter-spacing: 0.5px;
-}
-.featured-badge::before {
-    content: ''; position: absolute; top: 0; left: -5px;
-    border-top: 5px solid #3b0764; border-left: 5px solid transparent;
-}
-.featured-badge::after {
-    content: ''; position: absolute; top: 0; right: -5px;
-    border-top: 5px solid #3b0764; border-right: 5px solid transparent;
 }
 
 .p-card-body { padding: 12px 0 0; }
@@ -479,13 +450,13 @@ body { background: #f3ebdc !important; color: #111 !important; }
 @media(max-width: 768px) {
     .mobile-bottom-nav { display: block; }
     .thrift-wrap { padding: 24px 16px 100px; }
-    .navbar { padding: 0.7rem 16px !important; }
-    .cat-row { padding: 6px 12px; }
+    .navbar { padding: 0.7rem 12px !important; gap: 8px !important; }
+    .cat-row { padding: 6px 8px; }
+    .cat-arrow { width: 32px; height: 32px; }
     .thrift-hero-text h1 { font-size: 2.5rem; }
     .thrift-hero-text .hero-sub { font-size: 2.5rem; }
     .section-heading { font-size: 1.75rem; }
-    .cat-pill { padding: 9px 20px; font-size: 0.85rem; }
-    .cat-arrow { width: 36px; height: 36px; }
+    .cat-pill { padding: 9px 18px; font-size: 0.85rem; }
     .collective-card { width: 260px; padding: 24px 12px 20px; }
     .collective-ring { width: 100px; height: 100px; }
     .products-grid { gap: 16px; }
@@ -628,16 +599,16 @@ body { background: #f3ebdc !important; color: #111 !important; }
                 $isBoosted = !empty($p['is_featured']) && !empty($p['boosted_until']) && strtotime($p['boosted_until']) > time();
             ?>
             <a href="<?php echo $url; ?>" class="p-card <?php echo $isBoosted ? 'featured' : ''; ?>">
-                <?php if ($isBoosted && !$isSold): ?>
-                <span class="featured-badge">Featured</span>
-                <?php endif; ?>
-                <?php if ($isSold): ?>
-                <span class="sold-badge">SOLD</span>
-                <?php else: ?>
-                <span class="price-badge">₹<?php echo $price; ?></span>
-                <?php endif; ?>
                 <div class="p-card-img">
                     <img src="<?php echo htmlspecialchars($img); ?>" alt="<?php echo $title; ?>" loading="lazy">
+                    <?php if ($isBoosted && !$isSold): ?>
+                    <span class="featured-badge">Featured</span>
+                    <?php endif; ?>
+                    <?php if ($isSold): ?>
+                    <span class="sold-badge">SOLD</span>
+                    <?php else: ?>
+                    <span class="price-badge">₹<?php echo $price; ?></span>
+                    <?php endif; ?>
                 </div>
                 <div class="p-card-body">
                     <div class="p-card-title"><?php echo $title; ?></div>
