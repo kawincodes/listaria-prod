@@ -566,15 +566,11 @@ button.mob-nav-item {
     <div class="thrift-hero-text">
         <h1>Thrift+</h1>
         <span class="hero-sub">Re-Cycled, Sustainable Style</span>
+        <?php if (!empty($search)): ?>
         <div class="sub-tags">
-            <span class="sub-tag">Apparel <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L2 8l4 2v12h12V10l4-2-4-6"/></svg></span>
-            <span class="sub-tag">Accessories <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/></svg></span>
-            <span class="sub-tag">Vintage Finds <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M7 20h10M12 16v4"/></svg></span>
-            <span class="sub-tag">Condition: Used</span>
-            <?php if (!empty($search)): ?>
             <span class="sub-tag" style="background:#FEF3C7;color:#92400E;">Search: "<?php echo htmlspecialchars($search); ?>"</span>
-            <?php endif; ?>
         </div>
+        <?php endif; ?>
     </div>
 
     <?php if (empty($products)): ?>
