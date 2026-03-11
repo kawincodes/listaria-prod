@@ -192,69 +192,72 @@ body { background: #F5F2E8 !important; color: #2D2A26 !important; }
 }
 .collective-count { font-size: 0.68rem; color: var(--muted); font-family: 'Inter', sans-serif; }
 
+/* ── Banner ──────────────────────────────────────── */
+.thrift-banner { margin: 0 0 1.5rem; border-radius: 16px; overflow: hidden; }
+.thrift-banner img { width: 100%; height: auto; display: block; }
+
 /* ── Product cards grid ─────────────────────────── */
-.products-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
-@media(min-width: 560px) { .products-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; } }
-@media(min-width: 800px) { .products-grid { grid-template-columns: repeat(4, 1fr); gap: 18px; } }
+.products-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+@media(min-width: 560px) { .products-grid { grid-template-columns: repeat(3, 1fr); gap: 22px; } }
+@media(min-width: 800px) { .products-grid { grid-template-columns: repeat(4, 1fr); gap: 24px; } }
 
 .p-card {
-    background: var(--card); border-radius: 18px; overflow: hidden;
+    background: var(--cream); border-radius: 16px; overflow: hidden;
     text-decoration: none; color: var(--text); display: block;
-    border: 1px solid var(--border);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 2px solid var(--stone);
+    box-shadow: 4px 4px 0px var(--stone);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
-.p-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.12); }
-.p-card.featured { border-color: #9333ea; box-shadow: 0 2px 12px rgba(147,51,234,0.1); }
-.p-card.featured:hover { box-shadow: 0 12px 32px rgba(147,51,234,0.18); }
+.p-card:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px var(--stone); }
+.p-card.featured { border-color: #9333ea; box-shadow: 4px 4px 0px rgba(147,51,234,0.35); }
+.p-card.featured:hover { box-shadow: 6px 6px 0px rgba(147,51,234,0.4); }
 
-.p-card-img { position: relative; aspect-ratio: 4/5; overflow: hidden; }
+.p-card-img { position: relative; aspect-ratio: 1/1; overflow: hidden; border-bottom: 2px solid var(--stone); }
 .p-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s ease; }
-.p-card:hover .p-card-img img { transform: scale(1.06); }
+.p-card:hover .p-card-img img { transform: scale(1.05); }
 
 .price-badge {
-    position: absolute; top: 10px; left: 10px;
+    position: absolute; top: 8px; right: 8px;
     background: var(--red); color: #FFFFFF;
-    padding: 4px 12px; border-radius: 6px;
-    font-size: 0.78rem; font-weight: 700; z-index: 3;
-    font-family: 'Inter', sans-serif;
-    box-shadow: 0 2px 6px rgba(192,83,58,0.35);
+    padding: 4px 10px; border-radius: 4px;
+    font-size: 0.78rem; font-weight: 800; z-index: 3;
+    font-family: 'Courier New', monospace;
+    border: 1.5px solid rgba(0,0,0,0.15);
 }
 .sold-badge {
-    position: absolute; top: 10px; left: 10px;
-    background: rgba(0,0,0,0.72); color: #FFFFFF;
-    padding: 4px 12px; border-radius: 6px;
+    position: absolute; top: 8px; left: 8px;
+    background: #1a1a1a; color: #FFFFFF;
+    padding: 4px 10px; border-radius: 4px;
     font-size: 0.72rem; font-weight: 700; z-index: 3;
-    letter-spacing: 0.8px; font-family: 'Inter', sans-serif;
+    letter-spacing: 0.8px; font-family: 'Courier New', monospace;
 }
 .featured-badge {
-    position: absolute; top: 10px; right: 10px;
+    position: absolute; top: 8px; left: 8px;
     background: linear-gradient(135deg, #6B21A8, #9333ea); color: #FFFFFF;
-    padding: 4px 10px; border-radius: 6px;
+    padding: 4px 10px; border-radius: 4px;
     font-size: 0.68rem; font-weight: 700; z-index: 3;
     font-family: 'Inter', sans-serif;
-    box-shadow: 0 2px 6px rgba(107,33,168,0.3);
 }
 
-.p-card-body { padding: 12px 14px 14px; }
+.p-card-body { padding: 14px 16px 16px; }
 .p-card-title {
-    font-family: 'Inter', sans-serif; font-weight: 600;
-    font-size: 0.85rem; line-height: 1.35;
+    font-family: 'Playfair Display', Georgia, serif; font-weight: 700;
+    font-size: 0.92rem; line-height: 1.3;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    margin: 0 0 4px; color: var(--text);
+    margin: 0 0 6px; color: var(--text);
 }
-.p-card-cond { font-size: 0.72rem; color: var(--muted); font-family: 'Inter', sans-serif; margin-bottom: 2px; }
-.p-card-cond-val { font-size: 0.72rem; color: var(--muted); font-family: 'Inter', sans-serif; font-weight: 500; }
+.p-card-cond { font-size: 0.75rem; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 1px; }
+.p-card-cond-val { font-size: 0.75rem; color: var(--text); font-family: 'Courier New', monospace; font-weight: 600; }
 .btn-claim {
-    display: block; width: 100%; margin-top: 10px;
-    padding: 10px; text-align: center;
-    background: var(--green); color: #FFFFFF;
-    font-family: 'Inter', sans-serif; font-weight: 700;
-    font-size: 0.78rem; letter-spacing: 1.2px;
-    border: none; border-radius: 10px; cursor: pointer;
+    display: block; width: 100%; margin-top: 12px;
+    padding: 11px; text-align: center;
+    background: #1a1a1a; color: #FFFFFF;
+    font-family: 'Courier New', monospace; font-weight: 700;
+    font-size: 0.82rem; letter-spacing: 2px;
+    border: none; border-radius: 8px; cursor: pointer;
     transition: background 0.2s;
 }
-.p-card:hover .btn-claim { background: #1f3328; }
+.p-card:hover .btn-claim { background: #333; }
 
 /* ── Search bar ─────────────────────────────────── */
 .search-wrap { position: relative; margin-bottom: 0.5rem; }
@@ -300,6 +303,15 @@ body { background: #F5F2E8 !important; color: #2D2A26 !important; }
 
 <div class="thrift-page">
 <div class="thrift-wrap">
+
+    <!-- Banner -->
+    <div class="thrift-banner">
+        <?php
+            $tBanner = 'assets/thrift_banner.png';
+            if (!file_exists($tBanner)) $tBanner = 'assets/thrift_banner_final.png';
+        ?>
+        <img src="<?php echo $tBanner; ?>" alt="Listaria Thrift+ — Pre-Loved. Post-Fast Fashion.">
+    </div>
 
     <!-- Search -->
     <form method="GET" action="thrift.php" class="search-wrap">
@@ -412,13 +424,13 @@ body { background: #F5F2E8 !important; color: #2D2A26 !important; }
         <a href="<?php echo $url; ?>" class="p-card <?php echo $isBoosted ? 'featured' : ''; ?>">
             <div class="p-card-img">
                 <img src="<?php echo htmlspecialchars($img); ?>" alt="<?php echo $title; ?>" loading="lazy">
+                <?php if ($isBoosted && !$isSold): ?>
+                <span class="featured-badge">⚡ Featured</span>
+                <?php endif; ?>
                 <?php if ($isSold): ?>
                 <span class="sold-badge">SOLD</span>
                 <?php else: ?>
-                <span class="price-badge"><?php echo '₹' . $price; ?></span>
-                <?php endif; ?>
-                <?php if ($isBoosted && !$isSold): ?>
-                <span class="featured-badge">⚡ Featured</span>
+                <span class="price-badge">₹<?php echo $price; ?></span>
                 <?php endif; ?>
             </div>
             <div class="p-card-body">
