@@ -170,15 +170,16 @@ body { background: #f3ebdc !important; color: #111 !important; }
 .thrift-wrap { max-width: 1344px; margin: 0 auto; padding: 32px 48px 100px; position: relative; z-index: 1; }
 
 .cat-row {
-    display: flex; align-items: center; gap: 0; margin: 0 0 2.5rem;
+    display: flex; align-items: center; gap: 0;
+    margin: 0 -48px 2.5rem; width: calc(100% + 96px);
     background: linear-gradient(180deg, #A07850 0%, #8B6242 15%, #7A5438 40%, #6B4930 60%, #8B6242 80%, #A07850 100%);
-    border-radius: 28px; padding: 6px 8px;
+    border-radius: 0; padding: 8px 16px;
     box-shadow: 0 4px 16px rgba(92,61,46,0.25), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.2);
     position: relative; overflow: hidden;
 }
 .cat-row::before {
     content: '';
-    position: absolute; inset: 0; border-radius: 28px;
+    position: absolute; inset: 0;
     background: repeating-linear-gradient(
         90deg,
         transparent 0px,
@@ -197,7 +198,7 @@ body { background: #f3ebdc !important; color: #111 !important; }
 }
 .cat-row::after {
     content: '';
-    position: absolute; inset: 0; border-radius: 28px;
+    position: absolute; inset: 0;
     background:
         radial-gradient(ellipse 120px 6px at 30% 20%, rgba(255,255,255,0.08), transparent),
         radial-gradient(ellipse 80px 4px at 70% 70%, rgba(0,0,0,0.06), transparent),
@@ -205,7 +206,7 @@ body { background: #f3ebdc !important; color: #111 !important; }
     pointer-events: none; z-index: 1;
 }
 .cat-arrow {
-    width: 40px; height: 40px; border-radius: 50%;
+    width: 42px; height: 42px; border-radius: 50%;
     background: rgba(255,255,255,0.12);
     border: 1px solid rgba(255,255,255,0.1);
     display: flex; align-items: center; justify-content: center;
@@ -213,11 +214,16 @@ body { background: #f3ebdc !important; color: #111 !important; }
     transition: all 0.2s; position: relative; z-index: 2;
 }
 .cat-arrow:hover { background: rgba(255,255,255,0.2); }
-.cat-scroll { display: flex; gap: 8px; overflow-x: auto; scroll-behavior: smooth; scrollbar-width: none; padding: 2px 8px; position: relative; z-index: 2; flex: 1; }
+.cat-scroll {
+    display: flex; gap: 10px; overflow-x: auto; scroll-behavior: smooth;
+    scrollbar-width: none; padding: 4px 12px;
+    position: relative; z-index: 2; flex: 1;
+    align-items: center; justify-content: center;
+}
 .cat-scroll::-webkit-scrollbar { display: none; }
 
 .cat-pill {
-    flex-shrink: 0; padding: 10px 26px; font-size: 0.92rem; font-weight: 600;
+    flex-shrink: 0; padding: 10px 28px; font-size: 0.92rem; font-weight: 600;
     text-decoration: none; white-space: nowrap; cursor: pointer;
     font-family: 'Inter', Arial, sans-serif;
     border-radius: 999px;
@@ -306,43 +312,83 @@ body { background: #f3ebdc !important; color: #111 !important; }
 @media(min-width: 900px) { .products-grid { grid-template-columns: repeat(4, 1fr); gap: 32px; } }
 
 .p-card {
-    background: #FFFFFF; border-radius: 16px; overflow: hidden;
-    text-decoration: none; color: var(--text); display: block;
+    background: #FFFFFF; border-radius: 16px; overflow: visible;
+    text-decoration: none; color: var(--text);
     border: none;
     box-shadow: 0 8px 24px rgba(0,0,0,0.03);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     padding: 16px;
     display: flex; flex-direction: column;
+    position: relative;
 }
 .p-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,0,0,0.08); }
 .p-card.featured { box-shadow: 0 8px 24px rgba(147,51,234,0.08); }
 .p-card.featured:hover { box-shadow: 0 16px 40px rgba(147,51,234,0.12); }
 
 .p-card-img { position: relative; aspect-ratio: 1/1; overflow: hidden; border-radius: 8px; background: #f0f0f0; }
-.p-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s ease; }
+.p-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s ease; border-radius: 8px; }
 .p-card:hover .p-card-img img { transform: scale(1.05); }
 
 .price-badge {
-    position: absolute; top: 12px; right: 12px;
-    background: var(--red); color: #FFFFFF;
-    padding: 6px 12px;
-    font-size: 1rem; font-weight: 700; z-index: 3;
+    position: absolute; top: 0; right: 14px;
+    background: linear-gradient(180deg, #c0392b 0%, #d65252 100%);
+    color: #FFFFFF;
+    padding: 8px 14px 10px;
+    font-size: 0.95rem; font-weight: 800; z-index: 3;
     font-family: 'Inter', sans-serif;
-    border-radius: 8px;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 4px 12px rgba(214,82,82,0.35);
+    letter-spacing: 0.3px;
+    animation: priceSwing 3s ease-in-out infinite;
+    transform-origin: top center;
+}
+.price-badge::before {
+    content: ''; position: absolute; top: 0; left: -6px;
+    border-top: 6px solid #922b2b; border-left: 6px solid transparent;
+}
+.price-badge::after {
+    content: ''; position: absolute; top: 0; right: -6px;
+    border-top: 6px solid #922b2b; border-right: 6px solid transparent;
+}
+@keyframes priceSwing {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(1.5deg); }
+    75% { transform: rotate(-1.5deg); }
 }
 .sold-badge {
-    position: absolute; top: 12px; left: 12px;
-    background: #1a1a1a; color: #FFFFFF;
-    padding: 6px 12px; border-radius: 8px;
-    font-size: 0.8rem; font-weight: 700; z-index: 3;
-    letter-spacing: 0.5px; font-family: 'Inter', sans-serif;
+    position: absolute; top: 0; left: 14px;
+    background: linear-gradient(180deg, #111, #333);
+    color: #FFFFFF;
+    padding: 8px 14px 10px; border-radius: 0 0 8px 8px;
+    font-size: 0.78rem; font-weight: 700; z-index: 3;
+    letter-spacing: 1px; font-family: 'Inter', sans-serif;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+.sold-badge::before {
+    content: ''; position: absolute; top: 0; left: -5px;
+    border-top: 5px solid #000; border-left: 5px solid transparent;
+}
+.sold-badge::after {
+    content: ''; position: absolute; top: 0; right: -5px;
+    border-top: 5px solid #000; border-right: 5px solid transparent;
 }
 .featured-badge {
-    position: absolute; top: 12px; left: 12px;
-    background: linear-gradient(135deg, #6B21A8, #9333ea); color: #FFFFFF;
-    padding: 6px 12px; border-radius: 8px;
+    position: absolute; top: 0; left: 14px;
+    background: linear-gradient(180deg, #581c87, #9333ea);
+    color: #FFFFFF;
+    padding: 8px 14px 10px; border-radius: 0 0 8px 8px;
     font-size: 0.75rem; font-weight: 700; z-index: 3;
     font-family: 'Inter', sans-serif;
+    box-shadow: 0 4px 12px rgba(147,51,234,0.3);
+    letter-spacing: 0.5px;
+}
+.featured-badge::before {
+    content: ''; position: absolute; top: 0; left: -5px;
+    border-top: 5px solid #3b0764; border-left: 5px solid transparent;
+}
+.featured-badge::after {
+    content: ''; position: absolute; top: 0; right: -5px;
+    border-top: 5px solid #3b0764; border-right: 5px solid transparent;
 }
 
 .p-card-body { padding: 16px 0 0; flex: 1; display: flex; flex-direction: column; }
@@ -429,25 +475,29 @@ body { background: #f3ebdc !important; color: #111 !important; }
     .thrift-hero-text .hero-sub { font-size: 2.5rem; }
     .section-heading { font-size: 1.75rem; }
     .cat-pill { padding: 9px 20px; font-size: 0.85rem; }
-    .cat-row { padding: 5px 6px; border-radius: 24px; }
+    .cat-row { padding: 5px 6px; margin: 0 -20px 2rem; width: calc(100% + 40px); }
     .cat-arrow { width: 36px; height: 36px; }
     .collective-card { width: 260px; padding: 24px 12px 20px; }
     .collective-ring { width: 100px; height: 100px; }
     .products-grid { gap: 16px; }
     .p-card { padding: 12px; }
+    .price-badge { padding: 6px 10px 8px; font-size: 0.82rem; right: 10px; }
+    .sold-badge, .featured-badge { padding: 6px 10px 8px; font-size: 0.7rem; left: 10px; }
 }
 @media(max-width: 480px) {
     .thrift-hero-text h1 { font-size: 2rem; }
     .thrift-hero-text .hero-sub { font-size: 2rem; }
     .section-heading { font-size: 1.4rem; }
     .cat-pill { padding: 8px 16px; font-size: 0.8rem; gap: 6px; }
-    .cat-row { padding: 4px 5px; border-radius: 20px; gap: 0; }
+    .cat-row { padding: 4px 5px; gap: 0; }
     .cat-arrow { width: 32px; height: 32px; }
     .cat-scroll { gap: 6px; padding: 2px 4px; }
     .collective-card { width: 220px; }
     .collective-ring { width: 80px; height: 80px; }
     .products-grid { gap: 12px; }
     .p-card { padding: 10px; border-radius: 14px; }
+    .price-badge { padding: 5px 8px 6px; font-size: 0.75rem; right: 8px; }
+    .sold-badge, .featured-badge { padding: 5px 8px 6px; font-size: 0.65rem; left: 8px; }
     .btn-claim { padding: 9px 12px; font-size: 0.75rem; letter-spacing: 1.2px; }
     .sub-tags { gap: 10px; }
     .sub-tag { padding: 8px 14px; font-size: 0.82rem; }
@@ -568,16 +618,16 @@ body { background: #f3ebdc !important; color: #111 !important; }
                 $isBoosted = !empty($p['is_featured']) && !empty($p['boosted_until']) && strtotime($p['boosted_until']) > time();
             ?>
             <a href="<?php echo $url; ?>" class="p-card <?php echo $isBoosted ? 'featured' : ''; ?>">
+                <?php if ($isBoosted && !$isSold): ?>
+                <span class="featured-badge">Featured</span>
+                <?php endif; ?>
+                <?php if ($isSold): ?>
+                <span class="sold-badge">SOLD</span>
+                <?php else: ?>
+                <span class="price-badge">₹<?php echo $price; ?></span>
+                <?php endif; ?>
                 <div class="p-card-img">
                     <img src="<?php echo htmlspecialchars($img); ?>" alt="<?php echo $title; ?>" loading="lazy">
-                    <?php if ($isBoosted && !$isSold): ?>
-                    <span class="featured-badge">Featured</span>
-                    <?php endif; ?>
-                    <?php if ($isSold): ?>
-                    <span class="sold-badge">SOLD</span>
-                    <?php else: ?>
-                    <span class="price-badge">₹<?php echo $price; ?></span>
-                    <?php endif; ?>
                 </div>
                 <div class="p-card-body">
                     <div class="p-card-title"><?php echo $title; ?></div>
