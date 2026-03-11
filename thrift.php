@@ -764,7 +764,7 @@ body { background-color: #eae4cc !important; color: #1a1a1a !important; }
     </div>
 </div>
 
-<div class="classic-container" style="display:none; max-width:1240px; margin:0 auto; padding:0 20px;">
+<div class="classic-container" style="display:none; max-width:1280px; margin:0 auto; padding:0 30px; overflow:visible;">
     <div style="text-align:left; display:block; margin-bottom:2.5rem; padding-left:10px;">
         <h2 style="font-size:1.8rem; margin-bottom:1rem; display:flex; align-items:center; gap:12px;">
             <span style="font-weight:900; letter-spacing:-0.5px;">Thrift+</span>
@@ -789,7 +789,7 @@ body { background-color: #eae4cc !important; color: #1a1a1a !important; }
     <?php if (!empty($vendor_groups)): ?>
     <div style="margin-bottom:4rem;">
         <h2 style="font-family:'Times New Roman',serif; font-weight:800; font-size:1.8rem; margin-bottom:20px; padding-bottom:15px; border-bottom:2px dashed #1a1a1a;">Featured Stores</h2>
-        <div style="gap:2rem; display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));">
+        <div style="gap:1.5rem; display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); padding-bottom:10px; padding-right:8px;">
             <?php foreach ($vendor_groups as $vid => $group): ?>
             <div>
                 <a href="vendor.php?id=<?php echo $vid; ?>" style="display:block; text-decoration:none; border:2.5px solid #1a1a1a; background:#fff; padding:25px 20px; box-shadow:6px 6px 0px #1a1a1a; border-radius:12px; transition:transform 0.2s; text-align:center;">
@@ -823,7 +823,7 @@ body { background-color: #eae4cc !important; color: #1a1a1a !important; }
     <?php if (!empty($community_products)): ?>
     <div style="margin-bottom:4rem;">
         <h2 style="font-family:'Times New Roman',serif; font-weight:800; font-size:1.8rem; margin-bottom:20px; padding-bottom:15px; border-bottom:2px dashed #1a1a1a;">Community Closet</h2>
-        <div class="cl-product-grid" style="gap:2rem; display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));">
+        <div class="cl-product-grid" style="gap:1.5rem; display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); padding-bottom:10px; padding-right:8px;">
             <?php foreach ($community_products as $p):
                 if (isset($p['status']) && $p['status'] === 'sold' && !empty($p['sold_at_date'])) {
                     if (time() - strtotime($p['sold_at_date']) > 86400) continue;
@@ -867,10 +867,22 @@ body { background-color: #eae4cc !important; color: #1a1a1a !important; }
 </div>
 
 <style>
+@media (max-width: 1024px) {
+    .cl-product-grid { grid-template-columns: repeat(3, 1fr) !important; }
+    .classic-container div[style*="grid-template-columns"] { grid-template-columns: repeat(3, 1fr) !important; }
+}
 @media (max-width: 768px) {
-    .cl-product-grid { grid-template-columns: 1fr 1fr !important; gap: 15px !important; padding: 0 5px !important; }
-    .cl-card-wrapper a { padding: 10px !important; border-width: 2.5px !important; box-shadow: 5px 5px 0px #1a1a1a !important; }
+    .cl-product-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
+    .classic-container div[style*="grid-template-columns"] { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
+    .cl-card-wrapper a { padding: 10px !important; box-shadow: 4px 4px 0px #1a1a1a !important; }
+    .cl-card-wrapper a div[style*="font-size:1.3rem"] { font-size: 1rem !important; }
+    .cl-card-wrapper a div[style*="font-size:1.1rem"] { font-size: 0.85rem !important; padding: 8px !important; }
     .cl-cat-wrapper::-webkit-scrollbar { display: none; }
+    .classic-container { padding: 0 12px !important; }
+}
+@media (max-width: 480px) {
+    .cl-product-grid { gap: 10px !important; }
+    .cl-card-wrapper a { padding: 8px !important; box-shadow: 3px 3px 0px #1a1a1a !important; }
 }
 </style>
 
