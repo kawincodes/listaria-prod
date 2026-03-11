@@ -481,12 +481,12 @@ button.mob-nav-item {
     .thrift-wrap { padding: 20px 16px 40px; }
     .cat-row { padding: 6px 8px; }
     .cat-arrow { width: 32px; height: 32px; }
-    .thrift-hero-text { margin: 0 0 20px; }
-    .thrift-hero-text h1 { font-size: 2.2rem; }
-    .thrift-hero-text .hero-sub { font-size: 2.2rem; }
+    .thrift-hero-text { margin: 0 0 16px; }
+    .thrift-hero-text h1 { font-size: 1.6rem; display: inline; }
+    .thrift-hero-text .hero-sub { font-size: 1.4rem; display: inline; margin-left: 6px; }
     .section-heading { font-size: 1.6rem; margin-bottom: 1rem; }
     .cat-pill { padding: 9px 18px; font-size: 0.85rem; }
-    .sub-tags { gap: 10px; margin-top: 18px; }
+    .sub-tags { gap: 10px; margin-top: 14px; }
     .sub-tag { padding: 8px 16px; font-size: 0.85rem; }
     .search-wrap { margin-bottom: 0; }
     .search-wrap input { padding: 12px 16px 12px 42px; font-size: 0.9rem; }
@@ -503,8 +503,8 @@ button.mob-nav-item {
 }
 @media(max-width: 480px) {
     .thrift-wrap { padding: 16px 12px 100px; }
-    .thrift-hero-text h1 { font-size: 1.8rem; }
-    .thrift-hero-text .hero-sub { font-size: 1.8rem; }
+    .thrift-hero-text h1 { font-size: 1.4rem; }
+    .thrift-hero-text .hero-sub { font-size: 1.2rem; }
     .section-heading { font-size: 1.3rem; }
     .cat-pill { padding: 8px 16px; font-size: 0.8rem; gap: 6px; }
     .cat-row { padding: 4px 6px; gap: 0; }
@@ -913,14 +913,24 @@ body { background-color: #eae4cc !important; color: #1a1a1a !important; }
 @media (max-width: 768px) {
     .cl-product-grid, .cl-vendor-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
     .cl-card-wrapper a { padding: 10px !important; box-shadow: 4px 4px 0px #1a1a1a !important; }
-    .cl-card-wrapper a div[style*="font-size:1.3rem"] { font-size: 1rem !important; }
-    .cl-card-wrapper a div[style*="font-size:1.1rem"] { font-size: 0.85rem !important; padding: 8px !important; }
+    .cl-card-wrapper a div[style*="font-size:1.3rem"] { font-size: 0.95rem !important; }
+    .cl-card-wrapper a div[style*="font-size:1.1rem"] { font-size: 0.8rem !important; padding: 8px !important; }
     .cl-cat-wrapper::-webkit-scrollbar { display: none; }
     .classic-container { padding: 0 12px !important; }
+    .classic-banner { padding: 0 12px !important; margin: 12px auto !important; }
+    .classic-cats { padding: 8px 12px !important; margin-bottom: 1rem !important; }
+    .classic-container h2[style*="font-size:1.8rem"] { font-size: 1.3rem !important; }
+    .classic-container span[style*="font-size:1.3rem"] { font-size: 1rem !important; }
+    .classic-container div[style*="gap:10px"] span[style*="border-radius:30px"] {
+        padding: 6px 12px !important; font-size: 0.78rem !important;
+    }
+    .classic-container h2[style*="border-bottom"] { font-size: 1.3rem !important; margin-bottom: 14px !important; padding-bottom: 10px !important; }
 }
 @media (max-width: 480px) {
     .cl-product-grid, .cl-vendor-grid { gap: 10px !important; }
     .cl-card-wrapper a { padding: 8px !important; box-shadow: 3px 3px 0px #1a1a1a !important; }
+    .classic-container h2[style*="font-size:1.8rem"] { font-size: 1.1rem !important; }
+    .classic-container span[style*="font-size:1.3rem"] { font-size: 0.85rem !important; }
 }
 </style>
 
