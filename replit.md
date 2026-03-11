@@ -36,6 +36,7 @@ A luxury e-commerce marketplace platform built in PHP with SQLite.
 
 ## Project Structure
 
+- `thrift.php` uses a custom navbar (`.thrift-nav`) instead of the global `.navbar` from `header.php`. The global navbar and mobile-menu-drawer are hidden via CSS on the thrift page. The thrift page has its own side drawer (`.thrift-drawer`) and mobile bottom nav bar.
 - Root `.php` files - Frontend pages (index, thrift, about, stores, vendor, etc.)
 - `admin_*.php` - Admin panel pages (dashboard, settings, email templates, pages, etc.)
 - `includes/` - Shared PHP includes (db, config, header, footer, email templates, etc.)
