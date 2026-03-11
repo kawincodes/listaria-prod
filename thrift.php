@@ -424,31 +424,32 @@ body { background: #f3ebdc !important; color: #111 !important; }
     bottom: 0;
     left: 0;
     right: 0;
+    width: 100%;
     z-index: 999;
     background: linear-gradient(135deg, var(--wood-dark), var(--wood-mid));
     border-top: 2px solid var(--wood-light);
     box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
-    padding: 6px 0 env(safe-area-inset-bottom, 8px);
+    padding: 8px 0 env(safe-area-inset-bottom, 10px);
 }
 .mobile-bottom-nav-inner {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    max-width: 480px;
-    margin: 0 auto;
+    max-width: 100%;
+    padding: 0 8px;
 }
 .mob-nav-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
+    gap: 3px;
     text-decoration: none;
     color: var(--cream);
-    font-size: 0.65rem;
-    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.7rem;
+    font-family: 'Inter', sans-serif;
     font-weight: 600;
-    letter-spacing: 0.5px;
-    padding: 4px 8px;
+    letter-spacing: 0.3px;
+    padding: 4px 10px;
     border-radius: 8px;
     transition: all 0.2s ease;
     opacity: 0.75;
@@ -459,7 +460,7 @@ button.mob-nav-item {
     cursor: pointer;
 }
 .mob-nav-item ion-icon {
-    font-size: 1.35rem;
+    font-size: 1.4rem;
 }
 .mob-nav-item.active,
 .mob-nav-item:hover {
@@ -472,21 +473,33 @@ button.mob-nav-item {
 }
 
 @media(max-width: 768px) {
-    .mobile-bottom-nav { display: block; }
+    .mobile-bottom-nav { display: block !important; }
     .thrift-wrap { padding: 20px 16px 100px; }
     .navbar {
-        padding: 0.6rem 12px !important;
-        gap: 8px !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        padding: 0.55rem 14px !important;
+        gap: 0 !important;
         flex-wrap: nowrap !important;
+        z-index: 1000 !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+    }
+    .thrift-page {
+        padding-top: 54px !important;
     }
     .navbar .brand-wrapper {
         flex-shrink: 0 !important;
+        flex-grow: 0 !important;
     }
     .navbar .brand-wrapper img {
-        height: 30px !important;
+        height: 28px !important;
     }
     .navbar .brand {
-        font-size: 1.1rem !important;
+        font-size: 1.05rem !important;
     }
     .navbar .brand-location {
         display: none !important;
@@ -499,6 +512,7 @@ button.mob-nav-item {
     }
     .navbar .nav-actions {
         flex-shrink: 0 !important;
+        flex-grow: 0 !important;
         gap: 6px !important;
         margin-left: auto !important;
     }
@@ -506,23 +520,25 @@ button.mob-nav-item {
         display: none !important;
     }
     .navbar .btn-thrift {
-        padding: 0 10px !important;
+        padding: 0 12px !important;
         font-size: 0.78rem !important;
-        height: 32px !important;
+        height: 30px !important;
         margin-left: 0 !important;
         margin-right: 0 !important;
+        border-radius: 20px !important;
     }
     .navbar .btn-sell {
-        padding: 0 10px !important;
+        padding: 0 12px !important;
         font-size: 0.78rem !important;
-        height: 32px !important;
+        height: 30px !important;
+        border-radius: 20px !important;
     }
     .navbar .hamburger {
         margin-right: 0 !important;
         padding: 4px !important;
     }
     .navbar .hamburger ion-icon {
-        font-size: 1.4rem !important;
+        font-size: 1.3rem !important;
     }
     .cat-row { padding: 6px 8px; }
     .cat-arrow { width: 32px; height: 32px; }
