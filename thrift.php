@@ -217,12 +217,17 @@ body { background: #F5F2E8 !important; color: #2D2A26 !important; }
 .p-card:hover .p-card-img img { transform: scale(1.05); }
 
 .price-badge {
-    position: absolute; top: 8px; right: 8px;
+    position: absolute; top: 0; right: 10px;
     background: var(--red); color: #FFFFFF;
-    padding: 4px 10px; border-radius: 4px;
-    font-size: 0.78rem; font-weight: 800; z-index: 3;
+    padding: 6px 10px 8px;
+    font-size: 0.82rem; font-weight: 800; z-index: 3;
     font-family: 'Courier New', monospace;
-    border: 1.5px solid rgba(0,0,0,0.15);
+    border-radius: 0 0 6px 6px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
+.price-badge::before {
+    content: ''; position: absolute; top: 0; left: -6px;
+    border-top: 6px solid #8b2e1f; border-left: 6px solid transparent;
 }
 .sold-badge {
     position: absolute; top: 8px; left: 8px;
@@ -402,7 +407,8 @@ body { background: #F5F2E8 !important; color: #2D2A26 !important; }
     <?php endif; ?>
 
     <!-- Community Closet -->
-    <div class="section-heading">Community Closet</div>
+    <div class="section-heading" style="margin-bottom:0;">Community Closet</div>
+    <div style="border-bottom:2px dashed var(--stone);margin-bottom:1.5rem;"></div>
     <?php if (!empty($search)): ?>
     <p class="result-count"><?php echo count($community_products); ?> result<?php echo count($community_products) !== 1 ? 's' : ''; ?> for "<?php echo htmlspecialchars($search); ?>"</p>
     <?php endif; ?>
