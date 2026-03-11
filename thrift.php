@@ -73,185 +73,9 @@ body { background: #f3ebdc !important; color: #111 !important; }
 
 .navbar { display: none !important; }
 .mobile-menu-drawer { display: none !important; }
-.announcement-bar {
-    background: linear-gradient(90deg, #5C3D2E, #7A5A3A, #5C3D2E) !important;
-}
+.announcement-bar { display: none !important; }
 
-.thrift-nav {
-    position: fixed; top: 0; left: 0; right: 0; width: 100%;
-    z-index: 1000;
-    background: linear-gradient(180deg, #8B6B4A 0%, #7A5A3A 30%, #6B4930 60%, #5C3D2E 100%);
-    padding: 0;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.2);
-}
-.thrift-nav::before {
-    content: '';
-    position: absolute; inset: 0;
-    background:
-        repeating-linear-gradient(90deg, transparent 0px, rgba(0,0,0,0.025) 1px, transparent 2px, transparent 7px),
-        repeating-linear-gradient(90deg, transparent 0px, rgba(255,255,255,0.03) 3px, transparent 4px, transparent 12px);
-    pointer-events: none; z-index: 0;
-}
-.thrift-nav::after {
-    content: '';
-    position: absolute; inset: 0;
-    background:
-        radial-gradient(ellipse 150px 5px at 25% 25%, rgba(255,255,255,0.06), transparent),
-        radial-gradient(ellipse 100px 3px at 65% 65%, rgba(0,0,0,0.05), transparent);
-    pointer-events: none; z-index: 0;
-}
-.thrift-nav-inner {
-    max-width: 1344px;
-    margin: 0 auto;
-    padding: 0.6rem 2rem;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    position: relative;
-    z-index: 1;
-}
-.thrift-nav-brand {
-    display: flex; align-items: center; gap: 8px;
-    text-decoration: none; flex-shrink: 0;
-}
-.thrift-nav-brand img {
-    height: 36px; width: auto; border-radius: 6px;
-}
-.thrift-nav-brand-text {
-    font-family: 'Inter', sans-serif;
-    font-weight: 800; font-size: 1.35rem;
-    color: #f5ede0; letter-spacing: -0.5px;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
-}
-.thrift-nav-brand-loc {
-    font-size: 0.65rem; color: #d4c2a8;
-    display: block; margin-top: 1px;
-}
-.thrift-nav-search {
-    flex: 1; max-width: 420px; position: relative;
-}
-.thrift-nav-search input {
-    width: 100%; padding: 8px 16px 8px 38px;
-    border-radius: 8px; border: 1px solid rgba(255,255,255,0.15);
-    background: rgba(255,255,255,0.12);
-    color: #f5ede0; font-size: 0.85rem;
-    font-family: 'Inter', sans-serif;
-    outline: none; backdrop-filter: blur(4px);
-    transition: all 0.2s;
-}
-.thrift-nav-search input::placeholder { color: rgba(240,230,214,0.5); }
-.thrift-nav-search input:focus {
-    background: rgba(255,255,255,0.2);
-    border-color: rgba(255,255,255,0.3);
-    box-shadow: 0 0 12px rgba(255,255,255,0.08);
-}
-.thrift-nav-search .search-icon-nav {
-    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
-    color: rgba(240,230,214,0.55); font-size: 1rem; pointer-events: none;
-}
-.thrift-nav-links {
-    display: flex; align-items: center; gap: 20px;
-    margin-left: auto;
-}
-.thrift-nav-links a {
-    color: #e6d8c4; text-decoration: none; font-family: 'Inter', sans-serif;
-    font-size: 0.85rem; font-weight: 500; transition: color 0.2s;
-    white-space: nowrap;
-}
-.thrift-nav-links a:hover { color: #fff; }
-.thrift-nav-actions {
-    display: flex; align-items: center; gap: 8px;
-    flex-shrink: 0;
-}
-.tn-btn {
-    display: inline-flex; align-items: center; justify-content: center;
-    gap: 5px; padding: 0 16px; height: 34px;
-    border-radius: 50px; font-family: 'Inter', sans-serif;
-    font-weight: 600; font-size: 0.82rem;
-    text-decoration: none; border: none; cursor: pointer;
-    transition: all 0.2s;
-}
-.tn-btn-signin {
-    background: rgba(255,255,255,0.12);
-    color: #f5ede0;
-    border: 1px solid rgba(255,255,255,0.2);
-}
-.tn-btn-signin:hover { background: rgba(255,255,255,0.2); }
-.tn-btn-sell {
-    background: linear-gradient(135deg, #f0e6d6, #e6d8c4);
-    color: #3d2b1f;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-}
-.tn-btn-sell:hover { background: linear-gradient(135deg, #f5ede0, #ecdcc8); }
-.tn-btn-sell ion-icon { font-size: 0.9rem; }
-.tn-hamburger {
-    display: none;
-    background: none; border: none; cursor: pointer;
-    color: #f0e6d6; padding: 6px;
-    border-radius: 8px; transition: background 0.2s;
-    font-size: 1.5rem;
-    align-items: center; justify-content: center;
-}
-.tn-hamburger:hover { background: rgba(255,255,255,0.1); }
-
-.thrift-drawer {
-    position: fixed; top: 0; right: -320px; width: 300px; max-width: 85vw;
-    height: 100vh; z-index: 1100;
-    background: #f3ebdc;
-    box-shadow: -8px 0 30px rgba(0,0,0,0.2);
-    transition: right 0.3s ease;
-    overflow-y: auto;
-}
-.thrift-drawer.open { right: 0; }
-.thrift-drawer-overlay {
-    position: fixed; inset: 0; z-index: 1099;
-    background: rgba(0,0,0,0.4);
-    opacity: 0; visibility: hidden;
-    transition: all 0.3s ease;
-}
-.thrift-drawer-overlay.open { opacity: 1; visibility: visible; }
-.thrift-drawer-head {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 18px 20px;
-    background: linear-gradient(135deg, var(--wood-dark), var(--wood-mid));
-    color: #f5ede0;
-}
-.thrift-drawer-head .td-brand {
-    font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.3rem;
-    letter-spacing: -0.5px;
-}
-.thrift-drawer-head .td-close {
-    background: none; border: none; color: #f0e6d6;
-    font-size: 1.5rem; cursor: pointer; padding: 4px;
-    display: flex; align-items: center;
-}
-.thrift-drawer-links {
-    padding: 12px 0;
-}
-.thrift-drawer-links a,
-.thrift-drawer-links button {
-    display: flex; align-items: center; gap: 12px;
-    padding: 13px 24px; width: 100%;
-    text-decoration: none; color: var(--text);
-    font-family: 'Inter', sans-serif; font-size: 0.92rem; font-weight: 500;
-    background: none; border: none; cursor: pointer;
-    transition: background 0.15s; text-align: left;
-}
-.thrift-drawer-links a:hover,
-.thrift-drawer-links button:hover { background: rgba(0,0,0,0.04); }
-.thrift-drawer-links ion-icon { font-size: 1.2rem; color: var(--wood-mid); flex-shrink: 0; }
-.td-divider {
-    height: 1px; background: var(--border); margin: 6px 20px;
-}
-.td-section-label {
-    font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.1em; color: var(--muted);
-    padding: 12px 24px 4px; font-family: 'Inter', sans-serif;
-}
-.td-logout { color: #d65252 !important; }
-.td-logout ion-icon { color: #d65252 !important; }
-
-.thrift-page { position: relative; overflow: hidden; margin-top: 0; padding-top: 56px; }
+.thrift-page { position: relative; overflow: hidden; margin-top: 0; padding-top: 0; }
 
 .thrift-page::before {
     content: '';
@@ -569,15 +393,6 @@ button.mob-nav-item {
 @media(max-width: 768px) {
     .mobile-bottom-nav { display: block !important; }
     .thrift-wrap { padding: 20px 16px 100px; }
-    .thrift-nav-inner { padding: 0.5rem 14px; gap: 10px; }
-    .thrift-nav-brand img { height: 28px; }
-    .thrift-nav-brand-text { font-size: 1.1rem; }
-    .thrift-nav-brand-loc { display: none; }
-    .thrift-nav-search { display: none; }
-    .thrift-nav-links { display: none; }
-    .tn-hamburger { display: flex; }
-    .tn-btn { padding: 0 12px; height: 30px; font-size: 0.78rem; }
-    .thrift-page { padding-top: 50px; }
     .cat-row { padding: 6px 8px; }
     .cat-arrow { width: 32px; height: 32px; }
     .thrift-hero-text { margin: 0 0 20px; }
@@ -623,83 +438,6 @@ button.mob-nav-item {
     .search-wrap input { padding: 11px 14px 11px 38px; font-size: 0.85rem; }
 }
 </style>
-
-<!-- Custom Thrift Navbar -->
-<nav class="thrift-nav">
-    <div class="thrift-nav-inner">
-        <a href="index.php" class="thrift-nav-brand">
-            <img src="assets/logo.jpg" alt="Listaria Logo">
-            <div>
-                <span class="thrift-nav-brand-text">listaria</span>
-                <span class="thrift-nav-brand-loc">Live in BLR, India</span>
-            </div>
-        </a>
-
-        <div class="thrift-nav-search">
-            <ion-icon name="search-outline" class="search-icon-nav"></ion-icon>
-            <form action="thrift.php" method="GET" style="display:contents;">
-                <input type="text" name="search" placeholder="Search thrift finds..." value="<?php echo htmlspecialchars($search); ?>">
-            </form>
-        </div>
-
-        <div class="thrift-nav-links">
-            <a href="blogs.php">Blogs</a>
-            <a href="stores.php">Stores</a>
-            <a href="about.php">About Us</a>
-            <a href="founders.php">Founders</a>
-            <?php if(isset($_SESSION['user_id'])): ?>
-            <a href="profile.php">My Dashboard</a>
-            <?php endif; ?>
-        </div>
-
-        <div class="thrift-nav-actions">
-            <?php if(!isset($_SESSION['user_id'])): ?>
-            <a href="login.php" class="tn-btn tn-btn-signin">Sign in</a>
-            <?php endif; ?>
-            <a href="sell.php?source=thrift" class="tn-btn tn-btn-sell">Sell <ion-icon name="arrow-forward-outline"></ion-icon></a>
-            <button class="tn-hamburger" id="thriftMenuBtn" aria-label="Open menu">
-                <ion-icon name="menu-outline"></ion-icon>
-            </button>
-        </div>
-    </div>
-</nav>
-
-<!-- Thrift Side Drawer -->
-<div class="thrift-drawer-overlay" id="thriftOverlay"></div>
-<div class="thrift-drawer" id="thriftDrawer">
-    <div class="thrift-drawer-head">
-        <span class="td-brand">listaria</span>
-        <button class="td-close" id="thriftDrawerClose" aria-label="Close menu"><ion-icon name="close-outline"></ion-icon></button>
-    </div>
-    <div class="thrift-drawer-links">
-        <?php if(isset($_SESSION['user_id'])): ?>
-        <div class="td-section-label">Account</div>
-        <a href="profile.php"><ion-icon name="person-outline"></ion-icon> My Dashboard</a>
-        <a href="wishlist.php"><ion-icon name="heart-outline"></ion-icon> Wishlist</a>
-        <a href="requests.php"><ion-icon name="chatbubble-outline"></ion-icon> Requests</a>
-        <div class="td-divider"></div>
-        <?php endif; ?>
-
-        <div class="td-section-label">Shop</div>
-        <a href="index.php"><ion-icon name="home-outline"></ion-icon> Home</a>
-        <a href="thrift.php"><ion-icon name="leaf-outline"></ion-icon> Thrift+</a>
-        <a href="stores.php"><ion-icon name="storefront-outline"></ion-icon> Stores</a>
-        <a href="sell.php?source=thrift"><ion-icon name="add-circle-outline"></ion-icon> Sell an Item</a>
-        <div class="td-divider"></div>
-
-        <div class="td-section-label">More</div>
-        <a href="blogs.php"><ion-icon name="newspaper-outline"></ion-icon> Blogs</a>
-        <a href="about.php"><ion-icon name="information-circle-outline"></ion-icon> About Us</a>
-        <a href="founders.php"><ion-icon name="people-outline"></ion-icon> Founders</a>
-        <div class="td-divider"></div>
-
-        <?php if(isset($_SESSION['user_id'])): ?>
-        <a href="logout.php" class="td-logout"><ion-icon name="log-out-outline"></ion-icon> Logout</a>
-        <?php else: ?>
-        <a href="login.php"><ion-icon name="log-in-outline"></ion-icon> Sign In</a>
-        <?php endif; ?>
-    </div>
-</div>
 
 <div class="thrift-page">
 
@@ -898,15 +636,6 @@ button.mob-nav-item {
         });
     }
 
-    var menuBtn = document.getElementById('thriftMenuBtn');
-    var drawer = document.getElementById('thriftDrawer');
-    var overlay = document.getElementById('thriftOverlay');
-    var closeBtn = document.getElementById('thriftDrawerClose');
-    function openDrawer() { drawer.classList.add('open'); overlay.classList.add('open'); document.body.style.overflow = 'hidden'; }
-    function closeDrawer() { drawer.classList.remove('open'); overlay.classList.remove('open'); document.body.style.overflow = ''; }
-    if (menuBtn) menuBtn.addEventListener('click', openDrawer);
-    if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
-    if (overlay) overlay.addEventListener('click', closeDrawer);
 })();
 </script>
 
