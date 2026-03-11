@@ -256,8 +256,43 @@ $totalPages = max(1, ceil($totalEmails / $perPage));
             text-align: center; padding: 3rem; color: #999;
         }
         .empty-state ion-icon { font-size: 3rem; margin-bottom: 1rem; color: #ddd; }
-
         .table-container { overflow-x: auto; }
+
+        /* Progress Modal */
+        #progressModal {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.6); z-index: 99999;
+            align-items: center; justify-content: center;
+        }
+        #progressModal.show { display: flex; }
+        .progress-box {
+            background: white; border-radius: 20px; padding: 2.5rem 2rem;
+            width: 100%; max-width: 500px; margin: 1rem;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.25);
+            text-align: center;
+        }
+        .progress-box h3 { margin: 0 0 6px; font-size: 1.2rem; color: #1a1a1a; }
+        .progress-box .sub { font-size: 0.85rem; color: #64748b; margin-bottom: 1.5rem; }
+        .progress-track {
+            background: #f0f0f0; border-radius: 50px; height: 14px;
+            overflow: hidden; margin-bottom: 1rem;
+        }
+        .progress-fill {
+            height: 100%; background: linear-gradient(90deg, #6B21A8, #a855f7);
+            border-radius: 50px; transition: width 0.3s ease;
+            width: 0%;
+        }
+        .progress-counts { font-size: 0.85rem; color: #666; margin-bottom: 0.5rem; }
+        .progress-current { font-size: 0.78rem; color: #999; min-height: 18px; word-break: break-all; margin-bottom: 1.5rem; }
+        .progress-stats { display: flex; gap: 1rem; justify-content: center; margin-bottom: 1.5rem; }
+        .stat-pill { padding: 6px 16px; border-radius: 50px; font-size: 0.82rem; font-weight: 700; }
+        .stat-sent { background: #dcfce7; color: #166534; }
+        .stat-failed { background: #fee2e2; color: #991b1b; }
+        #progressDoneBtn {
+            display: none; padding: 10px 28px; background: #6B21A8; color: white;
+            border: none; border-radius: 8px; font-weight: 600; cursor: pointer;
+            font-size: 0.9rem;
+        }
 
         @media (max-width: 768px) {
             .main-content { margin-left: 0; width: 100%; padding: 1.5rem; }
@@ -340,10 +375,28 @@ $totalPages = max(1, ceil($totalEmails / $perPage));
                 <textarea name="body" id="emailBody" required style="display:none;"></textarea>
             </div>
 
-            <button type="submit" class="btn-send">
+            <button type="submit" class="btn-send" id="sendBtn">
                 <ion-icon name="paper-plane-outline"></ion-icon> Send Email
             </button>
         </form>
+    </div>
+
+    <!-- Progress Modal -->
+    <div id="progressModal">
+        <div class="progress-box">
+            <h3>Sending Emails...</h3>
+            <p class="sub" id="progressSub">Preparing recipient list...</p>
+            <div class="progress-track">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-counts" id="progressCounts">&nbsp;</div>
+            <div class="progress-current" id="progressCurrent">&nbsp;</div>
+            <div class="progress-stats">
+                <span class="stat-pill stat-sent">Sent: <span id="statSent">0</span></span>
+                <span class="stat-pill stat-failed">Failed: <span id="statFailed">0</span></span>
+            </div>
+            <button id="progressDoneBtn" onclick="location.reload()">Done — View Results</button>
+        </div>
     </div>
 
     <div class="card">
@@ -425,7 +478,6 @@ $totalPages = max(1, ceil($totalEmails / $perPage));
 
 <script>
 var quillEditor = null;
-
 try {
     quillEditor = new Quill('#quillEditor', {
         theme: 'snow',
@@ -446,23 +498,6 @@ try {
     document.getElementById('emailBody').style.minHeight = '250px';
 }
 
-function syncAndSubmit() {
-    if (quillEditor) {
-        document.getElementById('emailBody').value = quillEditor.root.innerHTML;
-    }
-    var sendTo = document.getElementById('sendTo').value;
-    if (!sendTo) {
-        alert('Please select a recipient.');
-        return false;
-    }
-    var body = document.getElementById('emailBody').value;
-    if (!body || body === '<p><br></p>') {
-        alert('Please enter an email body.');
-        return false;
-    }
-    return true;
-}
-
 function toggleCustomEmail() {
     var val = document.getElementById('sendTo').value;
     document.getElementById('customEmailGroup').style.display = (val === 'custom') ? '' : 'none';
@@ -470,9 +505,105 @@ function toggleCustomEmail() {
 
 function viewEmailBody(id) {
     var row = document.getElementById('body-row-' + id);
-    if (row) {
-        row.style.display = row.style.display === 'none' ? '' : 'none';
+    if (row) row.style.display = row.style.display === 'none' ? '' : 'none';
+}
+
+document.getElementById('emailForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    if (quillEditor) document.getElementById('emailBody').value = quillEditor.root.innerHTML;
+
+    var sendTo  = document.getElementById('sendTo').value;
+    var subject = document.querySelector('[name="subject"]').value.trim();
+    var body    = document.getElementById('emailBody').value;
+
+    if (!sendTo)                        { alert('Please select a recipient.'); return; }
+    if (!subject)                       { alert('Please enter a subject.'); return; }
+    if (!body || body === '<p><br></p>'){ alert('Please enter an email body.'); return; }
+
+    var customEmail = (document.querySelector('[name="custom_email"]') || {}).value || '';
+
+    // Show modal
+    var modal = document.getElementById('progressModal');
+    modal.classList.add('show');
+    document.getElementById('progressSub').textContent = 'Fetching recipient list...';
+    document.getElementById('progressFill').style.width = '0%';
+    document.getElementById('progressCounts').textContent = '';
+    document.getElementById('progressCurrent').textContent = '';
+    document.getElementById('statSent').textContent = '0';
+    document.getElementById('statFailed').textContent = '0';
+    document.getElementById('progressDoneBtn').style.display = 'none';
+    document.getElementById('sendBtn').disabled = true;
+
+    // Step 1: get recipients
+    var fd = new FormData();
+    fd.append('action', 'get_recipients');
+    fd.append('send_to', sendTo);
+    fd.append('custom_email', customEmail);
+
+    fetch('admin_email_batch.php', { method: 'POST', body: fd })
+        .then(r => r.json())
+        .then(function(data) {
+            if (data.error) { alert('Error: ' + data.error); modal.classList.remove('show'); document.getElementById('sendBtn').disabled = false; return; }
+            var recipients = data.recipients;
+            if (!recipients || recipients.length === 0) {
+                alert('No valid recipients found.');
+                modal.classList.remove('show');
+                document.getElementById('sendBtn').disabled = false;
+                return;
+            }
+            sendSequentially(recipients, subject, body, 0, 0, 0);
+        })
+        .catch(function(err) {
+            alert('Network error: ' + err.message);
+            modal.classList.remove('show');
+            document.getElementById('sendBtn').disabled = false;
+        });
+});
+
+function sendSequentially(recipients, subject, body, index, sent, failed) {
+    var total = recipients.length;
+    var done  = index;
+    var pct   = total > 0 ? Math.round((done / total) * 100) : 0;
+
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressCounts').textContent = done + ' of ' + total + ' (' + pct + '%)';
+    document.getElementById('progressSub').textContent = 'Sending... please keep this tab open.';
+
+    if (index >= total) {
+        // Done
+        document.getElementById('progressFill').style.width = '100%';
+        document.getElementById('progressSub').textContent = 'All done!';
+        document.getElementById('progressCounts').textContent = total + ' of ' + total + ' (100%)';
+        document.getElementById('progressCurrent').textContent = '';
+        document.getElementById('statSent').textContent = sent;
+        document.getElementById('statFailed').textContent = failed;
+        document.getElementById('progressDoneBtn').style.display = 'inline-block';
+        document.getElementById('sendBtn').disabled = false;
+        return;
     }
+
+    var to = recipients[index];
+    document.getElementById('progressCurrent').textContent = 'Sending to: ' + to;
+    document.getElementById('statSent').textContent = sent;
+    document.getElementById('statFailed').textContent = failed;
+
+    var fd = new FormData();
+    fd.append('action', 'send_one');
+    fd.append('to', to);
+    fd.append('subject', subject);
+    fd.append('body', body);
+
+    fetch('admin_email_batch.php', { method: 'POST', body: fd })
+        .then(r => r.json())
+        .then(function(res) {
+            if (res.success) sent++; else failed++;
+            sendSequentially(recipients, subject, body, index + 1, sent, failed);
+        })
+        .catch(function() {
+            failed++;
+            sendSequentially(recipients, subject, body, index + 1, sent, failed);
+        });
 }
 </script>
 
