@@ -1,4 +1,11 @@
 <?php
+if (!ob_get_level()) {
+    if (extension_loaded('zlib') && !headers_sent()) {
+        ob_start('ob_gzhandler');
+    } else {
+        ob_start();
+    }
+}
 require 'includes/db.php';
 
 $category = $_GET['category'] ?? 'All';
@@ -13,25 +20,25 @@ if ($category !== 'All' && in_array($category, $valid_categories)) {
 }
 
 if (!empty($search)) {
-    $stmt = $pdo->prepare("SELECT p.*, MAX(o.created_at) as sold_at_date, u.account_type, u.business_name, u.full_name, u.profile_image 
+    $stmt = $pdo->prepare("SELECT p.*, 
+                            (SELECT MAX(o.created_at) FROM orders o WHERE o.product_id = p.id) as sold_at_date,
+                            u.account_type, u.business_name, u.full_name, u.profile_image 
                          FROM products p 
-                         LEFT JOIN orders o ON p.id = o.product_id 
                          LEFT JOIN users u ON p.user_id = u.id
                          WHERE p.is_published = 1 AND p.approval_status = 'approved'
                          $thrift_condition
                          AND (p.title LIKE ? OR p.condition_tag LIKE ?)
-                         GROUP BY p.id 
                          ORDER BY (p.is_featured = 1 AND (p.boosted_until IS NULL OR p.boosted_until > datetime('now'))) DESC, p.created_at DESC");
     $stmt->execute(["%$search%", "%$search%"]);
     $products = $stmt->fetchAll();
 } else {
-    $stmt = $pdo->query("SELECT p.*, MAX(o.created_at) as sold_at_date, u.account_type, u.business_name, u.full_name, u.profile_image 
+    $stmt = $pdo->query("SELECT p.*, 
+                            (SELECT MAX(o.created_at) FROM orders o WHERE o.product_id = p.id) as sold_at_date,
+                            u.account_type, u.business_name, u.full_name, u.profile_image 
                          FROM products p 
-                         LEFT JOIN orders o ON p.id = o.product_id 
                          LEFT JOIN users u ON p.user_id = u.id
                          WHERE p.is_published = 1 AND p.approval_status = 'approved'
                          $thrift_condition
-                         GROUP BY p.id 
                          ORDER BY (p.is_featured = 1 AND (p.boosted_until IS NULL OR p.boosted_until > datetime('now'))) DESC, p.created_at DESC");
     $products = $stmt->fetchAll();
 }
@@ -58,7 +65,10 @@ foreach ($products as $p) {
 include 'includes/header.php';
 ?>
 
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet"></noscript>
+<link rel="preconnect" href="https://unpkg.com">
 
 <style>
 body { background: #f3ebdc !important; color: #111 !important; }
@@ -326,8 +336,8 @@ body { background: #f3ebdc !important; color: #111 !important; }
 .p-card.featured { box-shadow: 0 8px 24px rgba(147,51,234,0.08); }
 .p-card.featured:hover { box-shadow: 0 16px 40px rgba(147,51,234,0.12); }
 
-.p-card-img { position: relative; aspect-ratio: 1/1; overflow: hidden; border-radius: 8px; background: #f0f0f0; }
-.p-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s ease; border-radius: 8px; }
+.p-card-img { position: relative; aspect-ratio: 1/1; overflow: hidden; border-radius: 8px; background: #f0f0f0; contain: layout style paint; }
+.p-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s ease; border-radius: 8px; content-visibility: auto; }
 .p-card:hover .p-card-img img { transform: scale(1.05); }
 
 .price-badge {
@@ -590,7 +600,7 @@ button.mob-nav-item {
                 <div class="collective-ring <?php echo $ringClass; ?>">
                     <div class="collective-avatar">
                         <?php if (!empty($group['photo'])): ?>
-                        <img src="<?php echo htmlspecialchars($group['photo']); ?>" alt="<?php echo htmlspecialchars($group['name']); ?>">
+                        <img src="<?php echo htmlspecialchars($group['photo']); ?>" alt="<?php echo htmlspecialchars($group['name']); ?>" loading="lazy" decoding="async" width="56" height="56">
                         <?php else: ?>
                         <span class="avatar-init"><?php echo strtoupper(substr($group['name'], 0, 1)); ?></span>
                         <?php endif; ?>
@@ -627,7 +637,7 @@ button.mob-nav-item {
             ?>
             <a href="<?php echo $url; ?>" class="p-card <?php echo $isBoosted ? 'featured' : ''; ?>">
                 <div class="p-card-img">
-                    <img src="<?php echo htmlspecialchars($img); ?>" alt="<?php echo $title; ?>" loading="lazy">
+                    <img src="<?php echo htmlspecialchars($img); ?>" alt="<?php echo $title; ?>" loading="lazy" decoding="async" width="300" height="375">
                     <?php if ($isBoosted && !$isSold): ?>
                     <span class="featured-badge">Featured</span>
                     <?php endif; ?>
