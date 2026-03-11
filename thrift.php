@@ -399,17 +399,17 @@ body { background: #f3ebdc !important; color: #111 !important; }
     border-top: 5px solid #3b0764; border-right: 5px solid transparent;
 }
 
-.p-card-body { padding: 16px 0 0; flex: 1; display: flex; flex-direction: column; }
+.p-card-body { padding: 12px 0 0; }
 .p-card-title {
     font-family: 'Inter', sans-serif; font-weight: 600;
     font-size: 1.05rem; line-height: 1.3;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     margin: 0 0 4px; color: var(--text);
 }
-.p-card-cond { font-size: 0.88rem; color: var(--muted); font-family: 'Inter', sans-serif; margin: 0 0 auto; }
+.p-card-cond { font-size: 0.88rem; color: var(--muted); font-family: 'Inter', sans-serif; margin: 0; }
 
 .btn-claim {
-    display: block; width: 100%; margin-top: 14px;
+    display: block; width: 100%; margin-top: 10px;
     padding: 11px 16px; text-align: center;
     background: linear-gradient(145deg, #2a4a34, #1e3627);
     color: #FFFFFF;
