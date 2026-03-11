@@ -829,7 +829,7 @@ body { background-color: #eae4cc !important; color: #1a1a1a !important; }
     <?php if (!empty($vendor_groups)): ?>
     <div style="margin-bottom:4rem;">
         <h2 style="font-family:'Times New Roman',serif; font-weight:800; font-size:1.8rem; margin-bottom:20px; padding-bottom:15px; border-bottom:2px dashed #1a1a1a;">Featured Stores</h2>
-        <div class="cl-vendor-grid" style="gap:1.5rem; display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); padding-bottom:10px; padding-right:8px;">
+        <div class="cl-vendor-grid" style="gap:1.5rem; display:grid; grid-template-columns:repeat(2, 1fr); padding-bottom:10px;">
             <?php foreach ($vendor_groups as $vid => $group): ?>
             <div>
                 <a href="vendor.php?id=<?php echo $vid; ?>" style="display:block; text-decoration:none; border:2.5px solid #1a1a1a; background:#fff; padding:25px 20px; box-shadow:6px 6px 0px #1a1a1a; border-radius:12px; transition:transform 0.2s; text-align:center;">
@@ -863,7 +863,7 @@ body { background-color: #eae4cc !important; color: #1a1a1a !important; }
     <?php if (!empty($community_products)): ?>
     <div style="margin-bottom:4rem;">
         <h2 style="font-family:'Times New Roman',serif; font-weight:800; font-size:1.8rem; margin-bottom:20px; padding-bottom:15px; border-bottom:2px dashed #1a1a1a;">Community Closet</h2>
-        <div class="cl-product-grid" style="gap:1.5rem; display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); padding-bottom:10px; padding-right:8px;">
+        <div class="cl-product-grid" style="gap:1.5rem; display:grid; grid-template-columns:repeat(2, 1fr); padding-bottom:10px;">
             <?php foreach ($community_products as $p):
                 if (isset($p['status']) && $p['status'] === 'sold' && !empty($p['sold_at_date'])) {
                     if (time() - strtotime($p['sold_at_date']) > 86400) continue;
@@ -876,8 +876,8 @@ body { background-color: #eae4cc !important; color: #1a1a1a !important; }
                 $url = "product_details.php?id={$p['id']}&source=thrift";
                 $isSold = isset($p['status']) && $p['status'] === 'sold';
             ?>
-            <div class="cl-card-wrapper">
-                <a href="<?php echo $url; ?>" style="display:block; text-decoration:none; border:2.5px solid #1a1a1a; background:#fff; padding:15px; box-shadow:6px 6px 0px #1a1a1a; border-radius:12px; transition:transform 0.2s; position:relative;">
+            <div class="cl-card-wrapper" style="display:flex;">
+                <a href="<?php echo $url; ?>" style="display:flex; flex-direction:column; text-decoration:none; border:2.5px solid #1a1a1a; background:#fff; padding:15px; box-shadow:6px 6px 0px #1a1a1a; border-radius:12px; transition:transform 0.2s; position:relative; width:100%;">
                     <div style="position:relative; margin-bottom:15px; border-bottom:1.5px solid #1a1a1a; padding-bottom:12px;">
                         <div style="position:absolute; top:-10px; right:-10px; background:#ef4444; color:white; padding:5px 12px; font-weight:800; font-family:'Courier New',monospace; font-size:1.1rem; transform:rotate(5deg); z-index:5; border:2px solid #1a1a1a; border-radius:4px;">
                             ₹<?php echo $price; ?>
@@ -887,13 +887,13 @@ body { background-color: #eae4cc !important; color: #1a1a1a !important; }
                         <?php endif; ?>
                         <img src="<?php echo htmlspecialchars($img); ?>" alt="<?php echo $title; ?>" style="width:100%; aspect-ratio:1/1; object-fit:cover; display:block; filter:sepia(0.05) contrast(1.05); border-radius:8px;" loading="lazy" decoding="async">
                     </div>
-                    <div style="color:#1a1a1a;">
-                        <div style="font-family:'Times New Roman',serif; font-weight:800; font-size:1.3rem; line-height:1.2; margin-bottom:8px; text-transform:capitalize; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"><?php echo $title; ?></div>
+                    <div style="color:#1a1a1a; display:flex; flex-direction:column; flex:1;">
+                        <div class="cl-card-title" style="font-family:'Times New Roman',serif; font-weight:800; font-size:1.3rem; line-height:1.2; margin-bottom:6px; text-transform:capitalize; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;"><?php echo $title; ?></div>
                         <?php if ($cond): ?>
-                        <div style="font-family:'Courier New',monospace; font-size:0.95rem; color:#333; margin-bottom:15px; font-weight:600; line-height:1.4;">Condition:<br><?php echo ucfirst($cond); ?></div>
+                        <div style="font-family:'Courier New',monospace; font-size:0.85rem; color:#555; margin-bottom:8px; font-weight:600; line-height:1.3;">Condition:<br><?php echo ucfirst($cond); ?></div>
                         <?php endif; ?>
                         <?php if (!$isSold): ?>
-                        <div style="background:#1a1a1a; color:#fff; text-align:center; padding:10px; font-weight:700; font-family:'Courier New',monospace; display:block; width:100%; border:none; letter-spacing:1px; font-size:1.1rem; cursor:pointer; border-radius:6px;">CLAIM PIECE</div>
+                        <div style="background:#1a1a1a; color:#fff; text-align:center; padding:9px; font-weight:700; font-family:'Courier New',monospace; display:block; width:100%; border:none; letter-spacing:1px; font-size:0.95rem; cursor:pointer; border-radius:6px; margin-top:auto;">CLAIM PIECE</div>
                         <?php endif; ?>
                     </div>
                 </a>
@@ -907,30 +907,36 @@ body { background-color: #eae4cc !important; color: #1a1a1a !important; }
 </div>
 
 <style>
-@media (max-width: 1024px) {
+@media (min-width: 768px) {
     .cl-product-grid, .cl-vendor-grid { grid-template-columns: repeat(3, 1fr) !important; }
 }
-@media (max-width: 768px) {
-    .cl-product-grid, .cl-vendor-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
-    .cl-card-wrapper a { padding: 10px !important; box-shadow: 4px 4px 0px #1a1a1a !important; }
-    .cl-card-wrapper a div[style*="font-size:1.3rem"] { font-size: 0.95rem !important; }
-    .cl-card-wrapper a div[style*="font-size:1.1rem"] { font-size: 0.8rem !important; padding: 8px !important; }
-    .cl-cat-wrapper::-webkit-scrollbar { display: none; }
-    .classic-container { padding: 0 12px !important; }
-    .classic-banner { padding: 0 12px !important; margin: 12px auto !important; }
-    .classic-cats { padding: 8px 12px !important; margin-bottom: 1rem !important; }
-    .classic-container h2[style*="font-size:1.8rem"] { font-size: 1.3rem !important; }
-    .classic-container span[style*="font-size:1.3rem"] { font-size: 1rem !important; }
-    .classic-container div[style*="gap:10px"] span[style*="border-radius:30px"] {
-        padding: 6px 12px !important; font-size: 0.78rem !important;
-    }
-    .classic-container h2[style*="border-bottom"] { font-size: 1.3rem !important; margin-bottom: 14px !important; padding-bottom: 10px !important; }
+@media (min-width: 1024px) {
+    .cl-product-grid, .cl-vendor-grid { grid-template-columns: repeat(4, 1fr) !important; }
 }
-@media (max-width: 480px) {
+@media (max-width: 767px) {
     .cl-product-grid, .cl-vendor-grid { gap: 10px !important; }
-    .cl-card-wrapper a { padding: 8px !important; box-shadow: 3px 3px 0px #1a1a1a !important; }
+    .cl-card-wrapper a { padding: 10px !important; box-shadow: 4px 4px 0px #1a1a1a !important; }
+    .cl-card-wrapper a div[style*="font-size:1.3rem"] { font-size: 0.85rem !important; }
+    .cl-card-wrapper a div[style*="font-size:1.1rem"] { font-size: 0.75rem !important; padding: 7px !important; }
+    .cl-card-wrapper a div[style*="font-size:0.95rem"] { font-size: 0.7rem !important; }
+    .cl-card-wrapper a img { aspect-ratio: 4/5 !important; }
+    .cl-cat-wrapper::-webkit-scrollbar { display: none; }
+    .classic-container { padding: 0 10px !important; }
+    .classic-banner { padding: 0 10px !important; margin: 10px auto !important; }
+    .classic-cats { padding: 6px 10px !important; margin-bottom: 0.8rem !important; gap: 6px !important; }
     .classic-container h2[style*="font-size:1.8rem"] { font-size: 1.1rem !important; }
     .classic-container span[style*="font-size:1.3rem"] { font-size: 0.85rem !important; }
+    .classic-container div[style*="gap:10px"] span[style*="border-radius:30px"] {
+        padding: 5px 10px !important; font-size: 0.72rem !important;
+    }
+    .classic-container h2[style*="border-bottom"] { font-size: 1.2rem !important; margin-bottom: 12px !important; padding-bottom: 8px !important; }
+    .classic-container div[style*="margin-bottom:2.5rem"] { margin-bottom: 1rem !important; }
+    .classic-container div[style*="margin-bottom:4rem"] { margin-bottom: 2rem !important; }
+}
+@media (max-width: 380px) {
+    .cl-product-grid, .cl-vendor-grid { gap: 8px !important; }
+    .cl-card-wrapper a { padding: 6px !important; box-shadow: 3px 3px 0px #1a1a1a !important; border-width: 2px !important; }
+    .cl-card-wrapper a div[style*="font-size:1.3rem"] { font-size: 0.78rem !important; }
 }
 </style>
 
