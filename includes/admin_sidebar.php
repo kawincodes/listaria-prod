@@ -467,6 +467,10 @@ try {
         <ion-icon name="send-outline"></ion-icon> Email Sender
     </a>
 
+    <a href="admin_boost.php" class="menu-item <?php echo ($activePage == 'boost') ? 'active' : ''; ?>">
+        <ion-icon name="rocket-outline"></ion-icon> Boost Management
+    </a>
+
     <a href="admin_cronjobs.php" class="menu-item <?php echo ($activePage == 'cronjobs') ? 'active' : ''; ?>">
         <ion-icon name="timer-outline"></ion-icon> Cron Jobs
     </a>

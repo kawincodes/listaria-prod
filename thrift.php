@@ -27,7 +27,7 @@ if (!empty($search)) {
                          $thrift_condition
                          AND (p.title LIKE ? OR p.condition_tag LIKE ?)
                          GROUP BY p.id 
-                         ORDER BY p.created_at DESC");
+                         ORDER BY (p.is_featured = 1 AND (p.boosted_until IS NULL OR p.boosted_until > datetime('now'))) DESC, p.created_at DESC");
     $stmt->execute(["%$search%", "%$search%"]); 
 } else {
     // Default or Category View
@@ -39,7 +39,7 @@ if (!empty($search)) {
                          AND p.approval_status = 'approved'
                          $thrift_condition
                          GROUP BY p.id 
-                         ORDER BY p.created_at DESC");
+                         ORDER BY (p.is_featured = 1 AND (p.boosted_until IS NULL OR p.boosted_until > datetime('now'))) DESC, p.created_at DESC");
     $products = $stmt->fetchAll();
 }
 

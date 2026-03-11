@@ -51,6 +51,19 @@ try {
         sent_by INTEGER,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )");
+    $pdo->exec("CREATE TABLE IF NOT EXISTS boost_orders (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        product_id INTEGER NOT NULL,
+        user_id INTEGER NOT NULL,
+        plan_days INTEGER NOT NULL,
+        amount DECIMAL(10,2) NOT NULL,
+        payment_method TEXT DEFAULT 'wallet',
+        status TEXT DEFAULT 'pending',
+        boosted_from DATETIME,
+        boosted_until DATETIME,
+        admin_note TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )");
     $pdo->exec("CREATE TABLE IF NOT EXISTS product_requests (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,

@@ -482,6 +482,12 @@ usort($all_negotiations, function($a, $b) {
                                      <a href="product_details.php?id=<?php echo $product['id']; ?>" class="action-link"><ion-icon name="eye-outline"></ion-icon> View</a>
                                      <a href="javascript:void(0)" onclick='openEditModal(<?php echo json_encode($product); ?>)' class="action-link"><ion-icon name="create-outline"></ion-icon> Edit</a>
                                      <a href="javascript:void(0)" onclick='shareListing("<?php echo $product['id']; ?>", "<?php echo addslashes($product['title']); ?>")' class="action-link"><ion-icon name="share-social-outline"></ion-icon> Share</a>
+                                     <?php if (($product['approval_status'] ?? '') === 'approved'): ?>
+                                     <?php $isBoostedNow = !empty($product['boosted_until']) && strtotime($product['boosted_until']) > time(); ?>
+                                     <a href="boost.php?product=<?php echo $product['id']; ?>" class="action-link" style="<?php echo $isBoostedNow ? 'color:#f59e0b;' : 'color:#6B21A8;'; ?>">
+                                         <ion-icon name="rocket-outline"></ion-icon> <?php echo $isBoostedNow ? 'Boosted' : 'Boost'; ?>
+                                     </a>
+                                     <?php endif; ?>
                                 </div>
                             </div>
                         </div>
