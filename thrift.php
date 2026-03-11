@@ -419,9 +419,8 @@ body { background: #f3ebdc !important; color: #111 !important; }
 
 
 @media(max-width: 768px) {
-    .mobile-bottom-nav { display: block; }
-    .thrift-wrap { padding: 24px 16px 100px; }
-    .navbar { padding: 0.7rem 12px !important; gap: 8px !important; }
+    .thrift-wrap { padding: 24px 16px 60px; }
+    .navbar { padding: 0.7rem 12px !important; }
     .cat-row { padding: 6px 8px; }
     .cat-arrow { width: 32px; height: 32px; }
     .thrift-hero-text h1 { font-size: 2.5rem; }
@@ -599,31 +598,6 @@ body { background: #f3ebdc !important; color: #111 !important; }
 </div>
 </div>
 
-<!-- Mobile Bottom Nav -->
-<nav class="mobile-bottom-nav">
-    <div class="mobile-bottom-nav-inner">
-        <a href="index.php" class="mob-nav-item">
-            <ion-icon name="home-outline"></ion-icon>
-            <span>Home</span>
-        </a>
-        <a href="thrift.php" class="mob-nav-item active">
-            <ion-icon name="leaf-outline"></ion-icon>
-            <span>Thrift+</span>
-        </a>
-        <a href="sell.php?source=thrift" class="mob-nav-item">
-            <ion-icon name="add-circle-outline"></ion-icon>
-            <span>Sell</span>
-        </a>
-        <a href="#search" class="mob-nav-item" id="mobSearchBtn">
-            <ion-icon name="search-outline"></ion-icon>
-            <span>Search</span>
-        </a>
-        <a href="<?php echo isset($_SESSION['user_id']) ? 'profile.php' : 'login.php'; ?>" class="mob-nav-item">
-            <ion-icon name="person-outline"></ion-icon>
-            <span>Profile</span>
-        </a>
-    </div>
-</nav>
 
 <!-- Category scroll JS -->
 <script>
@@ -638,18 +612,6 @@ body { background: #f3ebdc !important; color: #111 !important; }
     var active = wrap && wrap.querySelector('.cat-pill.active');
     if (active) setTimeout(function(){ active.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' }); }, 100);
 
-    var mobSearch = document.getElementById('mobSearchBtn');
-    if (mobSearch) {
-        mobSearch.addEventListener('click', function(e) {
-            e.preventDefault();
-            var searchWrap = document.querySelector('.search-wrap');
-            var searchInput = searchWrap ? searchWrap.querySelector('input[name="search"]') : null;
-            if (searchInput) {
-                searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                setTimeout(function(){ searchInput.focus(); }, 400);
-            }
-        });
-    }
 })();
 </script>
 
