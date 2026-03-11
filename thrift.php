@@ -86,7 +86,7 @@ body { background: #f3ebdc !important; color: #111 !important; }
 *, *::before, *::after { box-sizing: border-box; }
 
 .navbar {
-    background: linear-gradient(180deg, #8B6B4A 0%, #7A5A3A 30%, #6B4930 60%, #5C3D2E 100%) !important;
+    background: linear-gradient(180deg, #8B6B4A 0%, #7A5A3A 40%, #6B4930 80%, #6B4930 100%) !important;
     border-bottom: none !important;
     box-shadow: none !important;
     position: sticky !important; top: 0 !important; z-index: 1000 !important;
@@ -184,9 +184,9 @@ body { background: #f3ebdc !important; color: #111 !important; }
 .cat-row {
     display: flex; align-items: center; gap: 0;
     margin: 0; width: 100%;
-    background: linear-gradient(180deg, #A07850 0%, #8B6242 15%, #7A5438 40%, #6B4930 60%, #8B6242 80%, #A07850 100%);
+    background: linear-gradient(180deg, #6B4930 0%, #7A5438 20%, #8B6242 50%, #7A5438 80%, #6B4930 100%);
     border-radius: 0; padding: 8px 2rem;
-    box-shadow: 0 4px 16px rgba(92,61,46,0.25), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.2);
+    box-shadow: 0 4px 16px rgba(92,61,46,0.25), inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.2);
     position: relative; overflow: hidden;
 }
 .cat-row::before {
