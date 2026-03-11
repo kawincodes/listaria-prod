@@ -236,15 +236,25 @@ body { background: #F5F2E8 !important; color: #2D2A26 !important; }
     box-shadow: 0 2px 6px rgba(107,33,168,0.3);
 }
 
-.p-card-body { padding: 10px 12px 14px; }
+.p-card-body { padding: 12px 14px 14px; }
 .p-card-title {
     font-family: 'Inter', sans-serif; font-weight: 600;
     font-size: 0.85rem; line-height: 1.35;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    margin: 0 0 3px; color: var(--text);
+    margin: 0 0 4px; color: var(--text);
 }
-.p-card-cond { font-size: 0.72rem; color: var(--muted); font-family: 'Inter', sans-serif; }
-.p-card-size { font-size: 0.72rem; color: var(--muted); font-family: 'Inter', sans-serif; }
+.p-card-cond { font-size: 0.72rem; color: var(--muted); font-family: 'Inter', sans-serif; margin-bottom: 2px; }
+.p-card-cond-val { font-size: 0.72rem; color: var(--muted); font-family: 'Inter', sans-serif; font-weight: 500; }
+.btn-claim {
+    display: block; width: 100%; margin-top: 10px;
+    padding: 10px; text-align: center;
+    background: var(--green); color: #FFFFFF;
+    font-family: 'Inter', sans-serif; font-weight: 700;
+    font-size: 0.78rem; letter-spacing: 1.2px;
+    border: none; border-radius: 10px; cursor: pointer;
+    transition: background 0.2s;
+}
+.p-card:hover .btn-claim { background: #1f3328; }
 
 /* ── Search bar ─────────────────────────────────── */
 .search-wrap { position: relative; margin-bottom: 0.5rem; }
@@ -414,8 +424,10 @@ body { background: #F5F2E8 !important; color: #2D2A26 !important; }
             <div class="p-card-body">
                 <div class="p-card-title"><?php echo $title; ?></div>
                 <?php if ($cond): ?>
-                <div class="p-card-cond"><?php echo ucfirst($cond); ?> condition</div>
+                <div class="p-card-cond">Condition:</div>
+                <div class="p-card-cond-val"><?php echo ucfirst($cond); ?></div>
                 <?php endif; ?>
+                <div class="btn-claim">CLAIM PIECE</div>
             </div>
         </a>
         <?php endforeach; ?>
