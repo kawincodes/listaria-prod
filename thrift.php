@@ -709,16 +709,41 @@ body { background-color: #eae4cc !important; color: #1a1a1a !important; }
 .navbar {
     background: #1a1a1a !important;
     border-bottom: none !important;
+    box-shadow: none !important;
+    max-width: 100% !important;
+    padding: 0.6rem 30px !important;
 }
 .navbar::before, .navbar::after { display: none !important; }
 .navbar .brand { color: #eae4cc !important; text-shadow: none !important; }
-.navbar .brand-location { color: #999 !important; }
-.navbar .search-input { background: rgba(255,255,255,0.08) !important; border: 1px solid #444 !important; color: #eae4cc !important; }
+.navbar .brand-location { color: #999 !important; font-size: 0.7rem !important; }
+.navbar .search-input {
+    background: rgba(255,255,255,0.1) !important;
+    border: 1px solid #444 !important;
+    color: #eae4cc !important;
+    border-radius: 6px !important;
+}
 .navbar .search-input::placeholder { color: rgba(234,228,204,0.4) !important; }
-.navbar .nav-link { color: #ccc5a8 !important; }
+.navbar .nav-link { color: #ccc5a8 !important; font-size: 0.85rem !important; }
 .navbar .nav-link:hover { color: #fff !important; }
 .navbar .btn-signin { background: transparent !important; color: #eae4cc !important; border: 1.5px solid #eae4cc !important; }
-.navbar .btn-sell { background: #eae4cc !important; color: #1a1a1a !important; border: none !important; font-weight: 700 !important; }
+.navbar .btn-thrift {
+    background: #27ae60 !important;
+    color: #fff !important;
+    border: none !important;
+    font-weight: 600 !important;
+    border-radius: 20px !important;
+    padding: 6px 16px !important;
+    font-size: 0.85rem !important;
+}
+.navbar .btn-sell {
+    background: #eae4cc !important;
+    color: #1a1a1a !important;
+    border: none !important;
+    font-weight: 700 !important;
+    border-radius: 20px !important;
+    padding: 6px 16px !important;
+    font-size: 0.85rem !important;
+}
 .announcement-bar { background: #1a1a1a !important; }
 .cat-row { display: none !important; }
 .classic-banner { display: block !important; }
@@ -730,11 +755,26 @@ body { background-color: #eae4cc !important; color: #1a1a1a !important; }
 .section-gap { display: none !important; }
 .mobile-bottom-nav { display: none !important; }
 .thrift-page { padding-top: 0 !important; }
+.cl-product-grid {
+    align-items: start !important;
+}
+.cl-card-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+}
+.cl-card-wrapper > a {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+}
+.cl-card-wrapper > a > div:last-child {
+    margin-top: auto !important;
+}
 </style>
 <?php endif; ?>
 
 <?php if ($thriftTheme === 'classic'): ?>
-<div class="classic-banner" style="display:none; background:transparent; padding:0; margin:30px auto; max-width:1240px; border-radius:24px; position:relative; overflow:hidden; text-align:center;">
+<div class="classic-banner" style="display:none; background:transparent; padding:0 30px; margin:20px auto; max-width:1280px; border-radius:24px; position:relative; overflow:hidden; text-align:center;">
     <?php
         $tBanner = 'assets/thrift_banner.png';
         if(!file_exists($tBanner)) $tBanner = 'assets/thrift_banner_final.png';
@@ -742,11 +782,11 @@ body { background-color: #eae4cc !important; color: #1a1a1a !important; }
     <img src="<?php echo $tBanner; ?>" alt="Listaria Thrift+ Banner" style="width:100%; height:auto; display:block; border-radius:20px;" loading="lazy">
 </div>
 
-<div class="classic-cats" style="display:none; background:transparent; padding:10px 20px; align-items:center; justify-content:center; margin-bottom:2rem; gap:10px;">
+<div class="classic-cats" style="display:none; background:transparent; padding:10px 30px; align-items:center; justify-content:center; margin-bottom:2rem; gap:10px; max-width:1280px; margin-left:auto; margin-right:auto;">
     <div class="cl-scroll-btn" id="clScrollLeft" style="cursor:pointer; background:#fff; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 5px rgba(0,0,0,0.1); min-width:40px; color:#1a1a1a;">
         <ion-icon name="chevron-back-outline"></ion-icon>
     </div>
-    <div class="cl-cat-wrapper" id="clCatWrapper" style="display:flex; gap:12px; overflow-x:auto; scroll-behavior:smooth; scrollbar-width:none; -ms-overflow-style:none; padding:5px; white-space:nowrap; max-width:100%;">
+    <div class="cl-cat-wrapper" id="clCatWrapper" style="display:flex; gap:12px; overflow-x:auto; scroll-behavior:smooth; scrollbar-width:none; -ms-overflow-style:none; padding:5px; white-space:nowrap; flex:1 1 auto; min-width:0;">
         <?php
         $cats = ['All', 'Tops', 'Bottoms', 'Jackets', 'Shoes', 'Bags', 'Accessories'];
         foreach ($cats as $cat) {
@@ -789,7 +829,7 @@ body { background-color: #eae4cc !important; color: #1a1a1a !important; }
     <?php if (!empty($vendor_groups)): ?>
     <div style="margin-bottom:4rem;">
         <h2 style="font-family:'Times New Roman',serif; font-weight:800; font-size:1.8rem; margin-bottom:20px; padding-bottom:15px; border-bottom:2px dashed #1a1a1a;">Featured Stores</h2>
-        <div style="gap:1.5rem; display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); padding-bottom:10px; padding-right:8px;">
+        <div class="cl-vendor-grid" style="gap:1.5rem; display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); padding-bottom:10px; padding-right:8px;">
             <?php foreach ($vendor_groups as $vid => $group): ?>
             <div>
                 <a href="vendor.php?id=<?php echo $vid; ?>" style="display:block; text-decoration:none; border:2.5px solid #1a1a1a; background:#fff; padding:25px 20px; box-shadow:6px 6px 0px #1a1a1a; border-radius:12px; transition:transform 0.2s; text-align:center;">
@@ -868,12 +908,10 @@ body { background-color: #eae4cc !important; color: #1a1a1a !important; }
 
 <style>
 @media (max-width: 1024px) {
-    .cl-product-grid { grid-template-columns: repeat(3, 1fr) !important; }
-    .classic-container div[style*="grid-template-columns"] { grid-template-columns: repeat(3, 1fr) !important; }
+    .cl-product-grid, .cl-vendor-grid { grid-template-columns: repeat(3, 1fr) !important; }
 }
 @media (max-width: 768px) {
-    .cl-product-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
-    .classic-container div[style*="grid-template-columns"] { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
+    .cl-product-grid, .cl-vendor-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
     .cl-card-wrapper a { padding: 10px !important; box-shadow: 4px 4px 0px #1a1a1a !important; }
     .cl-card-wrapper a div[style*="font-size:1.3rem"] { font-size: 1rem !important; }
     .cl-card-wrapper a div[style*="font-size:1.1rem"] { font-size: 0.85rem !important; padding: 8px !important; }
@@ -881,7 +919,7 @@ body { background-color: #eae4cc !important; color: #1a1a1a !important; }
     .classic-container { padding: 0 12px !important; }
 }
 @media (max-width: 480px) {
-    .cl-product-grid { gap: 10px !important; }
+    .cl-product-grid, .cl-vendor-grid { gap: 10px !important; }
     .cl-card-wrapper a { padding: 8px !important; box-shadow: 3px 3px 0px #1a1a1a !important; }
 }
 </style>
