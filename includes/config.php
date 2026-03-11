@@ -1,5 +1,7 @@
 <?php
 // includes/config.php
+if (defined('CONFIG_LOADED')) return;
+define('CONFIG_LOADED', true);
 
 function loadEnv($path) {
     if (!file_exists($path)) {

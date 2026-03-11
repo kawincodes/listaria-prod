@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/includes/session.php';
 require 'includes/db.php';
-require 'includes/config.php';
+require_once 'includes/config.php';
 
 $activePage = 'email_sender';
 
