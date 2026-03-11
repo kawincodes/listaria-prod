@@ -473,38 +473,100 @@ button.mob-nav-item {
 
 @media(max-width: 768px) {
     .mobile-bottom-nav { display: block; }
-    .thrift-wrap { padding: 24px 16px 100px; }
-    .navbar { padding: 0.7rem 12px !important; }
+    .thrift-wrap { padding: 20px 16px 100px; }
+    .navbar {
+        padding: 0.6rem 12px !important;
+        gap: 8px !important;
+        flex-wrap: nowrap !important;
+    }
+    .navbar .brand-wrapper {
+        flex-shrink: 0 !important;
+    }
+    .navbar .brand-wrapper img {
+        height: 30px !important;
+    }
+    .navbar .brand {
+        font-size: 1.1rem !important;
+    }
+    .navbar .brand-location {
+        display: none !important;
+    }
+    .navbar .search-container {
+        display: none !important;
+    }
+    .navbar .nav-links {
+        display: none !important;
+    }
+    .navbar .nav-actions {
+        flex-shrink: 0 !important;
+        gap: 6px !important;
+        margin-left: auto !important;
+    }
+    .navbar .profile-link {
+        display: none !important;
+    }
+    .navbar .btn-thrift {
+        padding: 0 10px !important;
+        font-size: 0.78rem !important;
+        height: 32px !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+    .navbar .btn-sell {
+        padding: 0 10px !important;
+        font-size: 0.78rem !important;
+        height: 32px !important;
+    }
+    .navbar .hamburger {
+        margin-right: 0 !important;
+        padding: 4px !important;
+    }
+    .navbar .hamburger ion-icon {
+        font-size: 1.4rem !important;
+    }
     .cat-row { padding: 6px 8px; }
     .cat-arrow { width: 32px; height: 32px; }
-    .thrift-hero-text h1 { font-size: 2.5rem; }
-    .thrift-hero-text .hero-sub { font-size: 2.5rem; }
-    .section-heading { font-size: 1.75rem; }
+    .thrift-hero-text { margin: 0 0 20px; }
+    .thrift-hero-text h1 { font-size: 2.2rem; }
+    .thrift-hero-text .hero-sub { font-size: 2.2rem; }
+    .section-heading { font-size: 1.6rem; margin-bottom: 1rem; }
     .cat-pill { padding: 9px 18px; font-size: 0.85rem; }
+    .sub-tags { gap: 10px; margin-top: 18px; }
+    .sub-tag { padding: 8px 16px; font-size: 0.85rem; }
+    .search-wrap { margin-bottom: 0; }
+    .search-wrap input { padding: 12px 16px 12px 42px; font-size: 0.9rem; }
     .collective-card { width: 260px; padding: 24px 12px 20px; }
     .collective-ring { width: 100px; height: 100px; }
-    .products-grid { gap: 16px; }
-    .p-card { padding: 12px; }
-    .price-badge { padding: 6px 10px 8px; font-size: 0.82rem; right: 10px; }
-    .sold-badge, .featured-badge { padding: 6px 10px 8px; font-size: 0.7rem; left: 10px; }
+    .products-grid { gap: 12px; }
+    .p-card { padding: 10px; border-radius: 14px; }
+    .p-card-title { font-size: 0.92rem; }
+    .p-card-cond { font-size: 0.8rem; }
+    .price-badge { padding: 5px 10px 7px; font-size: 0.78rem; right: 8px; }
+    .sold-badge, .featured-badge { padding: 5px 10px 7px; font-size: 0.68rem; left: 8px; }
+    .btn-claim { padding: 9px 12px; font-size: 0.76rem; letter-spacing: 1.4px; margin-top: 8px; border-radius: 8px; }
+    .section-gap { margin-top: 2rem; }
 }
 @media(max-width: 480px) {
-    .thrift-hero-text h1 { font-size: 2rem; }
-    .thrift-hero-text .hero-sub { font-size: 2rem; }
-    .section-heading { font-size: 1.4rem; }
+    .thrift-wrap { padding: 16px 12px 100px; }
+    .thrift-hero-text h1 { font-size: 1.8rem; }
+    .thrift-hero-text .hero-sub { font-size: 1.8rem; }
+    .section-heading { font-size: 1.3rem; }
     .cat-pill { padding: 8px 16px; font-size: 0.8rem; gap: 6px; }
-    .cat-row { padding: 4px 8px; gap: 0; }
-    .cat-arrow { width: 32px; height: 32px; }
+    .cat-row { padding: 4px 6px; gap: 0; }
+    .cat-arrow { width: 28px; height: 28px; }
     .cat-scroll { gap: 6px; padding: 2px 4px; }
     .collective-card { width: 220px; }
     .collective-ring { width: 80px; height: 80px; }
-    .products-grid { gap: 12px; }
-    .p-card { padding: 10px; border-radius: 14px; }
-    .price-badge { padding: 5px 8px 6px; font-size: 0.75rem; right: 8px; }
-    .sold-badge, .featured-badge { padding: 5px 8px 6px; font-size: 0.65rem; left: 8px; }
-    .btn-claim { padding: 9px 12px; font-size: 0.75rem; letter-spacing: 1.2px; }
-    .sub-tags { gap: 10px; }
-    .sub-tag { padding: 8px 14px; font-size: 0.82rem; }
+    .products-grid { gap: 10px; }
+    .p-card { padding: 8px; border-radius: 12px; }
+    .p-card-title { font-size: 0.85rem; }
+    .p-card-cond { font-size: 0.75rem; }
+    .price-badge { padding: 4px 8px 5px; font-size: 0.72rem; right: 6px; }
+    .sold-badge, .featured-badge { padding: 4px 8px 5px; font-size: 0.62rem; left: 6px; }
+    .btn-claim { padding: 8px 10px; font-size: 0.72rem; letter-spacing: 1px; }
+    .sub-tags { gap: 8px; margin-top: 14px; }
+    .sub-tag { padding: 7px 12px; font-size: 0.8rem; }
+    .search-wrap input { padding: 11px 14px 11px 38px; font-size: 0.85rem; }
 }
 </style>
 
