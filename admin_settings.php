@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'marquee_link' => trim($_POST['marquee_link'] ?? ''),
         'marquee_icon' => trim($_POST['marquee_icon'] ?? ''),
         'founder_socials_visible' => isset($_POST['founder_socials_visible']) ? '1' : '0',
-        'thrift_theme' => in_array($_POST['thrift_theme'] ?? '', ['current', 'og']) ? $_POST['thrift_theme'] : 'current',
+        'thrift_theme' => in_array($_POST['thrift_theme'] ?? '', ['current', 'og', 'classic']) ? $_POST['thrift_theme'] : 'current',
         'captcha_provider' => in_array($_POST['captcha_provider'] ?? '', ['turnstile', 'recaptcha']) ? $_POST['captcha_provider'] : 'turnstile',
         'turnstile_site_key' => trim($_POST['turnstile_site_key'] ?? ''),
         'turnstile_secret_key' => trim($_POST['turnstile_secret_key'] ?? ''),
@@ -768,6 +768,23 @@ $recaptchaSecretKey = $captchaCfg['recaptcha_secret_key'];
                                 <span style="width:24px; height:24px; border-radius:50%; background:#fdfcf8; border:1px solid #ccc;"></span>
                                 <span style="width:24px; height:24px; border-radius:50%; background:#555555;"></span>
                                 <span style="width:24px; height:24px; border-radius:50%; background:#333333;"></span>
+                            </div>
+                        </label>
+                        <label style="flex:1; min-width:200px; cursor:pointer; border:2px solid <?php echo $thriftTheme === 'classic' ? '#6B21A8' : '#e2e8f0'; ?>; border-radius:12px; padding:1.2rem; background:<?php echo $thriftTheme === 'classic' ? '#f3f0ff' : '#fff'; ?>; transition:all 0.2s;" onclick="selectThrift('classic')">
+                            <input type="radio" name="thrift_theme" value="classic" <?php echo $thriftTheme === 'classic' ? 'checked' : ''; ?> style="display:none;">
+                            <div style="display:flex; align-items:center; gap:10px; margin-bottom:0.8rem;">
+                                <div style="width:36px; height:36px; border-radius:8px; background:linear-gradient(135deg, #eae4cc, #d4ceb6); border:2px solid #1a1a1a; display:flex; align-items:center; justify-content:center;">
+                                    <ion-icon name="pricetag-outline" style="color:#1a1a1a; font-size:1.1rem;"></ion-icon>
+                                </div>
+                                <strong style="font-size:1rem;">Classic Theme</strong>
+                            </div>
+                            <div style="font-size:0.82rem; color:#666; line-height:1.4;">Banner layout with rotated red price tags, thick bordered cards with box shadows, inline category pills, and bold CLAIM PIECE buttons.</div>
+                            <div style="display:flex; gap:4px; margin-top:0.8rem;">
+                                <span style="width:24px; height:24px; border-radius:50%; background:#eae4cc; border:1px solid #ccc;"></span>
+                                <span style="width:24px; height:24px; border-radius:50%; background:#1a1a1a;"></span>
+                                <span style="width:24px; height:24px; border-radius:50%; background:#ef4444;"></span>
+                                <span style="width:24px; height:24px; border-radius:50%; background:#fff; border:1px solid #ccc;"></span>
+                                <span style="width:24px; height:24px; border-radius:50%; background:#e5e7eb;"></span>
                             </div>
                         </label>
                     </div>

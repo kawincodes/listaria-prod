@@ -696,6 +696,197 @@ body { background-color: #eae4cc !important; color: #1a1a1a !important; }
 </style>
 <?php endif; ?>
 
+<?php if ($thriftTheme === 'classic'): ?>
+<style>
+body { background-color: #eae4cc !important; color: #1a1a1a !important; }
+:root {
+    --bg: #eae4cc; --card: #fff; --green: #1a1a1a;
+    --red: #ef4444; --text: #1a1a1a; --muted: #555;
+    --border: #1a1a1a; --cream: #eae4cc; --stone: #ccc5a8;
+    --warm: #b5ae96; --wood-dark: #1a1a1a; --wood-mid: #333;
+    --wood-light: #555;
+}
+.navbar {
+    background: #1a1a1a !important;
+    border-bottom: none !important;
+}
+.navbar::before, .navbar::after { display: none !important; }
+.navbar .brand { color: #eae4cc !important; text-shadow: none !important; }
+.navbar .brand-location { color: #999 !important; }
+.navbar .search-input { background: rgba(255,255,255,0.08) !important; border: 1px solid #444 !important; color: #eae4cc !important; }
+.navbar .search-input::placeholder { color: rgba(234,228,204,0.4) !important; }
+.navbar .nav-link { color: #ccc5a8 !important; }
+.navbar .nav-link:hover { color: #fff !important; }
+.navbar .btn-signin { background: transparent !important; color: #eae4cc !important; border: 1.5px solid #eae4cc !important; }
+.navbar .btn-sell { background: #eae4cc !important; color: #1a1a1a !important; border: none !important; font-weight: 700 !important; }
+.announcement-bar { background: #1a1a1a !important; }
+.cat-row { display: none !important; }
+.classic-banner { display: block !important; }
+.classic-cats { display: flex !important; }
+.classic-container { display: block !important; }
+.thrift-page > .thrift-wrap { display: none !important; }
+.search-wrap { display: none !important; }
+.thrift-hero-text { display: none !important; }
+.section-gap { display: none !important; }
+.mobile-bottom-nav { display: none !important; }
+.thrift-page { padding-top: 0 !important; }
+</style>
+<?php endif; ?>
+
+<?php if ($thriftTheme === 'classic'): ?>
+<div class="classic-banner" style="display:none; background:transparent; padding:0; margin:30px auto; max-width:1240px; border-radius:24px; position:relative; overflow:hidden; text-align:center;">
+    <?php
+        $tBanner = 'assets/thrift_banner.png';
+        if(!file_exists($tBanner)) $tBanner = 'assets/thrift_banner_final.png';
+    ?>
+    <img src="<?php echo $tBanner; ?>" alt="Listaria Thrift+ Banner" style="width:100%; height:auto; display:block; border-radius:20px;" loading="lazy">
+</div>
+
+<div class="classic-cats" style="display:none; background:transparent; padding:10px 20px; align-items:center; justify-content:center; margin-bottom:2rem; gap:10px;">
+    <div class="cl-scroll-btn" id="clScrollLeft" style="cursor:pointer; background:#fff; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 5px rgba(0,0,0,0.1); min-width:40px; color:#1a1a1a;">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+    </div>
+    <div class="cl-cat-wrapper" id="clCatWrapper" style="display:flex; gap:12px; overflow-x:auto; scroll-behavior:smooth; scrollbar-width:none; -ms-overflow-style:none; padding:5px; white-space:nowrap; max-width:100%;">
+        <?php
+        $cats = ['All', 'Tops', 'Bottoms', 'Jackets', 'Shoes', 'Bags', 'Accessories'];
+        foreach ($cats as $cat) {
+            $isActive = ($category === $cat);
+            $bg = $isActive ? '#1a1a1a' : '#fff';
+            $fg = $isActive ? '#fff' : '#1a1a1a';
+            $url = "thrift.php?category=" . urlencode($cat);
+            echo "<a href='$url' style='background:$bg; color:$fg; border-radius:50px; padding:12px 28px; font-weight:600; border:none; box-shadow:0 2px 4px rgba(0,0,0,0.03); font-size:0.95rem; text-decoration:none; flex-shrink:0; transition:transform 0.2s;'>$cat</a>";
+        }
+        ?>
+        <a href="thrift.php?search=Perfectly+Loved" style="background:#1a1a1a; color:#fff; border-radius:50px; padding:12px 28px; font-weight:600; border:none; margin-left:10px; text-decoration:none; flex-shrink:0;">Perfectly Loved <ion-icon name="arrow-forward" style="vertical-align:middle; margin-left:5px;"></ion-icon></a>
+    </div>
+    <div class="cl-scroll-btn" id="clScrollRight" style="cursor:pointer; background:#fff; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 5px rgba(0,0,0,0.1); min-width:40px; color:#1a1a1a;">
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+    </div>
+</div>
+
+<div class="classic-container" style="display:none; max-width:1240px; margin:0 auto; padding:0 20px;">
+    <div style="text-align:left; display:block; margin-bottom:2.5rem; padding-left:10px;">
+        <h2 style="font-size:1.8rem; margin-bottom:1rem; display:flex; align-items:center; gap:12px;">
+            <span style="font-weight:900; letter-spacing:-0.5px;">Thrift+</span>
+            <span style="font-weight:400; font-size:1.3rem; color:#555; position:relative; top:2px;">Re-Cycled, Sustainable Style.</span>
+        </h2>
+        <div style="display:flex; justify-content:flex-start; gap:10px; flex-wrap:wrap;">
+            <span style="background:#e5e7eb; padding:8px 18px; border-radius:30px; font-size:0.9rem; color:#1a1a1a; font-weight:600;">Apparel</span>
+            <span style="background:#e5e7eb; padding:8px 18px; border-radius:30px; font-size:0.9rem; color:#1a1a1a; font-weight:600;">Accessories</span>
+            <span style="background:#e5e7eb; padding:8px 18px; border-radius:30px; font-size:0.9rem; color:#1a1a1a; font-weight:600;">Vintage Finds</span>
+            <span style="background:#e5e7eb; padding:8px 18px; border-radius:30px; font-size:0.9rem; color:#1a1a1a; font-weight:600;">Condition: Used</span>
+        </div>
+    </div>
+
+    <?php if (empty($products)): ?>
+    <div style="text-align:center; padding:4rem; color:#1a1a1a;">
+        <h3 style="font-family:'Times New Roman',serif; font-size:2rem;">No thrift finds yet.</h3>
+        <p style="font-family:'Courier New',monospace;">Be the first to list something from your closet!</p>
+        <a href="sell.php?source=thrift" style="display:inline-block; margin-top:1rem; background:#1a1a1a; color:white; padding:10px 20px; text-decoration:none; font-family:'Courier New',monospace; border-radius:6px;">Sell Pre-Loved</a>
+    </div>
+    <?php else: ?>
+
+    <?php if (!empty($vendor_groups)): ?>
+    <div style="margin-bottom:4rem;">
+        <h2 style="font-family:'Times New Roman',serif; font-weight:800; font-size:1.8rem; margin-bottom:20px; padding-bottom:15px; border-bottom:2px dashed #1a1a1a;">Featured Stores</h2>
+        <div style="gap:2rem; display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));">
+            <?php foreach ($vendor_groups as $vid => $group): ?>
+            <div>
+                <a href="vendor.php?id=<?php echo $vid; ?>" style="display:block; text-decoration:none; border:2.5px solid #1a1a1a; background:#fff; padding:25px 20px; box-shadow:6px 6px 0px #1a1a1a; border-radius:12px; transition:transform 0.2s; text-align:center;">
+                    <div style="width:100px; height:100px; margin:0 auto 15px; border-radius:50%; border:2px solid #1a1a1a; display:flex; align-items:center; justify-content:center; overflow:hidden; background:#fff;">
+                        <?php if (!empty($group['photo'])): ?>
+                        <img src="<?php echo htmlspecialchars($group['photo']); ?>" alt="Store Logo" style="width:100%; height:100%; object-fit:cover;" loading="lazy">
+                        <?php else: ?>
+                        <div style="width:100%; height:100%; background:#1a1a1a; color:white; display:flex; align-items:center; justify-content:center; font-size:2.5rem; font-weight:800; font-family:'Times New Roman',serif;">
+                            <?php echo strtoupper(substr($group['name'], 0, 1)); ?>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                    <div style="display:flex; align-items:center; justify-content:center; gap:6px; margin-bottom:10px;">
+                        <h2 style="font-family:'Times New Roman',serif; font-weight:800; font-size:1.6rem; margin:0; color:#1a1a1a; text-transform:capitalize; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; max-width:80%;"><?php echo htmlspecialchars($group['name']); ?></h2>
+                        <ion-icon name="checkmark-circle" style="color:#27ae60; font-size:1.2rem; flex-shrink:0;"></ion-icon>
+                    </div>
+                    <p style="font-family:'Courier New',monospace; font-size:0.9rem; margin:0 0 20px; color:#555; font-weight:600;">
+                        Verified Thrift Vendor<br>
+                        <span style="display:inline-block; margin-top:5px; background:#eae4cc; color:#1a1a1a; padding:3px 10px; border-radius:20px; border:1px solid #1a1a1a; font-size:0.8rem;"><?php echo count($group['products']); ?> Items Available</span>
+                    </p>
+                    <div style="background:#1a1a1a; color:white; padding:12px; font-family:'Courier New',monospace; font-weight:bold; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%;">
+                        <ion-icon name="storefront-outline" style="font-size:1.2rem;"></ion-icon> Visit Store
+                    </div>
+                </a>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <?php if (!empty($community_products)): ?>
+    <div style="margin-bottom:4rem;">
+        <h2 style="font-family:'Times New Roman',serif; font-weight:800; font-size:1.8rem; margin-bottom:20px; padding-bottom:15px; border-bottom:2px dashed #1a1a1a;">Community Closet</h2>
+        <div class="cl-product-grid" style="gap:2rem; display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));">
+            <?php foreach ($community_products as $p):
+                if (isset($p['status']) && $p['status'] === 'sold' && !empty($p['sold_at_date'])) {
+                    if (time() - strtotime($p['sold_at_date']) > 86400) continue;
+                }
+                $images = json_decode($p['image_paths']);
+                $img = $images[0] ?? 'https://placehold.co/300x375/eae4cc/999?text=No+Image';
+                $price = number_format($p['price_min'], 0);
+                $title = htmlspecialchars($p['title']);
+                $cond = htmlspecialchars($p['condition_tag'] ?? '');
+                $url = "product_details.php?id={$p['id']}&source=thrift";
+                $isSold = isset($p['status']) && $p['status'] === 'sold';
+            ?>
+            <div class="cl-card-wrapper">
+                <a href="<?php echo $url; ?>" style="display:block; text-decoration:none; border:2.5px solid #1a1a1a; background:#fff; padding:15px; box-shadow:6px 6px 0px #1a1a1a; border-radius:12px; transition:transform 0.2s; position:relative;">
+                    <div style="position:relative; margin-bottom:15px; border-bottom:1.5px solid #1a1a1a; padding-bottom:12px;">
+                        <div style="position:absolute; top:-10px; right:-10px; background:#ef4444; color:white; padding:5px 12px; font-weight:800; font-family:'Courier New',monospace; font-size:1.1rem; transform:rotate(5deg); z-index:5; border:2px solid #1a1a1a; border-radius:4px;">
+                            ₹<?php echo $price; ?>
+                        </div>
+                        <?php if ($isSold): ?>
+                        <span style="position:absolute; top:10px; left:10px; background:#1a1a1a; color:white; padding:5px 10px; z-index:4; font-weight:bold; font-family:serif; border-radius:6px;">SOLD</span>
+                        <?php endif; ?>
+                        <img src="<?php echo htmlspecialchars($img); ?>" alt="<?php echo $title; ?>" style="width:100%; aspect-ratio:1/1; object-fit:cover; display:block; filter:sepia(0.05) contrast(1.05); border-radius:8px;" loading="lazy" decoding="async">
+                    </div>
+                    <div style="color:#1a1a1a;">
+                        <div style="font-family:'Times New Roman',serif; font-weight:800; font-size:1.3rem; line-height:1.2; margin-bottom:8px; text-transform:capitalize; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"><?php echo $title; ?></div>
+                        <?php if ($cond): ?>
+                        <div style="font-family:'Courier New',monospace; font-size:0.95rem; color:#333; margin-bottom:15px; font-weight:600; line-height:1.4;">Condition:<br><?php echo ucfirst($cond); ?></div>
+                        <?php endif; ?>
+                        <?php if (!$isSold): ?>
+                        <div style="background:#1a1a1a; color:#fff; text-align:center; padding:10px; font-weight:700; font-family:'Courier New',monospace; display:block; width:100%; border:none; letter-spacing:1px; font-size:1.1rem; cursor:pointer; border-radius:6px;">CLAIM PIECE</div>
+                        <?php endif; ?>
+                    </div>
+                </a>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <?php endif; ?>
+</div>
+
+<style>
+@media (max-width: 768px) {
+    .cl-product-grid { grid-template-columns: 1fr 1fr !important; gap: 15px !important; padding: 0 5px !important; }
+    .cl-card-wrapper a { padding: 10px !important; border-width: 2.5px !important; box-shadow: 5px 5px 0px #1a1a1a !important; }
+    .cl-cat-wrapper::-webkit-scrollbar { display: none; }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var clW = document.getElementById('clCatWrapper');
+    var clL = document.getElementById('clScrollLeft');
+    var clR = document.getElementById('clScrollRight');
+    if (clW && clL && clR) {
+        clL.addEventListener('click', function() { clW.scrollBy({left: -200, behavior: 'smooth'}); });
+        clR.addEventListener('click', function() { clW.scrollBy({left: 200, behavior: 'smooth'}); });
+    }
+});
+</script>
+<?php endif; ?>
+
 <div class="thrift-page">
 
     <!-- Category Pills (Wood Bar) — full width, outside thrift-wrap -->

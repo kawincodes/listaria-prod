@@ -43,7 +43,7 @@ I prefer to work iteratively, with small, testable changes. Please provide clear
 -   **Vendor Bulk Upload:** A vendor-facing interface for bulk product uploads via CSV and images.
 -   **Shipping Labels:** Admin-only printable shipping label generation with order and address details.
 -   **Founders Page:** Dynamically displays founder profiles with bios and social links, configurable via admin settings.
--   **Thrift+ Theme Switcher:** Admin can switch the Thrift+ page between two themes via Settings: "Current" (warm wood/cream aesthetic) and "OG" (retro newspaper style with black borders, serif fonts, parchment background). Stored in `site_settings` table as `thrift_theme` key.
+-   **Thrift+ Theme Switcher:** Admin can switch the Thrift+ page between three themes via Settings: "Current" (warm wood/cream aesthetic), "OG" (retro newspaper style with black borders, serif fonts, parchment background), and "Classic" (banner layout with rotated red price tags, inline category pills, thick bordered cards with box shadows, CLAIM PIECE buttons). Stored in `site_settings` table as `thrift_theme` key (values: `current`, `og`, `classic`).
 
 ## External Dependencies
 
